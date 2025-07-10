@@ -92,7 +92,7 @@ export const calculateMoodInfluence = (inputs: ContextualInputs): MoodInfluence 
     stormy: { boost: -0.2, type: 'restless' }
   };
 
-  const weatherEffect = weatherMoodMap[weatherCondition];
+  const weatherEffect = weatherMoodMap[weatherCondition] || { boost: 0, type: 'calm' };
   
   // Calculate base mood intensity
   let moodIntensity = (
