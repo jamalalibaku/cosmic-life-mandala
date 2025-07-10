@@ -28,6 +28,7 @@ import { RadialMonthView } from '@/components/radial-month-view';
 import { RadialMonthConstellation } from '@/components/radial-month-constellation';
 import { RadialYearView } from '@/components/radial-year-view';
 import { RadialYearSeasons } from '@/components/radial-year-seasons';
+import { RadialFractalView } from '@/components/radial-fractal-view';
 import { mockWeatherData } from '@/data/weatherData';
 import { mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
@@ -139,6 +140,18 @@ const IndexContent = () => {
           maxRadius={320}
           theme="sunfire"
           poetryMode={reflectiveMode}
+        />
+        
+        {/* Fractal View - unified geometry for all scales */}
+        <RadialFractalView
+          scale={scale}
+          centerX={centerX}
+          centerY={centerY}
+          radius={280}
+          theme={currentTheme}
+          targetDate={new Date()}
+          transitionProgress={transitionProgress}
+          isTransitioning={isTransitioning}
         />
         
         {/* Scale-specific content */}

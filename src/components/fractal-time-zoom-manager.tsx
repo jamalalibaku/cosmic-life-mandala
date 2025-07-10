@@ -202,9 +202,9 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
         className="w-full h-full transition-transform duration-1500 ease-out"
         style={{
           transform: `scale(${currentZoomLevel}) rotate(${isTransitioning ? transitionProgress * 2 : 0}deg)`,
-          filter: isTransitioning ? `blur(${Math.sin(transitionProgress * Math.PI) * 4}px)` : 'none',
-          opacity: isTransitioning ? 0.8 + (Math.cos(transitionProgress * Math.PI) * 0.2) : 1,
-          transition: isTransitioning ? 'all 1.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
+          filter: isTransitioning ? `blur(${Math.sin(transitionProgress * Math.PI) * 2}px)` : 'none',
+          opacity: isTransitioning ? 0.9 + (Math.cos(transitionProgress * Math.PI) * 0.1) : 1,
+          transition: isTransitioning ? 'all 1.618s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
         }}
       >
         {children({
