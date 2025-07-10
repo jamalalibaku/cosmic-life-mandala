@@ -8,6 +8,7 @@ import { FriendOrbitRing } from '@/components/friend-orbit-ring';
 import { RadialInsightsOverlay } from '@/components/radial-insights-overlay';
 import { InsightOverlayEngine } from '@/components/insight-overlay-engine';
 import { PlaybackReflector } from '@/components/playback-reflector';
+import { EmotionalTideRings } from '@/components/emotional-tide-rings';
 import { FractalTimeZoomManager, TimeScale } from '@/components/fractal-time-zoom-manager';
 import { RadialWeekView } from '@/components/radial-week-view';
 import { RadialMonthView } from '@/components/radial-month-view';
@@ -18,6 +19,8 @@ import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-
 import { mockWeekData, mockMonthData, mockYearData } from '@/data/mock-temporal-data';
 import { mockFriends } from '@/data/mock-friend-data';
 import { mockInsightData } from '@/data/mock-insight-data';
+import { calculateLayerInteraction } from '@/utils/mood-engine';
+import { MoodInfluence } from '@/utils/mood-engine';
 
 const Index = () => {
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
@@ -25,8 +28,19 @@ const Index = () => {
   const [showFriends, setShowFriends] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
   const [showPlayback, setShowPlayback] = useState(false);
+  const [showTideRings, setShowTideRings] = useState(false);
   const [hoveredLayer, setHoveredLayer] = useState<string | undefined>();
   const [activeLayer, setActiveLayer] = useState<string | undefined>();
+  const [currentMood, setCurrentMood] = useState<MoodInfluence | null>(null);
+
+  // Calculate current life metrics for mood engine
+  const currentMetrics = {
+    sleepQuality: mockSleepData.reduce((sum, d) => sum + d.intensity, 0) / mockSleepData.length,
+    planDensity: 0.6, // Mock value
+    weatherCondition: (mockWeatherToday[0]?.condition === 'storm' ? 'stormy' : 
+                      mockWeatherToday[0]?.condition || 'sunny') as 'sunny' | 'cloudy' | 'rainy' | 'stormy',
+    mobilityLevel: mockMobilityData.reduce((sum, d) => sum + d.intensity, 0) / mockMobilityData.length
+  };
 
   const renderTimelineContent = ({ scale, transitionProgress, zoomLevel, isTransitioning }: {
     scale: TimeScale;
@@ -52,7 +66,7 @@ const Index = () => {
         {/* Scale-specific content */}
         {scale === 'day' && (
           <>
-            {/* Data blob rings (life data layers) */}
+            {/* Data blob rings (life data layers) with emotional reactivity */}
             <DataBlobRing
               data={mockSleepData}
               centerX={centerX}
@@ -61,6 +75,7 @@ const Index = () => {
               outerRadius={240}
               type="sleep"
               label={!reflectiveMode ? "rest" : undefined}
+              {...currentMetrics}
             />
             
             <DataBlobRing
@@ -70,7 +85,9 @@ const Index = () => {
               innerRadius={250}
               outerRadius={290}
               type="mood"
-              label={!reflectiveMode ? "mood" : undefined}
+              label={!reflectiveMode ? currentMood?.description || "mood" : undefined}
+              {...currentMetrics}
+              onMoodChange={setCurrentMood}
             />
             
             <DataBlobRing
@@ -81,6 +98,7 @@ const Index = () => {
               outerRadius={340}
               type="mobility"
               label={!reflectiveMode ? "movement" : undefined}
+              {...currentMetrics}
             />
             
             {/* Original weather sunburst (inner core) */}
@@ -148,11 +166,15 @@ const Index = () => {
           />
         )}
         
-        {/* User Core - Central identity */}
+        {/* User Core - Central identity with mood integration */}
         {scale === 'day' && (
           <UserCore
             name="You"
-            mood="creative"
+             mood={currentMood?.moodType === 'tense' ? 'excited' : 
+                   currentMood?.moodType === 'restless' ? 'excited' :
+                   currentMood?.moodType === 'drained' ? 'low' :
+                   currentMood?.moodType === 'joyful' ? 'excited' :
+                   currentMood?.moodType || "creative"}
             theme="cosmic"
             centerX={centerX}
             centerY={centerY}
@@ -170,6 +192,44 @@ const Index = () => {
             radius={360}
             theme="cosmic"
             visible={showFriends}
+          />
+        )}
+
+        {/* Emotional Tide Rings - Cross-layer interactions */}
+        {scale === 'day' && showTideRings && (
+          <EmotionalTideRings
+            centerX={centerX}
+            centerY={centerY}
+            connections={[
+              {
+                sourceLayer: 'sleep',
+                targetLayer: 'mood',
+                sourceAngle: 45,
+                targetAngle: 135,
+                sourceRadius: 220,
+                targetRadius: 270,
+                strength: calculateLayerInteraction('sleep', 'mood', currentMetrics.sleepQuality, 0.7)
+              },
+              {
+                sourceLayer: 'mobility',
+                targetLayer: 'mood',
+                sourceAngle: 225,
+                targetAngle: 180,
+                sourceRadius: 320,
+                targetRadius: 270,
+                strength: calculateLayerInteraction('mobility', 'mood', currentMetrics.mobilityLevel, 0.7)
+              },
+              {
+                sourceLayer: 'weather',
+                targetLayer: 'mood',
+                sourceAngle: 315,
+                targetAngle: 270,
+                sourceRadius: 170,
+                targetRadius: 270,
+                strength: 0.4
+              }
+            ]}
+            isActive={true}
           />
         )}
 
@@ -288,7 +348,7 @@ const Index = () => {
         </p>
         
         {/* Mode toggles */}
-        <div className="mb-8 flex gap-4 justify-center flex-wrap">
+        <div className="mb-8 flex gap-3 justify-center flex-wrap">
           <button
             onClick={() => setReflectiveMode(!reflectiveMode)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
@@ -331,6 +391,17 @@ const Index = () => {
             }`}
           >
             {showPlayback ? '▶ reflecting' : '⧖ reflect time'}
+          </button>
+
+          <button
+            onClick={() => setShowTideRings(!showTideRings)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              showTideRings
+                ? 'bg-cyan-200/20 text-cyan-200 border border-cyan-200/30'
+                : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
+            }`}
+          >
+            {showTideRings ? '🌊 tides flowing' : '~ show connections'}
           </button>
         </div>
         

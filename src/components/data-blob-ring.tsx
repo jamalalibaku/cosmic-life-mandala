@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { goldenRatio } from '../utils/golden-ratio';
+import { calculateMoodInfluence, MoodInfluence } from '../utils/mood-engine';
 
 export type DataBlobType = 'mobility' | 'mood' | 'sleep';
 
@@ -21,6 +22,12 @@ interface DataBlobRingProps {
   theme?: 'cosmic' | 'natural' | 'minimal';
   label?: string;
   className?: string;
+  // Mood-specific props for emotional reactivity
+  sleepQuality?: number;
+  planDensity?: number;
+  weatherCondition?: 'sunny' | 'cloudy' | 'rainy' | 'stormy';
+  mobilityLevel?: number;
+  onMoodChange?: (mood: MoodInfluence) => void;
 }
 
 const blobColorMap: Record<DataBlobType, { 
@@ -58,10 +65,16 @@ export const DataBlobRing: React.FC<DataBlobRingProps> = ({
   type,
   theme = 'cosmic',
   label,
-  className = ''
+  className = '',
+  sleepQuality = 0.7,
+  planDensity = 0.5,
+  weatherCondition = 'sunny',
+  mobilityLevel = 0.6,
+  onMoodChange
 }) => {
   const [time, setTime] = useState(0);
   const [hoveredBlob, setHoveredBlob] = useState<number | null>(null);
+  const [moodInfluence, setMoodInfluence] = useState<MoodInfluence | null>(null);
 
   // Gentle drift animation
   useEffect(() => {
@@ -74,7 +87,26 @@ export const DataBlobRing: React.FC<DataBlobRingProps> = ({
     return () => cancelAnimationFrame(animationId);
   }, []);
 
-  const colors = blobColorMap[type];
+  // Calculate mood influence for mood type rings
+  useEffect(() => {
+    if (type === 'mood') {
+      const mood = calculateMoodInfluence({
+        sleepQuality,
+        planDensity,
+        weatherCondition,
+        mobilityLevel
+      });
+      setMoodInfluence(mood);
+      onMoodChange?.(mood);
+    }
+  }, [type, sleepQuality, planDensity, weatherCondition, mobilityLevel, onMoodChange]);
+
+  const colors = moodInfluence && type === 'mood' ? {
+    primary: moodInfluence.primaryColor,
+    secondary: moodInfluence.secondaryColor,
+    glow: moodInfluence.primaryColor,
+    label: moodInfluence.description
+  } : blobColorMap[type];
   const ringRadius = (innerRadius + outerRadius) / 2;
   const ringWidth = outerRadius - innerRadius;
 
@@ -102,16 +134,40 @@ export const DataBlobRing: React.FC<DataBlobRingProps> = ({
       const durationScale = 0.6 + (blob.duration * 0.7);
       const size = baseSize * intensityScale * durationScale;
       
-      // Pulsing based on intensity
+      // Apply mood influence for enhanced visual characteristics
+      let finalSize = baseSize * intensityScale * durationScale;
+      let deformationScale = 1;
+      
+      if (type === 'mood' && moodInfluence) {
+        finalSize *= (0.8 + moodInfluence.intensity * 0.4);
+        
+        // Deformation effects based on mood type
+        switch (moodInfluence.deformation) {
+          case 'sharp':
+            deformationScale = 1 + Math.abs(Math.sin(time * 3 + index)) * 0.3;
+            break;
+          case 'fluid':
+            deformationScale = 1 + Math.sin(time * 0.8 + index) * 0.2;
+            break;
+          case 'crystalline':
+            deformationScale = 1 + Math.sin(time * 2 + index) * 0.15;
+            break;
+          default: // soft
+            deformationScale = 1 + Math.sin(time * 0.5 + index) * 0.1;
+        }
+      }
+      
+      // Pulsing based on intensity and mood
       const pulseScale = 1 + Math.sin(time * 2 + index) * (blob.intensity * 0.2);
       
       return {
         ...blob,
         x,
         y,
-        size: size * pulseScale,
+        size: finalSize * deformationScale * pulseScale,
         opacity: 0.6 + (blob.intensity * 0.4),
-        angle: adjustedAngle
+        angle: adjustedAngle,
+        moodGlyph: type === 'mood' && moodInfluence?.glyphSymbol
       };
     });
   }, [data, centerX, centerY, innerRadius, outerRadius, time, type]);
@@ -181,6 +237,23 @@ export const DataBlobRing: React.FC<DataBlobRingProps> = ({
             }}
           />
           
+          {/* Mood glyph overlay for mood blobs */}
+          {type === 'mood' && moodInfluence && blob.intensity > 0.5 && (
+            <text
+              x={blob.x}
+              y={blob.y + 3}
+              textAnchor="middle"
+              className="text-sm pointer-events-none"
+              opacity={blob.intensity * 0.8}
+              style={{
+                filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))',
+                animation: `glyphFloat 2s ease-in-out infinite ${index * 0.3}s`
+              }}
+            >
+              {moodInfluence.glyphSymbol}
+            </text>
+          )}
+          
           {/* Tooltip on hover */}
           {hoveredBlob === index && (
             <g className="blob-tooltip">
@@ -226,6 +299,15 @@ export const DataBlobRing: React.FC<DataBlobRingProps> = ({
           {label || colors.label}
         </text>
       )}
+      
+      <style>
+        {`
+        @keyframes glyphFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-2px); }
+        }
+        `}
+      </style>
     </g>
   );
 };
