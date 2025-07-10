@@ -9,6 +9,8 @@ import { RadialInsightsOverlay } from '@/components/radial-insights-overlay';
 import { InsightOverlayEngine } from '@/components/insight-overlay-engine';
 import { PlaybackReflector } from '@/components/playback-reflector';
 import { EmotionalTideRings } from '@/components/emotional-tide-rings';
+import { VisualSkinProvider, useVisualSkin } from '@/components/visual-skin-provider';
+import { ThemeHaikuDisplay } from '@/components/theme-haiku-display';
 import { FractalTimeZoomManager, TimeScale } from '@/components/fractal-time-zoom-manager';
 import { RadialWeekView } from '@/components/radial-week-view';
 import { RadialMonthView } from '@/components/radial-month-view';
@@ -23,8 +25,10 @@ import { mockFriends } from '@/data/mock-friend-data';
 import { mockInsightData } from '@/data/mock-insight-data';
 import { calculateLayerInteraction } from '@/utils/mood-engine';
 import { MoodInfluence } from '@/utils/mood-engine';
+import { Theme, themeConfigs } from '@/utils/theme-configs';
 
-const Index = () => {
+const IndexContent = () => {
+  const { themeConfig, isTransitioning } = useVisualSkin();
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
   const [reflectiveMode, setReflectiveMode] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
@@ -340,8 +344,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-black flex items-center justify-center relative overflow-hidden">
-      {/* Starfield background */}
+    <div 
+      className="min-h-screen flex items-center justify-center relative overflow-hidden transition-all duration-700"
+      style={{
+        background: themeConfig.colors.background,
+        filter: isTransitioning ? 'blur(1px)' : 'none'
+      }}
+    >
       <div className="absolute inset-0">
         {Array.from({ length: 100 }).map((_, i) => (
           <div
@@ -359,33 +368,49 @@ const Index = () => {
       
       {/* Main content */}
       <div className="relative z-10 text-center w-full">
-        <h1 className="text-6xl font-bold mb-4 text-transparent bg-gradient-to-r from-yellow-200 via-orange-300 to-yellow-400 bg-clip-text">
+        <h1 
+          className="text-6xl font-bold mb-4 text-transparent bg-clip-text transition-all duration-500"
+          style={{
+            backgroundImage: `linear-gradient(to right, ${themeConfig.colors.primary}, ${themeConfig.colors.accent})`,
+            fontFamily: themeConfig.typography.primary
+          }}
+        >
           Cosmic Life Mandala
         </h1>
-        <p className="text-xl text-slate-300 mb-8">
-          Fractal Timeline Visualization
+        <p 
+          className="text-xl mb-8 transition-colors duration-500"
+          style={{ color: themeConfig.colors.text }}
+        >
+          {themeConfig.description}
         </p>
         
-        {/* Mode toggles */}
+        {/* Enhanced theme and mode toggles */}
         <div className="mb-8 flex gap-3 justify-center flex-wrap">
+          {/* Theme Selector */}
+          <div className="mb-4">
+            <ThemeSelector />
+          </div>
+          
           <button
             onClick={() => setReflectiveMode(!reflectiveMode)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-              reflectiveMode
-                ? 'bg-yellow-200/20 text-yellow-200 border border-yellow-200/30'
-                : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
-            }`}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300`}
+            style={{
+              backgroundColor: reflectiveMode ? `${themeConfig.colors.accent}33` : `${themeConfig.colors.text}1A`,
+              color: reflectiveMode ? themeConfig.colors.accent : themeConfig.colors.text,
+              border: `1px solid ${reflectiveMode ? themeConfig.colors.accent : themeConfig.colors.text}40`
+            }}
           >
             {reflectiveMode ? '⧖ poetry mode' : '◎ interface mode'}
           </button>
           
           <button
             onClick={() => setShowFriends(!showFriends)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-              showFriends
-                ? 'bg-purple-200/20 text-purple-200 border border-purple-200/30'
-                : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
-            }`}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300`}
+            style={{
+              backgroundColor: showFriends ? `${themeConfig.colors.accent}33` : `${themeConfig.colors.text}1A`,
+              color: showFriends ? themeConfig.colors.accent : themeConfig.colors.text,
+              border: `1px solid ${showFriends ? themeConfig.colors.accent : themeConfig.colors.text}40`
+            }}
           >
             {showFriends ? '🫂 friends visible' : '○ show friends'}
           </button>
@@ -441,6 +466,66 @@ const Index = () => {
         </FractalTimeZoomManager>
       </div>
     </div>
+  );
+};
+
+// Theme Selector Component
+const ThemeSelector = () => {
+  const { currentTheme, setTheme } = useVisualSkin();
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border"
+        style={{
+          backgroundColor: `${themeConfigs[currentTheme].colors.primary}20`,
+          color: themeConfigs[currentTheme].colors.primary,
+          borderColor: `${themeConfigs[currentTheme].colors.primary}40`
+        }}
+      >
+        🎨 {themeConfigs[currentTheme].name}
+      </button>
+      
+      {isOpen && (
+        <div 
+          className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 rounded-lg border shadow-lg z-50 min-w-48"
+          style={{
+            backgroundColor: themeConfigs[currentTheme].colors.background,
+            borderColor: themeConfigs[currentTheme].colors.accent
+          }}
+        >
+          {Object.entries(themeConfigs).map(([key, config]) => (
+            <button
+              key={key}
+              onClick={() => {
+                setTheme(key as Theme);
+                setIsOpen(false);
+              }}
+              className="block w-full text-left px-4 py-2 text-sm hover:bg-opacity-20 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
+              style={{
+                color: config.colors.text,
+                backgroundColor: currentTheme === key ? `${config.colors.accent}20` : 'transparent'
+              }}
+            >
+              <div className="font-medium">{config.name}</div>
+              <div className="text-xs opacity-70">{config.description}</div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Main Index component with theme provider
+const Index = () => {
+  return (
+    <VisualSkinProvider defaultTheme="default">
+      <IndexContent />
+      <ThemeHaikuDisplay />
+    </VisualSkinProvider>
   );
 };
 
