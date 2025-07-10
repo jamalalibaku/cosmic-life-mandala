@@ -11,6 +11,9 @@ import { PlaybackReflector } from '@/components/playback-reflector';
 import { EmotionalTideRings } from '@/components/emotional-tide-rings';
 import { VisualSkinProvider, useVisualSkin } from '@/components/visual-skin-provider';
 import { ThemeHaikuDisplay } from '@/components/theme-haiku-display';
+import { SunAuraRing } from '@/components/sun-aura-ring';
+import { SkyArcGradient } from '@/components/sky-arc-gradient';
+import { useTimeDrift } from '@/hooks/use-time-drift';
 import { FractalTimeZoomManager, TimeScale } from '@/components/fractal-time-zoom-manager';
 import { RadialWeekView } from '@/components/radial-week-view';
 import { RadialMonthView } from '@/components/radial-month-view';
@@ -28,7 +31,7 @@ import { MoodInfluence } from '@/utils/mood-engine';
 import { Theme, themeConfigs } from '@/utils/theme-configs';
 
 const IndexContent = () => {
-  const { themeConfig, isTransitioning } = useVisualSkin();
+  const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
   const [reflectiveMode, setReflectiveMode] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
@@ -38,6 +41,14 @@ const IndexContent = () => {
   const [hoveredLayer, setHoveredLayer] = useState<string | undefined>();
   const [activeLayer, setActiveLayer] = useState<string | undefined>();
   const [currentMood, setCurrentMood] = useState<MoodInfluence | null>(null);
+
+  // Time drift hook for breathing and rotation
+  const timeDrift = useTimeDrift({
+    enabled: true,
+    speed: 1,
+    breathingEnabled: true,
+    breathingIntensity: 0.015
+  });
 
   // Calculate current life metrics for mood engine
   const currentMetrics = {
@@ -58,7 +69,26 @@ const IndexContent = () => {
     const centerY = 350;
     
     return (
-      <>
+      <g transform={timeDrift.getDriftTransform(centerX, centerY)}>
+        {/* Sky Arc Gradient - Day/Night cycle */}
+        <SkyArcGradient
+          centerX={centerX}
+          centerY={centerY}
+          innerRadius={50}
+          outerRadius={400}
+          theme={currentTheme}
+          showSunMoon={true}
+        />
+        
+        {/* Sun Aura Ring - Breathing center */}
+        <SunAuraRing
+          centerX={centerX}
+          centerY={centerY}
+          radius={timeDrift.applyBreathing(55)}
+          theme={currentTheme}
+          isPlaybackActive={showPlayback}
+        />
+        
         {/* Always present: Cosmic sunburst aura layer */}
         <CosmicSunburstLayer
           centerX={centerX}
@@ -339,7 +369,7 @@ const IndexContent = () => {
             </text>
           </g>
         )}
-      </>
+      </g>
     );
   };
 
