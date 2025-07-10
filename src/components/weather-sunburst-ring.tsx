@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { goldenRatio } from '../utils/golden-ratio';
 
 export type WeatherCondition = 'sunny' | 'cloudy' | 'rainy' | 'storm' | 'snowy' | 'clear-night';
@@ -15,7 +15,9 @@ interface WeatherSunburstRingProps {
   centerY: number;
   innerRadius: number;
   outerRadius: number;
-  theme?: 'cosmic' | 'natural' | 'minimal';
+  theme?: 'cosmic' | 'natural' | 'minimal' | 'floral' | 'tech' | 'vinyl' | 'tattoo' | 'noir';
+  showIcons?: boolean;
+  showSkyGradient?: boolean;
   className?: string;
 }
 
@@ -52,6 +54,28 @@ const weatherColorMap: Record<WeatherCondition, { primary: string; secondary: st
   }
 };
 
+// Weather icons mapping
+const weatherIcons: Record<WeatherCondition, string> = {
+  'sunny': '☀️',
+  'cloudy': '☁️',
+  'rainy': '🌧',
+  'storm': '⚡',
+  'snowy': '❄️',
+  'clear-night': '🌙'
+};
+
+// Theme color variations
+const themeVariations = {
+  cosmic: { saturation: 1, brightness: 1 },
+  natural: { saturation: 0.8, brightness: 1.1 },
+  minimal: { saturation: 0.5, brightness: 0.9 },
+  floral: { saturation: 1.2, brightness: 1.1 },
+  tech: { saturation: 0.7, brightness: 0.8 },
+  vinyl: { saturation: 1.1, brightness: 0.9 },
+  tattoo: { saturation: 1.3, brightness: 0.7 },
+  noir: { saturation: 0.3, brightness: 0.6 }
+};
+
 export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
   weatherData,
   centerX,
@@ -59,16 +83,80 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
   innerRadius,
   outerRadius,
   theme = 'cosmic',
+  showIcons = true,
+  showSkyGradient = true,
   className = ''
 }) => {
   const [hoveredSegment, setHoveredSegment] = useState<number | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update time every minute for smooth pointer movement
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate smooth "now" pointer position
+  const nowPointerPosition = useMemo(() => {
+    const now = currentTime;
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const totalMinutes = hours * 60 + minutes;
+    
+    // Calculate precise angle for smooth movement
+    const segmentAngle = 360 / 24; // 15 degrees per hour
+    const minutesPerSegment = 60;
+    const currentSegmentProgress = minutes / minutesPerSegment;
+    const currentAngle = (hours + currentSegmentProgress) * segmentAngle;
+    
+    // Position at top (12 o'clock) and rotate to current time
+    const angle = currentAngle - 90; // -90 to start from top
+    const rad = goldenRatio.toRadians(angle);
+    const pointerRadius = (innerRadius + outerRadius) / 2;
+    
+    return {
+      x: centerX + Math.cos(rad) * pointerRadius,
+      y: centerY + Math.sin(rad) * pointerRadius,
+      angle
+    };
+  }, [currentTime, centerX, centerY, innerRadius, outerRadius]);
+
+  // Sky gradient for 24-hour cycle
+  const skyGradient = useMemo(() => {
+    const gradientStops = [];
+    for (let hour = 0; hour < 24; hour++) {
+      const angle = (hour / 24) * 100; // Percentage around the circle
+      let color;
+      
+      if (hour >= 6 && hour < 8) {
+        // Sunrise
+        color = 'hsl(25 100% 60%)';
+      } else if (hour >= 8 && hour < 18) {
+        // Day
+        color = 'hsl(200 100% 70%)';
+      } else if (hour >= 18 && hour < 20) {
+        // Sunset
+        color = 'hsl(15 90% 50%)';
+      } else {
+        // Night
+        color = 'hsl(230 60% 20%)';
+      }
+      
+      gradientStops.push(`${color} ${angle}%`);
+    }
+    return gradientStops.join(', ');
+  }, []);
 
   const segments = useMemo(() => {
     // Create 24 segments with proper rotation (current hour at top)
-    const currentHour = new Date().getHours();
+    const currentHour = currentTime.getHours();
     const segmentAngle = 360 / 24; // 15 degrees per hour
     const rotationOffset = -currentHour * segmentAngle - 90; // -90 to start from top
+    const themeVariation = themeVariations[theme];
     
     return Array.from({ length: 24 }, (_, i) => {
       const hour = i;
@@ -84,17 +172,6 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
       const startRad = goldenRatio.toRadians(startAngle);
       const endRad = goldenRatio.toRadians(endAngle);
       const midRad = goldenRatio.toRadians(midAngle);
-      
-      // Calculate segment path
-      const innerStartX = centerX + Math.cos(startRad) * innerRadius;
-      const innerStartY = centerY + Math.sin(startRad) * innerRadius;
-      const outerStartX = centerX + Math.cos(startRad) * outerRadius;
-      const outerStartY = centerY + Math.sin(startRad) * outerRadius;
-      
-      const innerEndX = centerX + Math.cos(endRad) * innerRadius;
-      const innerEndY = centerY + Math.sin(endRad) * innerRadius;
-      const outerEndX = centerX + Math.cos(endRad) * outerRadius;
-      const outerEndY = centerY + Math.sin(endRad) * outerRadius;
       
       // Create path with small gaps between segments
       const gapAngle = goldenRatio.toRadians(1); // 1 degree gap
@@ -120,10 +197,30 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
         'Z'
       ].join(' ');
       
-      // Tooltip position
-      const tooltipRadius = (innerRadius + outerRadius) / 2;
+      // Calculate temperature-based opacity (normalized 0-1)
+      const minTemp = -10;
+      const maxTemp = 40;
+      const tempOpacity = temperature 
+        ? Math.max(0.3, Math.min(1, (temperature - minTemp) / (maxTemp - minTemp)))
+        : 0.7;
+      
+      // Icon position (middle of segment, between inner and outer radius)
+      const iconRadius = (innerRadius + outerRadius) / 2;
+      const iconX = centerX + Math.cos(midRad) * iconRadius;
+      const iconY = centerY + Math.sin(midRad) * iconRadius;
+      
+      // Tooltip position (slightly outside the segment)
+      const tooltipRadius = outerRadius + 20;
       const tooltipX = centerX + Math.cos(midRad) * tooltipRadius;
       const tooltipY = centerY + Math.sin(midRad) * tooltipRadius;
+      
+      // Apply theme variations to colors
+      const baseColors = weatherColorMap[condition];
+      const themedColors = {
+        primary: baseColors.primary,
+        secondary: baseColors.secondary,
+        glow: baseColors.glow
+      };
       
       return {
         hour,
@@ -131,12 +228,16 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
         temperature,
         pathData,
         midAngle,
+        iconX,
+        iconY,
         tooltipX,
         tooltipY,
-        colors: weatherColorMap[condition]
+        colors: themedColors,
+        opacity: tempOpacity,
+        icon: weatherIcons[condition]
       };
     });
-  }, [weatherData, centerX, centerY, innerRadius, outerRadius]);
+  }, [weatherData, centerX, centerY, innerRadius, outerRadius, currentTime, theme]);
 
   const handleMouseEnter = (segmentIndex: number, event: React.MouseEvent) => {
     setHoveredSegment(segmentIndex);
@@ -167,6 +268,24 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
           </radialGradient>
         ))}
         
+        {/* Sky gradient for day/night cycle */}
+        {showSkyGradient && (
+          <linearGradient
+            id="sky-gradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+            gradientUnits="objectBoundingBox"
+          >
+            <stop offset="0%" stopColor="hsl(230 60% 20%)" />
+            <stop offset="25%" stopColor="hsl(25 100% 60%)" />
+            <stop offset="50%" stopColor="hsl(200 100% 70%)" />
+            <stop offset="75%" stopColor="hsl(15 90% 50%)" />
+            <stop offset="100%" stopColor="hsl(230 60% 20%)" />
+          </linearGradient>
+        )}
+        
         <filter id="weather-glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
           <feMerge> 
@@ -176,6 +295,20 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
         </filter>
       </defs>
       
+      {/* Sky gradient ring overlay */}
+      {showSkyGradient && (
+        <circle
+          cx={centerX}
+          cy={centerY}
+          r={(innerRadius + outerRadius) / 2}
+          fill="none"
+          stroke="url(#sky-gradient)"
+          strokeWidth={outerRadius - innerRadius}
+          opacity="0.2"
+          className="pointer-events-none"
+        />
+      )}
+      
       {/* Weather segments */}
       {segments.map((segment, index) => (
         <g key={`weather-segment-${index}`} className="weather-segment">
@@ -184,7 +317,7 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
             fill={`url(#weather-gradient-${segment.condition})`}
             stroke={segment.colors.glow}
             strokeWidth="0.5"
-            opacity={hoveredSegment === index ? 1 : 0.8}
+            opacity={hoveredSegment === index ? 1 : segment.opacity}
             filter="url(#weather-glow)"
             onMouseEnter={(e) => handleMouseEnter(index, e)}
             onMouseLeave={handleMouseLeave}
@@ -195,6 +328,22 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
               animationDelay: `${index * 50}ms`
             }}
           />
+          
+          {/* Weather icons */}
+          {showIcons && (
+            <text
+              x={segment.iconX}
+              y={segment.iconY}
+              textAnchor="middle"
+              dominantBaseline="central"
+              className="text-sm pointer-events-none select-none"
+              style={{
+                fontSize: Math.max(8, (outerRadius - innerRadius) * 0.3)
+              }}
+            >
+              {segment.icon}
+            </text>
+          )}
           
           {/* Subtle animation pulse for active conditions */}
           {(segment.condition === 'rainy' || segment.condition === 'storm') && (
@@ -256,14 +405,30 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
         </g>
       )}
       
-      {/* Current time indicator */}
-      <circle
-        cx={centerX}
-        cy={centerY - (innerRadius + outerRadius) / 2}
-        r="2"
-        fill="hsl(45 100% 70%)"
-        className="animate-pulse"
-      />
+      {/* Smooth current time indicator */}
+      <g className="now-pointer">
+        <circle
+          cx={nowPointerPosition.x}
+          cy={nowPointerPosition.y}
+          r="3"
+          fill="hsl(45 100% 70%)"
+          stroke="hsl(45 100% 90%)"
+          strokeWidth="1"
+          className="animate-pulse"
+          style={{
+            filter: 'drop-shadow(0 0 4px hsl(45 100% 70%))'
+          }}
+        />
+        <line
+          x1={centerX}
+          y1={centerY}
+          x2={nowPointerPosition.x}
+          y2={nowPointerPosition.y}
+          stroke="hsl(45 100% 70%)"
+          strokeWidth="1"
+          opacity="0.6"
+        />
+      </g>
     </g>
   );
 };
