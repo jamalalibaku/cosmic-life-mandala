@@ -31,6 +31,7 @@ import { RadialYearSeasons } from '@/components/radial-year-seasons';
 import { RadialFractalView } from '@/components/radial-fractal-view';
 import { InsightOrbitRing } from '@/components/insight-orbit-ring';
 import { MoonPhaseMarker } from '@/components/moon-phase-marker';
+import { DataLayerLabels } from '@/components/data-layer-labels';
 import { mockWeatherData } from '@/data/weatherData';
 import { mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
@@ -58,6 +59,7 @@ const IndexContent = () => {
   const [selectedCity, setSelectedCity] = useState<string>('berlin');
   const [showAIInsights, setShowAIInsights] = useState(true);
   const [showDebugMode, setShowDebugMode] = useState(false);
+  const [showLayerDebug, setShowLayerDebug] = useState(false);
 
   // Handle keyboard escape to exit poetry mode
   useEffect(() => {
@@ -111,6 +113,42 @@ const IndexContent = () => {
   }) => {
     const centerX = 350;
     const centerY = 350;
+    
+    // Define data layer labels for the current scale
+    const dataLayerLabels = scale === 'day' ? [
+      { 
+        id: 'weather-label', 
+        text: 'weather', 
+        layer: 'weather' as const, 
+        radius: 170, 
+        isActive: true, 
+        theme: currentTheme 
+      },
+      { 
+        id: 'sleep-label', 
+        text: 'rest', 
+        layer: 'sleep' as const, 
+        radius: 220, 
+        isActive: true, 
+        theme: currentTheme 
+      },
+      { 
+        id: 'mood-label', 
+        text: currentMood?.description || 'mood', 
+        layer: 'mood' as const, 
+        radius: 270, 
+        isActive: true, 
+        theme: currentTheme 
+      },
+      { 
+        id: 'mobility-label', 
+        text: 'movement', 
+        layer: 'mobility' as const, 
+        radius: 320, 
+        isActive: true, 
+        theme: currentTheme 
+      }
+    ] : [];
     
     return (
       <g transform={timeDrift.getDriftTransform(centerX, centerY)}>
@@ -187,7 +225,7 @@ const IndexContent = () => {
               innerRadius={200}
               outerRadius={240}
               type="sleep"
-              label={!reflectiveMode && !poetryMode ? "rest" : undefined}
+              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
               {...currentMetrics}
             />
             
@@ -198,7 +236,7 @@ const IndexContent = () => {
               innerRadius={250}
               outerRadius={290}
               type="mood"
-              label={!reflectiveMode && !poetryMode ? currentMood?.description || "mood" : undefined}
+              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
               {...currentMetrics}
               onMoodChange={setCurrentMood}
             />
@@ -210,7 +248,7 @@ const IndexContent = () => {
               innerRadius={300}
               outerRadius={340}
               type="mobility"
-              label={!reflectiveMode && !poetryMode ? "movement" : undefined}
+              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOBILITY DATA" : undefined}
               {...currentMetrics}
             />
             
@@ -406,6 +444,17 @@ const IndexContent = () => {
           />
         )}
 
+        {/* Data Layer Labels - positioned vertically on the right */}
+        {scale === 'day' && !poetryMode && (
+          <DataLayerLabels
+            centerX={centerX}
+            centerY={centerY}
+            labels={dataLayerLabels}
+            theme={currentTheme}
+            showDebug={showLayerDebug}
+          />
+        )}
+
         {/* AI Insight Orbit Ring with debug capabilities */}
         <InsightOrbitRing
           insights={aiInsights}
@@ -455,16 +504,42 @@ const IndexContent = () => {
 
         {/* Debug Toggle (development only) */}
         {process.env.NODE_ENV === 'development' && (
-          <button
-            onClick={() => setShowDebugMode(!showDebugMode)}
-            className={`fixed top-4 right-4 z-50 px-3 py-1 rounded text-xs font-mono transition-all ${
-              showDebugMode 
-                ? 'bg-red-500 text-white' 
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            {showDebugMode ? '🐛 DEBUG ON' : '○ Debug'}
-          </button>
+          <div className="fixed top-4 right-4 z-50 flex gap-2">
+            <button
+              onClick={() => setShowDebugMode(!showDebugMode)}
+              className={`px-3 py-1 rounded text-xs font-mono transition-all ${
+                showDebugMode 
+                  ? 'bg-red-500 text-white' 
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              {showDebugMode ? '🐛 DEBUG' : '○ Debug'}
+            </button>
+            <button
+              onClick={() => setShowLayerDebug(!showLayerDebug)}
+              className={`px-3 py-1 rounded text-xs font-mono transition-all ${
+                showLayerDebug 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              {showLayerDebug ? '📊 LAYERS' : '○ Layers'}
+            </button>
+          </div>
+        )}
+
+        {/* Layer Debug Info Overlay */}
+        {showLayerDebug && (
+          <div className="fixed bottom-4 left-4 z-50 bg-black/80 text-white p-4 rounded text-xs font-mono">
+            <div className="mb-2 font-bold">🔍 Layer Debug Info</div>
+            <div>Scale: {scale}</div>
+            <div>Theme: {currentTheme}</div>
+            <div>Active Layers: {dataLayerLabels.filter(l => l.isActive).length}</div>
+            <div>Insights: {aiInsights.length}</div>
+            <div className="mt-2 text-yellow-300">
+              Yellow elements indicate orphaned visuals
+            </div>
+          </div>
         )}
 
         {/* Central time display for non-day scales */}

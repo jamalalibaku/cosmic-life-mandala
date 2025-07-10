@@ -248,26 +248,26 @@ export const InsightOrbitRing: React.FC<InsightOrbitRingProps> = ({
               opacity={0.8}
             />
             
-            {/* Insight text (on hover or if active) */}
+            {/* Enhanced insight text with improved readability */}
             {(isActive || isHovered) && (
               <g className="insight-text">
-                {/* Text background */}
+                {/* Text background with proper sizing */}
                 <rect
-                  x={x - 80}
-                  y={y - 35}
-                  width="160"
-                  height="30"
+                  x={x - Math.max(80, insight.summary ? insight.summary.length * 3 : 80)}
+                  y={y - 45}
+                  width={Math.max(160, insight.summary ? insight.summary.length * 6 : 160)}
+                  height="50"
                   rx="15"
-                  fill="rgba(0, 0, 0, 0.7)"
+                  fill="rgba(0, 0, 0, 0.85)"
                   stroke={themeColors.primary}
                   strokeWidth="1"
-                  opacity="0.9"
+                  opacity="0.95"
                 />
                 
                 {/* Enhanced insight text with tone styling */}
                 <text
                   x={x}
-                  y={y - 15}
+                  y={y - 25}
                   textAnchor="middle"
                   className={`text-xs ${
                     insight.tone === 'poetic' ? 'font-light italic' :
@@ -275,22 +275,40 @@ export const InsightOrbitRing: React.FC<InsightOrbitRingProps> = ({
                     'font-light'
                   }`}
                   fill={themeColors.text}
-                  opacity="0.9"
+                  opacity="0.95"
                 >
-                  {insight.summary || (insight.text.length > 35 
-                    ? `${insight.text.substring(0, 35)}...` 
-                    : insight.text)}
+                  {/* Smart text wrapping for long insights */}
+                  {insight.summary && insight.summary.length > 40 ? (
+                    <>
+                      <tspan x={x} dy="0">{insight.summary.substring(0, 40)}</tspan>
+                      <tspan x={x} dy="12">{insight.summary.substring(40, 80)}...</tspan>
+                    </>
+                  ) : (
+                    insight.summary || insight.text
+                  )}
                 </text>
                 
                 {/* Correlation strength indicator */}
                 {insight.correlationStrength && (
-                  <circle
-                    cx={x + 70}
-                    cy={y - 15}
-                    r={3}
-                    fill={themeColors.glow}
-                    opacity={insight.correlationStrength}
-                  />
+                  <g className="correlation-indicator">
+                    <circle
+                      cx={x + 70}
+                      cy={y - 25}
+                      r="3"
+                      fill={themeColors.glow}
+                      opacity={insight.correlationStrength}
+                    />
+                    <text
+                      x={x + 70}
+                      y={y - 15}
+                      textAnchor="middle"
+                      className="text-xs font-light"
+                      fill={themeColors.text}
+                      opacity="0.7"
+                    >
+                      {Math.round(insight.correlationStrength * 100)}%
+                    </text>
+                  </g>
                 )}
                 
                 {/* Time context and emotion indicator */}
