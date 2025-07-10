@@ -169,6 +169,9 @@ const Index = () => {
                            currentMood?.moodType === 'drained' ? 'restful' :
                            currentMood?.moodType === 'tense' ? 'chaotic' :
                            currentMood?.moodType === 'creative' ? 'creative' : 'calm',
+              averageSleep: month.dataSummary.avgSleep,
+              peakMobilityDay: Math.round(month.dataSummary.avgActivity * 30),
+              weatherSummary: month.dataSummary.dominantWeather,
               totalActiveDays: Math.round(month.dataSummary.avgActivity * 31)
             }))}
             centerX={centerX}
