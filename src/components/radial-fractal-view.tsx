@@ -256,14 +256,7 @@ export const RadialFractalView: React.FC<RadialFractalViewProps> = ({
         strokeWidth="2"
       />
 
-      {/* NOW indicator */}
-      <NowIndicator
-        centerX={centerX}
-        centerY={centerY}
-        radius={radius}
-        timeScale={scale}
-        theme={theme}
-      />
+      {/* NOW indicator removed - handled by main timeline */}
 
       {/* Scale label */}
       <text

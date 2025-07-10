@@ -94,23 +94,25 @@ const IndexContent = () => {
     
     return (
       <g transform={timeDrift.getDriftTransform(centerX, centerY)}>
-        {/* Sky Arc Gradient - Day/Night cycle */}
-        <SkyArcGradient
-          centerX={centerX}
-          centerY={centerY}
-          innerRadius={50}
-          outerRadius={400}
-          theme={currentTheme}
-          showSunMoon={true}
-          cityLocation={
-            selectedCity === 'berlin' ? { lat: 52.5200, lng: 13.4050, timezone: 'Europe/Berlin' } :
-            selectedCity === 'baku' ? { lat: 40.4093, lng: 49.8671, timezone: 'Asia/Baku' } :
-            selectedCity === 'tokyo' ? { lat: 35.6762, lng: 139.6503, timezone: 'Asia/Tokyo' } :
-            selectedCity === 'new_york' ? { lat: 40.7128, lng: -74.0060, timezone: 'America/New_York' } :
-            selectedCity === 'london' ? { lat: 51.5074, lng: -0.1278, timezone: 'Europe/London' } :
-            undefined
-          }
-        />
+        {/* Sky Arc Gradient - Day/Night cycle - render once */}
+        {scale === 'day' && (
+          <SkyArcGradient
+            centerX={centerX}
+            centerY={centerY}
+            innerRadius={50}
+            outerRadius={400}
+            theme={currentTheme}
+            showSunMoon={true}
+            cityLocation={
+              selectedCity === 'berlin' ? { lat: 52.5200, lng: 13.4050, timezone: 'Europe/Berlin' } :
+              selectedCity === 'baku' ? { lat: 40.4093, lng: 49.8671, timezone: 'Asia/Baku' } :
+              selectedCity === 'tokyo' ? { lat: 35.6762, lng: 139.6503, timezone: 'Asia/Tokyo' } :
+              selectedCity === 'new_york' ? { lat: 40.7128, lng: -74.0060, timezone: 'America/New_York' } :
+              selectedCity === 'london' ? { lat: 51.5074, lng: -0.1278, timezone: 'Europe/London' } :
+              undefined
+            }
+          />
+        )}
         
         {/* Sun Aura Ring - Breathing center anchored to outermost layer */}
         <SunAuraRing
@@ -147,7 +149,7 @@ const IndexContent = () => {
           scale={scale}
           centerX={centerX}
           centerY={centerY}
-          radius={280}
+          radius={scale === 'day' ? 260 : scale === 'week' ? 280 : scale === 'month' ? 300 : 320}
           theme={currentTheme}
           targetDate={new Date()}
           transitionProgress={transitionProgress}

@@ -26,9 +26,9 @@ interface FractalTimeZoomManagerProps {
 const scaleHierarchy: TimeScale[] = ['day', 'week', 'month', 'year'];
 const zoomLevels = {
   day: 1,
-  week: goldenRatio.smaller(1) * 0.8,   // Golden ratio scaling
-  month: goldenRatio.smaller(1) * 0.6,
-  year: goldenRatio.smaller(1) * 0.4
+  week: Math.max(goldenRatio.smaller(1) * 0.85, 0.7),   // Clamped minimum
+  month: Math.max(goldenRatio.smaller(1) * 0.75, 0.6),
+  year: Math.max(goldenRatio.smaller(1) * 0.65, 0.5)
 };
 
 export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
