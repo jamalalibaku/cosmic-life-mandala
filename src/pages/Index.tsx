@@ -60,18 +60,25 @@ const IndexContent = () => {
   const [showAIInsights, setShowAIInsights] = useState(true);
   const [showDebugMode, setShowDebugMode] = useState(false);
   const [showLayerDebug, setShowLayerDebug] = useState(false);
+  const [persistentDebugMode, setPersistentDebugMode] = useState(false);
 
-  // Handle keyboard escape to exit poetry mode
+  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && poetryMode) {
         setPoetryMode(false);
       }
+      // Shift + D for persistent debug mode toggle
+      if (event.shiftKey && event.key === 'D') {
+        setPersistentDebugMode(!persistentDebugMode);
+        setShowLayerDebug(!persistentDebugMode);
+        event.preventDefault();
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [poetryMode]);
+  }, [poetryMode, persistentDebugMode]);
 
   // Time drift hook for breathing and rotation with poetry mode adjustments
   const timeDrift = useTimeDrift({
@@ -114,41 +121,6 @@ const IndexContent = () => {
     const centerX = 350;
     const centerY = 350;
     
-    // Define data layer labels for the current scale
-    const dataLayerLabels = scale === 'day' ? [
-      { 
-        id: 'weather-label', 
-        text: 'weather', 
-        layer: 'weather' as const, 
-        radius: 170, 
-        isActive: true, 
-        theme: currentTheme 
-      },
-      { 
-        id: 'sleep-label', 
-        text: 'rest', 
-        layer: 'sleep' as const, 
-        radius: 220, 
-        isActive: true, 
-        theme: currentTheme 
-      },
-      { 
-        id: 'mood-label', 
-        text: currentMood?.description || 'mood', 
-        layer: 'mood' as const, 
-        radius: 270, 
-        isActive: true, 
-        theme: currentTheme 
-      },
-      { 
-        id: 'mobility-label', 
-        text: 'movement', 
-        layer: 'mobility' as const, 
-        radius: 320, 
-        isActive: true, 
-        theme: currentTheme 
-      }
-    ] : [];
     
     return (
       <g transform={timeDrift.getDriftTransform(centerX, centerY)}>
@@ -444,12 +416,63 @@ const IndexContent = () => {
           />
         )}
 
-        {/* Data Layer Labels - positioned vertically on the right */}
+        {/* Moon Phase Marker - outermost cosmic element */}
+        {scale === 'day' && !poetryMode && (
+          <MoonPhaseMarker
+            centerX={centerX}
+            centerY={centerY}
+            radius={400}
+            theme={currentTheme}
+          />
+        )}
+
+        {/* Data Layer Labels - positioned vertically on the right with proper hierarchy */}
         {scale === 'day' && !poetryMode && (
           <DataLayerLabels
             centerX={centerX}
             centerY={centerY}
-            labels={dataLayerLabels}
+            labels={[
+              { 
+                id: 'weather-label', 
+                text: 'Weather', 
+                layer: 'weather' as const, 
+                radius: 170, 
+                isActive: true, 
+                theme: currentTheme 
+              },
+              { 
+                id: 'plans-label', 
+                text: 'Plans', 
+                layer: 'plans' as const, 
+                radius: 200, 
+                isActive: false, 
+                theme: currentTheme 
+              },
+              { 
+                id: 'mobility-label', 
+                text: 'Mobility', 
+                layer: 'mobility' as const, 
+                radius: 320, 
+                isActive: true, 
+                theme: currentTheme 
+              },
+              { 
+                id: 'mood-label', 
+                text: 'Mood', 
+                layer: 'mood' as const, 
+                radius: 270, 
+                isActive: true, 
+                theme: currentTheme 
+              },
+              { 
+                id: 'sleep-label', 
+                text: 'Sleep', 
+                layer: 'sleep' as const, 
+                radius: 220, 
+                isActive: true, 
+                theme: currentTheme 
+              }
+            ]}
             theme={currentTheme}
             showDebug={showLayerDebug}
           />
@@ -460,7 +483,7 @@ const IndexContent = () => {
           insights={aiInsights}
           centerX={centerX}
           centerY={centerY}
-          baseRadius={scale === 'day' ? 380 : scale === 'week' ? 340 : scale === 'month' ? 360 : 380}
+          baseRadius={scale === 'day' ? 360 : scale === 'week' ? 340 : scale === 'month' ? 360 : 380}
           isVisible={showAIInsights && !poetryMode}
           currentTimeScale={scale}
           theme={currentTheme}
@@ -472,13 +495,6 @@ const IndexContent = () => {
           }}
         />
 
-        {/* Moon Phase Marker - outer ring */}
-        <MoonPhaseMarker
-          centerX={centerX}
-          centerY={centerY}
-          radius={420}
-          theme={currentTheme}
-        />
 
         {/* NOW Indicator - appears at appropriate position for each scale */}
         <NowIndicator
@@ -534,7 +550,7 @@ const IndexContent = () => {
             <div className="mb-2 font-bold">🔍 Layer Debug Info</div>
             <div>Scale: {scale}</div>
             <div>Theme: {currentTheme}</div>
-            <div>Active Layers: {dataLayerLabels.filter(l => l.isActive).length}</div>
+            <div>Active Layers: 4</div>
             <div>Insights: {aiInsights.length}</div>
             <div className="mt-2 text-yellow-300">
               Yellow elements indicate orphaned visuals
