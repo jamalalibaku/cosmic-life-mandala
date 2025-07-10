@@ -189,42 +189,7 @@ const IndexContent = () => {
         {/* Scale-specific content */}
         {scale === 'day' && (
           <>
-            {/* Data blob rings (life data layers) with emotional reactivity */}
-            <DataBlobRing
-              data={mockSleepData}
-              centerX={centerX}
-              centerY={centerY}
-              innerRadius={200}
-              outerRadius={240}
-              type="sleep"
-              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
-              {...currentMetrics}
-            />
-            
-            <DataBlobRing
-              data={mockMoodData}
-              centerX={centerX}
-              centerY={centerY}
-              innerRadius={250}
-              outerRadius={290}
-              type="mood"
-              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
-              {...currentMetrics}
-              onMoodChange={setCurrentMood}
-            />
-            
-            <DataBlobRing
-              data={mockMobilityData}
-              centerX={centerX}
-              centerY={centerY}
-              innerRadius={300}
-              outerRadius={340}
-              type="mobility"
-              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOBILITY DATA" : undefined}
-              {...currentMetrics}
-            />
-            
-            {/* Original weather sunburst (inner core) */}
+            {/* Core weather visualization (center) */}
             <WeatherSunburst
               weatherData={mockWeatherData}
               centerX={centerX}
@@ -233,13 +198,63 @@ const IndexContent = () => {
               outerRadius={140}
             />
             
-            {/* Weather ring (middle layer) */}
+            {/* Data rings in proper hierarchy (inner → outer) */}
+            {/* 5. Sleep - Innermost data ring */}
+            <DataBlobRing
+              data={mockSleepData}
+              centerX={centerX}
+              centerY={centerY}
+              innerRadius={150}
+              outerRadius={180}
+              type="sleep"
+              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
+              {...currentMetrics}
+            />
+            
+            {/* 4. Mood */}
+            <DataBlobRing
+              data={mockMoodData}
+              centerX={centerX}
+              centerY={centerY}
+              innerRadius={190}
+              outerRadius={220}
+              type="mood"
+              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
+              {...currentMetrics}
+              onMoodChange={setCurrentMood}
+            />
+            
+            {/* 3. Mobility */}
+            <DataBlobRing
+              data={mockMobilityData}
+              centerX={centerX}
+              centerY={centerY}
+              innerRadius={230}
+              outerRadius={260}
+              type="mobility"
+              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOBILITY DATA" : undefined}
+              {...currentMetrics}
+            />
+            
+            {/* 2. Plans (placeholder ring for future implementation) */}
+            <circle
+              cx={centerX}
+              cy={centerY}
+              r={285}
+              fill="none"
+              stroke={currentTheme === 'floral' ? 'hsl(280 30% 70%)' : 'hsl(240 20% 60%)'}
+              strokeWidth="1"
+              strokeDasharray="2,4"
+              opacity="0.3"
+            />
+            
+            {/* 1. Weather - Outermost data ring */}
             <WeatherSunburstRing
               weatherData={mockWeatherToday}
               centerX={centerX}
               centerY={centerY}
-              innerRadius={150}
-              outerRadius={190}
+              innerRadius={295}
+              outerRadius={325}
               theme="cosmic"
               showIcons={true}
               showSkyGradient={true}
@@ -416,12 +431,12 @@ const IndexContent = () => {
           />
         )}
 
-        {/* Moon Phase Marker - outermost cosmic element */}
+        {/* Moon Phase Marker - outermost celestial shell */}
         {scale === 'day' && !poetryMode && (
           <MoonPhaseMarker
             centerX={centerX}
             centerY={centerY}
-            radius={400}
+            radius={350}
             theme={currentTheme}
           />
         )}
@@ -436,7 +451,7 @@ const IndexContent = () => {
                 id: 'weather-label', 
                 text: 'Weather', 
                 layer: 'weather' as const, 
-                radius: 170, 
+                radius: 310, 
                 isActive: true, 
                 theme: currentTheme 
               },
@@ -444,7 +459,7 @@ const IndexContent = () => {
                 id: 'plans-label', 
                 text: 'Plans', 
                 layer: 'plans' as const, 
-                radius: 200, 
+                radius: 285, 
                 isActive: false, 
                 theme: currentTheme 
               },
@@ -452,7 +467,7 @@ const IndexContent = () => {
                 id: 'mobility-label', 
                 text: 'Mobility', 
                 layer: 'mobility' as const, 
-                radius: 320, 
+                radius: 245, 
                 isActive: true, 
                 theme: currentTheme 
               },
@@ -460,7 +475,7 @@ const IndexContent = () => {
                 id: 'mood-label', 
                 text: 'Mood', 
                 layer: 'mood' as const, 
-                radius: 270, 
+                radius: 205, 
                 isActive: true, 
                 theme: currentTheme 
               },
@@ -468,7 +483,7 @@ const IndexContent = () => {
                 id: 'sleep-label', 
                 text: 'Sleep', 
                 layer: 'sleep' as const, 
-                radius: 220, 
+                radius: 165, 
                 isActive: true, 
                 theme: currentTheme 
               }
