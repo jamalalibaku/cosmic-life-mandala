@@ -15,6 +15,11 @@ interface SkyArcGradientProps {
   theme: string;
   showSunMoon?: boolean;
   className?: string;
+  cityLocation?: {
+    lat: number;
+    lng: number;
+    timezone: string;
+  };
 }
 
 export const SkyArcGradient: React.FC<SkyArcGradientProps> = ({
@@ -24,7 +29,8 @@ export const SkyArcGradient: React.FC<SkyArcGradientProps> = ({
   outerRadius,
   theme,
   showSunMoon = true,
-  className = ''
+  className = '',
+  cityLocation
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -38,8 +44,26 @@ export const SkyArcGradient: React.FC<SkyArcGradientProps> = ({
 
   // Calculate time-based colors and position
   const timeData = useMemo(() => {
-    const hours = currentTime.getHours();
-    const minutes = currentTime.getMinutes();
+    // Use city time if available, otherwise local time
+    const getCurrentTime = () => {
+      if (cityLocation) {
+        try {
+          const timeInCity = new Date().toLocaleString('en-US', {
+            timeZone: cityLocation.timezone,
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+          });
+          const [hours, minutes] = timeInCity.split(':').map(Number);
+          return { hours, minutes };
+        } catch {
+          return { hours: currentTime.getHours(), minutes: currentTime.getMinutes() };
+        }
+      }
+      return { hours: currentTime.getHours(), minutes: currentTime.getMinutes() };
+    };
+    
+    const { hours, minutes } = getCurrentTime();
     const totalMinutes = hours * 60 + minutes;
     
     // Convert to degrees (0° = midnight, 90° = 6am, 180° = noon, 270° = 6pm)

@@ -1,3 +1,9 @@
+/**
+ * (c) 2025 Cosmic Life Mandala – Radial Timeline Project
+ * Founder and Author: Jamal Ali
+ * Built by ChatGPT & Lovable · MIT Licensed
+ */
+
 import { useState, useEffect } from 'react';
 import WeatherSunburst from '@/components/weather-sunburst';
 import { WeatherSunburstRing } from '@/components/weather-sunburst-ring';
@@ -31,6 +37,7 @@ import { mockInsightData } from '@/data/mock-insight-data';
 import { calculateLayerInteraction } from '@/utils/mood-engine';
 import { MoodInfluence } from '@/utils/mood-engine';
 import { Theme, themeConfigs } from '@/utils/theme-configs';
+import { SettingsPanel } from '@/components/settings-panel';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -44,6 +51,7 @@ const IndexContent = () => {
   const [activeLayer, setActiveLayer] = useState<string | undefined>();
   const [currentMood, setCurrentMood] = useState<MoodInfluence | null>(null);
   const [poetryMode, setPoetryMode] = useState(false);
+  const [selectedCity, setSelectedCity] = useState<string>('berlin');
 
   // Handle keyboard escape to exit poetry mode
   useEffect(() => {
@@ -93,6 +101,14 @@ const IndexContent = () => {
           outerRadius={400}
           theme={currentTheme}
           showSunMoon={true}
+          cityLocation={
+            selectedCity === 'berlin' ? { lat: 52.5200, lng: 13.4050, timezone: 'Europe/Berlin' } :
+            selectedCity === 'baku' ? { lat: 40.4093, lng: 49.8671, timezone: 'Asia/Baku' } :
+            selectedCity === 'tokyo' ? { lat: 35.6762, lng: 139.6503, timezone: 'Asia/Tokyo' } :
+            selectedCity === 'new_york' ? { lat: 40.7128, lng: -74.0060, timezone: 'America/New_York' } :
+            selectedCity === 'london' ? { lat: 51.5074, lng: -0.1278, timezone: 'Europe/London' } :
+            undefined
+          }
         />
         
         {/* Sun Aura Ring - Breathing center anchored to outermost layer */}
@@ -454,86 +470,21 @@ const IndexContent = () => {
           {themeConfig.description}
         </p>
         
-        {/* Enhanced theme and mode toggles */}
-        <div className={`mb-8 flex gap-3 justify-center flex-wrap transition-opacity duration-500 ${poetryMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          {/* Theme Selector */}
-          <div className="mb-4">
-            <ThemeSelector />
-          </div>
-          
-          <button
-            onClick={() => setReflectiveMode(!reflectiveMode)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300`}
-            style={{
-              backgroundColor: reflectiveMode ? `${themeConfig.colors.accent}33` : `${themeConfig.colors.text}1A`,
-              color: reflectiveMode ? themeConfig.colors.accent : themeConfig.colors.text,
-              border: `1px solid ${reflectiveMode ? themeConfig.colors.accent : themeConfig.colors.text}40`
-            }}
-          >
-            {reflectiveMode ? '⧖ minimal mode' : '◎ interface mode'}
-          </button>
-
-          <button
-            onClick={() => setPoetryMode(!poetryMode)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300`}
-            style={{
-              backgroundColor: poetryMode ? `${themeConfig.colors.accent}33` : `${themeConfig.colors.text}1A`,
-              color: poetryMode ? themeConfig.colors.accent : themeConfig.colors.text,
-              border: `1px solid ${poetryMode ? themeConfig.colors.accent : themeConfig.colors.text}40`
-            }}
-          >
-            {poetryMode ? '🌸 poetry flows' : '🧘‍♀️ poetry mode'}
-          </button>
-          
-          {!poetryMode && (
-            <>
-              <button
-                onClick={() => setShowFriends(!showFriends)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300`}
-                style={{
-                  backgroundColor: showFriends ? `${themeConfig.colors.accent}33` : `${themeConfig.colors.text}1A`,
-                  color: showFriends ? themeConfig.colors.accent : themeConfig.colors.text,
-                  border: `1px solid ${showFriends ? themeConfig.colors.accent : themeConfig.colors.text}40`
-                }}
-              >
-                {showFriends ? '🫂 friends visible' : '○ show friends'}
-              </button>
-
-              <button
-                onClick={() => setShowInsights(!showInsights)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                  showInsights
-                    ? 'bg-blue-200/20 text-blue-200 border border-blue-200/30'
-                    : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
-                }`}
-              >
-                {showInsights ? '✨ insights active' : '◐ show insights'}
-              </button>
-
-              <button
-                onClick={() => setShowPlayback(!showPlayback)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                  showPlayback
-                    ? 'bg-green-200/20 text-green-200 border border-green-200/30'
-                    : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
-                }`}
-              >
-                {showPlayback ? '▶ reflecting' : '⧖ reflect time'}
-              </button>
-
-              <button
-                onClick={() => setShowTideRings(!showTideRings)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                  showTideRings
-                    ? 'bg-cyan-200/20 text-cyan-200 border border-cyan-200/30'
-                    : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
-                }`}
-              >
-                {showTideRings ? '🌊 tides flowing' : '~ show connections'}
-              </button>
-            </>
-          )}
-        </div>
+        {/* Unified Settings Panel */}
+        <SettingsPanel
+          reflectiveMode={reflectiveMode}
+          poetryMode={poetryMode}
+          showFriends={showFriends}
+          showInsights={showInsights}
+          showPlayback={showPlayback}
+          showTideRings={showTideRings}
+          onReflectiveModeChange={setReflectiveMode}
+          onPoetryModeChange={setPoetryMode}
+          onShowFriendsChange={setShowFriends}
+          onShowInsightsChange={setShowInsights}
+          onShowPlaybackChange={setShowPlayback}
+          onShowTideRingsChange={setShowTideRings}
+        />
         
         {/* Fractal Time Zoom Manager */}
         <FractalTimeZoomManager
@@ -555,55 +506,6 @@ const IndexContent = () => {
   );
 };
 
-// Theme Selector Component
-const ThemeSelector = () => {
-  const { currentTheme, setTheme } = useVisualSkin();
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border"
-        style={{
-          backgroundColor: `${themeConfigs[currentTheme].colors.primary}20`,
-          color: themeConfigs[currentTheme].colors.primary,
-          borderColor: `${themeConfigs[currentTheme].colors.primary}40`
-        }}
-      >
-        🎨 {themeConfigs[currentTheme].name}
-      </button>
-      
-      {isOpen && (
-        <div 
-          className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 rounded-lg border shadow-lg z-50 min-w-48"
-          style={{
-            backgroundColor: themeConfigs[currentTheme].colors.background,
-            borderColor: themeConfigs[currentTheme].colors.accent
-          }}
-        >
-          {Object.entries(themeConfigs).map(([key, config]) => (
-            <button
-              key={key}
-              onClick={() => {
-                setTheme(key as Theme);
-                setIsOpen(false);
-              }}
-              className="block w-full text-left px-4 py-2 text-sm hover:bg-opacity-20 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
-              style={{
-                color: config.colors.text,
-                backgroundColor: currentTheme === key ? `${config.colors.accent}20` : 'transparent'
-              }}
-            >
-              <div className="font-medium">{config.name}</div>
-              <div className="text-xs opacity-70">{config.description}</div>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 // Main Index component with theme provider
 const Index = () => {
