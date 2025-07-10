@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import WeatherSunburst from '@/components/weather-sunburst';
 import { WeatherSunburstRing } from '@/components/weather-sunburst-ring';
 import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
@@ -11,6 +11,7 @@ import { PlaybackReflector } from '@/components/playback-reflector';
 import { EmotionalTideRings } from '@/components/emotional-tide-rings';
 import { VisualSkinProvider, useVisualSkin } from '@/components/visual-skin-provider';
 import { ThemeHaikuDisplay } from '@/components/theme-haiku-display';
+import { PoetryOverlay } from '@/components/poetry-overlay';
 import { SunAuraRing } from '@/components/sun-aura-ring';
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
 import { NowIndicator } from '@/components/now-indicator';
@@ -42,13 +43,26 @@ const IndexContent = () => {
   const [hoveredLayer, setHoveredLayer] = useState<string | undefined>();
   const [activeLayer, setActiveLayer] = useState<string | undefined>();
   const [currentMood, setCurrentMood] = useState<MoodInfluence | null>(null);
+  const [poetryMode, setPoetryMode] = useState(false);
 
-  // Time drift hook for breathing and rotation
+  // Handle keyboard escape to exit poetry mode
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && poetryMode) {
+        setPoetryMode(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [poetryMode]);
+
+  // Time drift hook for breathing and rotation with poetry mode adjustments
   const timeDrift = useTimeDrift({
     enabled: true,
-    speed: 1,
+    speed: poetryMode ? 0.7 : 1, // Slower in poetry mode
     breathingEnabled: true,
-    breathingIntensity: 0.015
+    breathingIntensity: poetryMode ? 0.025 : 0.015 // More breathing in poetry mode
   });
 
   // Calculate current life metrics for mood engine
@@ -122,7 +136,7 @@ const IndexContent = () => {
               innerRadius={200}
               outerRadius={240}
               type="sleep"
-              label={!reflectiveMode ? "rest" : undefined}
+              label={!reflectiveMode && !poetryMode ? "rest" : undefined}
               {...currentMetrics}
             />
             
@@ -133,7 +147,7 @@ const IndexContent = () => {
               innerRadius={250}
               outerRadius={290}
               type="mood"
-              label={!reflectiveMode ? currentMood?.description || "mood" : undefined}
+              label={!reflectiveMode && !poetryMode ? currentMood?.description || "mood" : undefined}
               {...currentMetrics}
               onMoodChange={setCurrentMood}
             />
@@ -145,7 +159,7 @@ const IndexContent = () => {
               innerRadius={300}
               outerRadius={340}
               type="mobility"
-              label={!reflectiveMode ? "movement" : undefined}
+              label={!reflectiveMode && !poetryMode ? "movement" : undefined}
               {...currentMetrics}
             />
             
@@ -341,7 +355,7 @@ const IndexContent = () => {
           />
         )}
 
-        {/* NOW Indicator - appears at appropriate position for each scale */}
+         {/* NOW Indicator - appears at appropriate position for each scale */}
         <NowIndicator
           centerX={centerX}
           centerY={centerY}
@@ -352,8 +366,19 @@ const IndexContent = () => {
           theme={currentTheme}
         />
 
+        {/* Poetry Overlay - floating poetic lines in poetry mode */}
+        <PoetryOverlay
+          isVisible={poetryMode}
+          theme={currentTheme}
+          timeScale={scale}
+          centerX={centerX}
+          centerY={centerY}
+          maxRadius={360}
+          onExit={() => setPoetryMode(false)}
+        />
+
         {/* Center time display for non-day scales */}
-        {!reflectiveMode && scale !== 'day' && (
+        {!reflectiveMode && !poetryMode && scale !== 'day' && (
           <g className="central-time">
             <circle
               cx={centerX}
@@ -414,23 +439,23 @@ const IndexContent = () => {
       {/* Main content */}
       <div className="relative z-10 text-center w-full">
         <h1 
-          className="text-6xl font-bold mb-4 text-transparent bg-clip-text transition-all duration-500"
+          className={`text-6xl font-bold mb-4 text-transparent bg-clip-text transition-all duration-500 ${poetryMode ? 'opacity-30 text-sm' : 'opacity-100'}`}
           style={{
             backgroundImage: `linear-gradient(to right, ${themeConfig.colors.primary}, ${themeConfig.colors.accent})`,
             fontFamily: themeConfig.typography.primary
           }}
         >
-          Cosmic Life Mandala
+          {poetryMode ? 'silence, symbols, and stillness' : 'Cosmic Life Mandala'}
         </h1>
         <p 
-          className="text-xl mb-8 transition-colors duration-500"
+          className={`text-xl mb-8 transition-all duration-500 ${poetryMode ? 'opacity-0' : 'opacity-100'}`}
           style={{ color: themeConfig.colors.text }}
         >
           {themeConfig.description}
         </p>
         
         {/* Enhanced theme and mode toggles */}
-        <div className="mb-8 flex gap-3 justify-center flex-wrap">
+        <div className={`mb-8 flex gap-3 justify-center flex-wrap transition-opacity duration-500 ${poetryMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           {/* Theme Selector */}
           <div className="mb-4">
             <ThemeSelector />
@@ -445,53 +470,69 @@ const IndexContent = () => {
               border: `1px solid ${reflectiveMode ? themeConfig.colors.accent : themeConfig.colors.text}40`
             }}
           >
-            {reflectiveMode ? '⧖ poetry mode' : '◎ interface mode'}
+            {reflectiveMode ? '⧖ minimal mode' : '◎ interface mode'}
           </button>
-          
+
           <button
-            onClick={() => setShowFriends(!showFriends)}
+            onClick={() => setPoetryMode(!poetryMode)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300`}
             style={{
-              backgroundColor: showFriends ? `${themeConfig.colors.accent}33` : `${themeConfig.colors.text}1A`,
-              color: showFriends ? themeConfig.colors.accent : themeConfig.colors.text,
-              border: `1px solid ${showFriends ? themeConfig.colors.accent : themeConfig.colors.text}40`
+              backgroundColor: poetryMode ? `${themeConfig.colors.accent}33` : `${themeConfig.colors.text}1A`,
+              color: poetryMode ? themeConfig.colors.accent : themeConfig.colors.text,
+              border: `1px solid ${poetryMode ? themeConfig.colors.accent : themeConfig.colors.text}40`
             }}
           >
-            {showFriends ? '🫂 friends visible' : '○ show friends'}
+            {poetryMode ? '🌸 poetry flows' : '🧘‍♀️ poetry mode'}
           </button>
+          
+          {!poetryMode && (
+            <>
+              <button
+                onClick={() => setShowFriends(!showFriends)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300`}
+                style={{
+                  backgroundColor: showFriends ? `${themeConfig.colors.accent}33` : `${themeConfig.colors.text}1A`,
+                  color: showFriends ? themeConfig.colors.accent : themeConfig.colors.text,
+                  border: `1px solid ${showFriends ? themeConfig.colors.accent : themeConfig.colors.text}40`
+                }}
+              >
+                {showFriends ? '🫂 friends visible' : '○ show friends'}
+              </button>
 
-          <button
-            onClick={() => setShowInsights(!showInsights)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-              showInsights
-                ? 'bg-blue-200/20 text-blue-200 border border-blue-200/30'
-                : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
-            }`}
-          >
-            {showInsights ? '✨ insights active' : '◐ show insights'}
-          </button>
+              <button
+                onClick={() => setShowInsights(!showInsights)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  showInsights
+                    ? 'bg-blue-200/20 text-blue-200 border border-blue-200/30'
+                    : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
+                }`}
+              >
+                {showInsights ? '✨ insights active' : '◐ show insights'}
+              </button>
 
-          <button
-            onClick={() => setShowPlayback(!showPlayback)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-              showPlayback
-                ? 'bg-green-200/20 text-green-200 border border-green-200/30'
-                : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
-            }`}
-          >
-            {showPlayback ? '▶ reflecting' : '⧖ reflect time'}
-          </button>
+              <button
+                onClick={() => setShowPlayback(!showPlayback)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  showPlayback
+                    ? 'bg-green-200/20 text-green-200 border border-green-200/30'
+                    : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
+                }`}
+              >
+                {showPlayback ? '▶ reflecting' : '⧖ reflect time'}
+              </button>
 
-          <button
-            onClick={() => setShowTideRings(!showTideRings)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-              showTideRings
-                ? 'bg-cyan-200/20 text-cyan-200 border border-cyan-200/30'
-                : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
-            }`}
-          >
-            {showTideRings ? '🌊 tides flowing' : '~ show connections'}
-          </button>
+              <button
+                onClick={() => setShowTideRings(!showTideRings)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  showTideRings
+                    ? 'bg-cyan-200/20 text-cyan-200 border border-cyan-200/30'
+                    : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
+                }`}
+              >
+                {showTideRings ? '🌊 tides flowing' : '~ show connections'}
+              </button>
+            </>
+          )}
         </div>
         
         {/* Fractal Time Zoom Manager */}
