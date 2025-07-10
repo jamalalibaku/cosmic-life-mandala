@@ -1,7 +1,10 @@
 import WeatherSunburst from '@/components/weather-sunburst';
 import { WeatherSunburstRing } from '@/components/weather-sunburst-ring';
+import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
+import { DataBlobRing } from '@/components/data-blob-ring';
 import { mockWeatherData } from '@/data/weatherData';
 import { mockWeatherToday } from '@/data/mock-weather-data';
+import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
 
 const Index = () => {
   return (
@@ -31,57 +34,111 @@ const Index = () => {
           Radial Timeline Visualization
         </p>
         
-        {/* Weather sunburst preview */}
+        {/* Cosmic Life Mandala */}
         <div className="flex justify-center">
-          <svg width="500" height="500" className="drop-shadow-2xl">
-            {/* Original weather sunburst (inner layer) */}
+          <svg width="700" height="700" className="drop-shadow-2xl">
+            {/* Cosmic sunburst aura layer (background) */}
+            <CosmicSunburstLayer
+              centerX={350}
+              centerY={350}
+              innerRadius={60}
+              maxRadius={320}
+              theme="sunfire"
+              poetryMode={false}
+            />
+            
+            {/* Data blob rings (life data layers) */}
+            <DataBlobRing
+              data={mockSleepData}
+              centerX={350}
+              centerY={350}
+              innerRadius={200}
+              outerRadius={240}
+              type="sleep"
+              label="rest"
+            />
+            
+            <DataBlobRing
+              data={mockMoodData}
+              centerX={350}
+              centerY={350}
+              innerRadius={250}
+              outerRadius={290}
+              type="mood"
+              label="mood"
+            />
+            
+            <DataBlobRing
+              data={mockMobilityData}
+              centerX={350}
+              centerY={350}
+              innerRadius={300}
+              outerRadius={340}
+              type="mobility"
+              label="movement"
+            />
+            
+            {/* Original weather sunburst (inner core) */}
             <WeatherSunburst
               weatherData={mockWeatherData}
-              centerX={250}
-              centerY={250}
+              centerX={350}
+              centerY={350}
               innerRadius={80}
               outerRadius={140}
             />
             
-            {/* New weather ring (outer layer) */}
+            {/* Weather ring (middle layer) */}
             <WeatherSunburstRing
               weatherData={mockWeatherToday}
-              centerX={250}
-              centerY={250}
+              centerX={350}
+              centerY={350}
               innerRadius={150}
               outerRadius={190}
               theme="cosmic"
+              showIcons={true}
+              showSkyGradient={true}
             />
             
             {/* Center time display */}
-            <text
-              x="250"
-              y="240"
-              textAnchor="middle"
-              className="fill-yellow-200 text-sm font-light"
-            >
-              NOW
-            </text>
-            <text
-              x="250"
-              y="260"
-              textAnchor="middle"
-              className="fill-yellow-100 text-2xl font-bold"
-            >
-              {new Date().toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit',
-                hour12: false 
-              })}
-            </text>
-            <text
-              x="250"
-              y="275"
-              textAnchor="middle"
-              className="fill-yellow-200 text-xs font-light"
-            >
-              Weather Timeline
-            </text>
+            <g className="central-time">
+              <circle
+                cx="350"
+                cy="350"
+                r="50"
+                fill="rgba(0, 0, 0, 0.3)"
+                stroke="hsl(45 100% 70%)"
+                strokeWidth="1"
+                opacity="0.6"
+              />
+              <text
+                x="350"
+                y="335"
+                textAnchor="middle"
+                className="fill-yellow-200 text-sm font-light"
+              >
+                NOW
+              </text>
+              <text
+                x="350"
+                y="355"
+                textAnchor="middle"
+                className="fill-yellow-100 text-2xl font-bold"
+              >
+                {new Date().toLocaleTimeString('en-US', { 
+                  hour: '2-digit', 
+                  minute: '2-digit',
+                  hour12: false 
+                })}
+              </text>
+              <text
+                x="350"
+                y="370"
+                textAnchor="middle"
+                className="fill-yellow-200 text-xs font-light"
+              >
+                life timeline
+              </text>
+            </g>
           </svg>
         </div>
       </div>
