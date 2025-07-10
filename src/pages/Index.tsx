@@ -6,6 +6,8 @@ import { DataBlobRing } from '@/components/data-blob-ring';
 import { UserCore } from '@/components/user-core';
 import { FriendOrbitRing } from '@/components/friend-orbit-ring';
 import { RadialInsightsOverlay } from '@/components/radial-insights-overlay';
+import { InsightOverlayEngine } from '@/components/insight-overlay-engine';
+import { PlaybackReflector } from '@/components/playback-reflector';
 import { FractalTimeZoomManager, TimeScale } from '@/components/fractal-time-zoom-manager';
 import { RadialWeekView } from '@/components/radial-week-view';
 import { RadialMonthView } from '@/components/radial-month-view';
@@ -15,12 +17,16 @@ import { mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
 import { mockWeekData, mockMonthData, mockYearData } from '@/data/mock-temporal-data';
 import { mockFriends } from '@/data/mock-friend-data';
+import { mockInsightData } from '@/data/mock-insight-data';
 
 const Index = () => {
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
   const [reflectiveMode, setReflectiveMode] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
+  const [showPlayback, setShowPlayback] = useState(false);
+  const [hoveredLayer, setHoveredLayer] = useState<string | undefined>();
+  const [activeLayer, setActiveLayer] = useState<string | undefined>();
 
   const renderTimelineContent = ({ scale, transitionProgress, zoomLevel, isTransitioning }: {
     scale: TimeScale;
@@ -167,15 +173,48 @@ const Index = () => {
           />
         )}
 
-        {/* Insights Overlay */}
+        {/* Insight Overlay Engine */}
+        <InsightOverlayEngine
+          insights={mockInsightData}
+          currentView={scale}
+          centerX={centerX}
+          centerY={centerY}
+          maxRadius={360}
+          activeLayer={activeLayer}
+          hoveredElement={hoveredLayer}
+          isVisible={showInsights || hoveredLayer !== undefined}
+          onInsightClick={(insight) => {
+            console.log('Insight clicked:', insight);
+            setActiveLayer(insight.sourceLayer);
+          }}
+        />
+
+        {/* Legacy Insights Overlay */}
         <RadialInsightsOverlay
           insights={[]}
           centerX={centerX}
           centerY={centerY}
           maxRadius={340}
-          visible={showInsights}
+          visible={showInsights && scale === 'day'}
           onClose={() => setShowInsights(false)}
         />
+
+        {/* Playback Reflector */}
+        {showPlayback && (
+          <PlaybackReflector
+            timespan={scale}
+            centerX={centerX}
+            centerY={centerY}
+            radius={380}
+            onTimeUpdate={(time) => {
+              // Could drive animation of other components
+              console.log('Playback time:', time);
+            }}
+            onSegmentActivate={(segment) => {
+              console.log('Segment activated:', segment);
+            }}
+          />
+        )}
 
         {/* Center time display - adapts to scale */}
         {!reflectiveMode && scale !== 'day' && (
@@ -249,7 +288,7 @@ const Index = () => {
         </p>
         
         {/* Mode toggles */}
-        <div className="mb-8 flex gap-4 justify-center">
+        <div className="mb-8 flex gap-4 justify-center flex-wrap">
           <button
             onClick={() => setReflectiveMode(!reflectiveMode)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
@@ -270,6 +309,28 @@ const Index = () => {
             }`}
           >
             {showFriends ? '🫂 friends visible' : '○ show friends'}
+          </button>
+
+          <button
+            onClick={() => setShowInsights(!showInsights)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              showInsights
+                ? 'bg-blue-200/20 text-blue-200 border border-blue-200/30'
+                : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
+            }`}
+          >
+            {showInsights ? '✨ insights active' : '◐ show insights'}
+          </button>
+
+          <button
+            onClick={() => setShowPlayback(!showPlayback)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              showPlayback
+                ? 'bg-green-200/20 text-green-200 border border-green-200/30'
+                : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
+            }`}
+          >
+            {showPlayback ? '▶ reflecting' : '⧖ reflect time'}
           </button>
         </div>
         
