@@ -36,11 +36,11 @@ export const NowIndicator: React.FC<NowIndicatorProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Breathing pulse for the indicator
+  // Enhanced pulse effect - like a time compass (Phase 19)
   const { applyBreathingRadius, applyBreathingOpacity } = useBreathingPulse({
     enabled: true,
-    cycleMs: 4000,
-    intensity: 0.15,
+    cycleMs: 4000, // Slightly slower for more meditative feel
+    intensity: 0.2, // Slightly stronger pulse
     phaseOffset: 0,
     easingType: 'smooth'
   });

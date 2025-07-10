@@ -90,13 +90,13 @@ export const SunAuraRing: React.FC<SunAuraRingProps> = ({
     return configs[theme] || configs.default;
   }, [theme]);
 
-  // Smooth breathing with damped easing instead of raw Math.sin
+  // Enhanced smooth breathing with optimized easing for Phase 19
   const breathingScale = useMemo(() => {
-    const cycle = 6000; // 6 second breathing cycle
+    const cycle = 5000; // Enhanced 5 second breathing cycle for better harmony
     const phase = (time * 1000) % cycle / cycle;
-    // Use cubic easing for smoother breathing
+    // Use enhanced cubic easing for smoother breathing (no flicker/overpowering)
     const eased = 0.5 * (1 + Math.sin((phase * 2 - 0.5) * Math.PI));
-    return 0.95 + (eased * 0.1); // Range: 0.95 to 1.05
+    return 0.96 + (eased * 0.08); // Reduced range: 0.96 to 1.04 for subtle effect
   }, [time]);
 
   // Calculate structural anchor radius (outermost active layer)

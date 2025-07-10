@@ -46,12 +46,13 @@ export const MoonPhaseMarker: React.FC<MoonPhaseMarkerProps> = ({
     return { phase: 'waning-crescent', icon: '🌘', name: 'Waning Crescent' };
   }, []);
 
-  // Calculate moon position (approximate moonrise time)
+  // Calculate moon position (enhanced with smooth orbit)
   const moonPosition = useMemo(() => {
     const now = new Date();
     const hour = now.getHours();
+    const minute = now.getMinutes();
     
-    // Simplified moonrise calculation (varies by phase)
+    // Enhanced moonrise calculation with smooth transitions
     let moonriseHour = 18; // Default evening rise
     
     switch (moonPhase.phase) {
@@ -65,14 +66,20 @@ export const MoonPhaseMarker: React.FC<MoonPhaseMarkerProps> = ({
       case 'waning-crescent': moonriseHour = 3; break;
     }
     
-    const angle = (moonriseHour / 24) * 360 - 90; // -90 to start at top
-    const radians = (angle * Math.PI) / 180;
+    // Position at 45-60° (top-right arc as specified)
+    const baseAngle = 45 + (15 * Math.sin((hour + minute / 60) * Math.PI / 12)); // Slow orbital drift
+    const radians = (baseAngle * Math.PI) / 180;
+    
+    // Enhanced visibility calculation
+    const isVisible = hour >= moonriseHour - 2 && hour <= moonriseHour + 10;
+    const visibility = isVisible ? 1 : 0.4;
     
     return {
       x: centerX + Math.cos(radians) * radius,
       y: centerY + Math.sin(radians) * radius,
-      angle,
-      visibility: hour >= moonriseHour - 2 && hour <= moonriseHour + 10 ? 1 : 0.3
+      angle: baseAngle,
+      visibility,
+      isOptimalViewing: isVisible && (hour >= 20 || hour <= 6)
     };
   }, [centerX, centerY, radius, moonPhase.phase]);
 
@@ -175,27 +182,41 @@ export const MoonPhaseMarker: React.FC<MoonPhaseMarkerProps> = ({
         {moonPhase.icon}
       </text>
 
-      {/* Moon phase label (appears on hover) */}
-      <g className="moon-label" opacity={applyBreathingOpacity(0.7)}>
+      {/* Enhanced moon phase label with tooltip */}
+      <g className="moon-label" opacity={applyBreathingOpacity(0.8)}>
+        {/* Subtle glow trail */}
+        <circle
+          cx={moonPosition.x}
+          cy={moonPosition.y}
+          r="20"
+          fill="none"
+          stroke={themeColors.orbit}
+          strokeWidth="1"
+          opacity={moonPosition.visibility * 0.15}
+          strokeDasharray="1,4"
+        />
+        
         <text
           x={moonPosition.x}
           y={moonPosition.y - 15}
           textAnchor="middle"
           className="text-xs font-light"
           fill={themeColors.primary}
-          opacity={moonPosition.visibility * 0.8}
+          opacity={moonPosition.visibility * 0.9}
         >
           {moonPhase.name}
         </text>
+        
+        {/* Enhanced visibility context */}
         <text
           x={moonPosition.x}
           y={moonPosition.y + 25}
           textAnchor="middle"
           className="text-xs font-light"
           fill={themeColors.primary}
-          opacity={moonPosition.visibility * 0.6}
+          opacity={moonPosition.visibility * 0.7}
         >
-          Visible tonight
+          {moonPosition.isOptimalViewing ? 'Prime viewing' : 'Visible tonight'}
         </text>
       </g>
     </g>

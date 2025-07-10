@@ -81,11 +81,11 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
 
   const themeStyles = getThemeStyles(theme);
 
-  // Position labels horizontally stacked on the right side (like the reference image)
+  // Position labels horizontally stacked on the right side with enhanced spacing
   const labelPositions = labels.map((label, index) => {
-    // Fixed horizontal position on the right side
-    const x = centerX + 250; // Fixed distance from center
-    const y = centerY - 40 + (index * 35); // Vertical stack with proper spacing
+    // Enhanced horizontal position to reduce collision with floating elements
+    const x = centerX + 280; // Slightly further east
+    const y = centerY - 50 + (index * 42); // Increased vertical spacing (1.2x)
     
     return { ...label, x, y, angle: 0 };
   });
@@ -146,14 +146,15 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
               opacity={opacity * 0.9}
             />
             
-            {/* Clean label text (centered, readable) */}
+            {/* Enhanced label text with improved font weight */}
             <text
               x={label.x}
               y={label.y + 3}
               textAnchor="middle"
-              className={`text-sm ${themeStyles.font}`}
+              className={`text-sm font-normal ${themeStyles.font}`}
               fill={themeStyles.text}
               opacity={opacity}
+              style={{ fontWeight: 400 }} // Ensures consistent font weight
             >
               {label.text}
             </text>

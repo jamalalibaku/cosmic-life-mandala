@@ -185,8 +185,12 @@ export const InsightOrbitRing: React.FC<InsightOrbitRingProps> = ({
           baseOpacity * emotionStyle.opacity * (isHovered ? 1.2 : 1)
         );
         
-        // Only show some inactive insights to avoid clutter (and prevent orphaned circles)
-        if (!isActive && !isHovered && filteredInsights.length > 3 && Math.random() > 0.4) {
+        // Enhanced declutter logic: limit visible insights (Active + 1 neighbor max)
+        const showInactive = filteredInsights.length <= 3 || 
+                           index === (currentInsightIndex + 1) % filteredInsights.length ||
+                           index === (currentInsightIndex - 1 + filteredInsights.length) % filteredInsights.length;
+        
+        if (!isActive && !isHovered && !showInactive) {
           return null;
         }
 
