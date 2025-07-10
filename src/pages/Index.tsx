@@ -3,6 +3,9 @@ import WeatherSunburst from '@/components/weather-sunburst';
 import { WeatherSunburstRing } from '@/components/weather-sunburst-ring';
 import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
 import { DataBlobRing } from '@/components/data-blob-ring';
+import { UserCore } from '@/components/user-core';
+import { FriendOrbitRing } from '@/components/friend-orbit-ring';
+import { RadialInsightsOverlay } from '@/components/radial-insights-overlay';
 import { FractalTimeZoomManager, TimeScale } from '@/components/fractal-time-zoom-manager';
 import { RadialWeekView } from '@/components/radial-week-view';
 import { RadialMonthView } from '@/components/radial-month-view';
@@ -11,10 +14,13 @@ import { mockWeatherData } from '@/data/weatherData';
 import { mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
 import { mockWeekData, mockMonthData, mockYearData } from '@/data/mock-temporal-data';
+import { mockFriends } from '@/data/mock-friend-data';
 
 const Index = () => {
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
   const [reflectiveMode, setReflectiveMode] = useState(false);
+  const [showFriends, setShowFriends] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
 
   const renderTimelineContent = ({ scale, transitionProgress, zoomLevel, isTransitioning }: {
     scale: TimeScale;
@@ -136,8 +142,43 @@ const Index = () => {
           />
         )}
         
+        {/* User Core - Central identity */}
+        {scale === 'day' && (
+          <UserCore
+            name="You"
+            mood="creative"
+            theme="cosmic"
+            centerX={centerX}
+            centerY={centerY}
+            radius={reflectiveMode ? 30 : 40}
+            onClick={() => setShowInsights(!showInsights)}
+          />
+        )}
+
+        {/* Friend Orbit Ring - Social connections */}
+        {scale === 'day' && (
+          <FriendOrbitRing
+            friends={mockFriends}
+            centerX={centerX}
+            centerY={centerY}
+            radius={360}
+            theme="cosmic"
+            visible={showFriends}
+          />
+        )}
+
+        {/* Insights Overlay */}
+        <RadialInsightsOverlay
+          insights={[]}
+          centerX={centerX}
+          centerY={centerY}
+          maxRadius={340}
+          visible={showInsights}
+          onClose={() => setShowInsights(false)}
+        />
+
         {/* Center time display - adapts to scale */}
-        {!reflectiveMode && (
+        {!reflectiveMode && scale !== 'day' && (
           <g className="central-time">
             <circle
               cx={centerX}
@@ -162,11 +203,6 @@ const Index = () => {
               textAnchor="middle"
               className="fill-yellow-100 text-2xl font-bold"
             >
-              {scale === 'day' && new Date().toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit',
-                hour12: false 
-              })}
               {scale === 'week' && 'WEEK'}
               {scale === 'month' && new Date().toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
               {scale === 'year' && new Date().getFullYear()}
@@ -212,8 +248,8 @@ const Index = () => {
           Fractal Timeline Visualization
         </p>
         
-        {/* Poetry mode toggle */}
-        <div className="mb-8">
+        {/* Mode toggles */}
+        <div className="mb-8 flex gap-4 justify-center">
           <button
             onClick={() => setReflectiveMode(!reflectiveMode)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
@@ -223,6 +259,17 @@ const Index = () => {
             }`}
           >
             {reflectiveMode ? '⧖ poetry mode' : '◎ interface mode'}
+          </button>
+          
+          <button
+            onClick={() => setShowFriends(!showFriends)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              showFriends
+                ? 'bg-purple-200/20 text-purple-200 border border-purple-200/30'
+                : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
+            }`}
+          >
+            {showFriends ? '🫂 friends visible' : '○ show friends'}
           </button>
         </div>
         
