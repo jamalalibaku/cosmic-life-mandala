@@ -205,15 +205,32 @@ export const RadialWeekView: React.FC<RadialWeekViewProps> = ({
             }}
           />
           
-          {/* Day label */}
+          {/* Day label with enhanced visibility */}
           <text
             x={petal.dataX}
             y={petal.dataY}
             textAnchor="middle"
             className="text-xs font-medium pointer-events-none"
             fill={colors.text}
+            style={{
+              textShadow: '0 0 4px rgba(0,0,0,0.8)',
+              fontSize: hoveredDay === petal.index ? '14px' : '12px'
+            }}
           >
             {dayNames[petal.index]}
+          </text>
+          
+          {/* Weather emoji for quick context */}
+          <text
+            x={petal.dataX}
+            y={petal.dataY - 12}
+            textAnchor="middle"
+            className="text-xs pointer-events-none"
+            opacity={hoveredDay === petal.index ? 1 : 0.7}
+          >
+            {petal.day.weather === 'sunny' ? '☀️' : 
+             petal.day.weather === 'rainy' ? '🌧️' : 
+             petal.day.weather === 'cloudy' ? '☁️' : '🌤️'}
           </text>
           
           {/* Data signature dots */}

@@ -90,16 +90,19 @@ export const RadialYearView: React.FC<RadialYearViewProps> = ({
     return yearData.map((month, index) => {
       const monthAngle = (index / 12) * 360 - 90 + yearRotation; // Start from top (January)
       const seasonalDrift = Math.sin(time * 0.2 + index) * 3; // Seasonal drift
-      const adjustedAngle = monthAngle + seasonalDrift;
-      const rad = goldenRatio.toRadians(adjustedAngle);
-      
-      const x = centerX + Math.cos(rad) * orbitRadius;
-      const y = centerY + Math.sin(rad) * orbitRadius;
-      
-      // Month size based on data intensity and golden ratio
-      const dataIntensity = (month.dataSummary.avgActivity + month.dataSummary.avgMood + month.dataSummary.avgSleep) / 3;
-      const baseSize = radius * 0.04;
-      const size = baseSize * (0.7 + dataIntensity * 0.6) * goldenRatio.smaller(1);
+        const adjustedAngle = monthAngle + seasonalDrift;
+        const rad = goldenRatio.toRadians(adjustedAngle);
+        
+        // Create constellation effect with slight orbital variation
+        const constellationRadius = orbitRadius * (0.95 + Math.sin(time * 0.1 + index) * 0.1);
+        const x = centerX + Math.cos(rad) * constellationRadius;
+        const y = centerY + Math.sin(rad) * constellationRadius;
+        
+        // Month size based on data intensity and golden ratio with pulsing
+        const dataIntensity = (month.dataSummary.avgActivity + month.dataSummary.avgMood + month.dataSummary.avgSleep) / 3;
+        const baseSize = radius * 0.04;
+        const pulseMultiplier = 1 + Math.sin(time * 0.5 + index) * 0.2;
+        const size = baseSize * (0.7 + dataIntensity * 0.6) * goldenRatio.smaller(1) * pulseMultiplier;
       
       return {
         ...month,

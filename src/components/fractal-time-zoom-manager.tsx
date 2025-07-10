@@ -25,9 +25,9 @@ interface FractalTimeZoomManagerProps {
 const scaleHierarchy: TimeScale[] = ['day', 'week', 'month', 'year'];
 const zoomLevels = {
   day: 1,
-  week: 0.7,
-  month: 0.5,
-  year: 0.3
+  week: goldenRatio.smaller(1) * 0.8,   // Golden ratio scaling
+  month: goldenRatio.smaller(1) * 0.6,
+  year: goldenRatio.smaller(1) * 0.4
 };
 
 export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
@@ -56,20 +56,33 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
     return () => cancelAnimationFrame(animationId);
   }, [reflectivePlayback]);
 
-  // Smooth transition animation
+  // Smooth fractal transition animation
   const animateTransition = useCallback((targetScale: TimeScale) => {
     setIsTransitioning(true);
     setTransitionProgress(0);
     
-    const duration = 1200; // 1.2 seconds
+    const duration = 1500; // Slower, more meditative
     const startTime = Date.now();
     
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      // Golden ratio easing curve
-      const easedProgress = 1 - Math.pow(1 - progress, PHI);
+      // Triple-phase golden ratio easing for scale → morph → settle
+      let easedProgress;
+      if (progress < 0.3) {
+        // Scale phase - gentle zoom
+        easedProgress = Math.pow(progress / 0.3, 1 / PHI);
+      } else if (progress < 0.7) {
+        // Morph phase - segment transformation
+        const morphProgress = (progress - 0.3) / 0.4;
+        easedProgress = 0.3 + (morphProgress * 0.4);
+      } else {
+        // Settle phase - final positioning
+        const settleProgress = (progress - 0.7) / 0.3;
+        easedProgress = 0.7 + (Math.pow(settleProgress, PHI) * 0.3);
+      }
+      
       setTransitionProgress(easedProgress);
       
       if (progress < 1) {
@@ -184,13 +197,14 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
         />
       )}
 
-      {/* Content with zoom transformation */}
+      {/* Content with fractal zoom transformation */}
       <div
-        className="w-full h-full transition-transform duration-1200 ease-out"
+        className="w-full h-full transition-transform duration-1500 ease-out"
         style={{
-          transform: `scale(${currentZoomLevel})`,
-          filter: isTransitioning ? 'blur(2px)' : 'none',
-          transition: isTransitioning ? 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
+          transform: `scale(${currentZoomLevel}) rotate(${isTransitioning ? transitionProgress * 2 : 0}deg)`,
+          filter: isTransitioning ? `blur(${Math.sin(transitionProgress * Math.PI) * 4}px)` : 'none',
+          opacity: isTransitioning ? 0.8 + (Math.cos(transitionProgress * Math.PI) * 0.2) : 1,
+          transition: isTransitioning ? 'all 1.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
         }}
       >
         {children({

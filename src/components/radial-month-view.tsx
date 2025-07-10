@@ -82,8 +82,10 @@ export const RadialMonthView: React.FC<RadialMonthViewProps> = ({
     });
 
     return weeks.filter(week => week.length > 0).map((week, weekIndex) => {
-      const orbitRadius = radius * (0.3 + (weekIndex * 0.15)) * goldenRatio.larger(1);
-      const rotationSpeed = 0.1 + (weekIndex * 0.05); // Outer orbits move slower
+      // Create spiral pattern using golden ratio
+      const spiralFactor = Math.pow(PHI, weekIndex * 0.3);
+      const orbitRadius = radius * (0.25 + (weekIndex * 0.12)) * goldenRatio.smaller(spiralFactor);
+      const rotationSpeed = 0.08 * (1 / spiralFactor); // Inner orbits move faster
       const baseRotation = time * rotationSpeed;
       
       const nodes = week.map((day, dayIndex) => {
