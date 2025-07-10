@@ -1,5 +1,7 @@
 import WeatherSunburst from '@/components/weather-sunburst';
+import { WeatherSunburstRing } from '@/components/weather-sunburst-ring';
 import { mockWeatherData } from '@/data/weatherData';
+import { mockWeatherToday } from '@/data/mock-weather-data';
 
 const Index = () => {
   return (
@@ -31,39 +33,54 @@ const Index = () => {
         
         {/* Weather sunburst preview */}
         <div className="flex justify-center">
-          <svg width="400" height="400" className="drop-shadow-2xl">
+          <svg width="500" height="500" className="drop-shadow-2xl">
+            {/* Original weather sunburst (inner layer) */}
             <WeatherSunburst
               weatherData={mockWeatherData}
-              centerX={200}
-              centerY={200}
-              innerRadius={60}
-              outerRadius={180}
+              centerX={250}
+              centerY={250}
+              innerRadius={80}
+              outerRadius={140}
+            />
+            
+            {/* New weather ring (outer layer) */}
+            <WeatherSunburstRing
+              weatherData={mockWeatherToday}
+              centerX={250}
+              centerY={250}
+              innerRadius={150}
+              outerRadius={190}
+              theme="cosmic"
             />
             
             {/* Center time display */}
             <text
-              x="200"
-              y="190"
+              x="250"
+              y="240"
               textAnchor="middle"
               className="fill-yellow-200 text-sm font-light"
             >
               NOW
             </text>
             <text
-              x="200"
-              y="210"
+              x="250"
+              y="260"
               textAnchor="middle"
               className="fill-yellow-100 text-2xl font-bold"
             >
-              09:41
+              {new Date().toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+              })}
             </text>
             <text
-              x="200"
-              y="225"
+              x="250"
+              y="275"
               textAnchor="middle"
-              className="fill-yellow-200 text-sm font-light"
+              className="fill-yellow-200 text-xs font-light"
             >
-              AM
+              Weather Timeline
             </text>
           </svg>
         </div>
