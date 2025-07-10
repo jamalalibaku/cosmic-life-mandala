@@ -17,6 +17,7 @@ interface InsightOrbitRingProps {
   currentTimeScale: string;
   theme: string;
   onInsightClick?: (insight: Insight) => void;
+  showDebug?: boolean;
   className?: string;
 }
 
@@ -29,6 +30,7 @@ export const InsightOrbitRing: React.FC<InsightOrbitRingProps> = ({
   currentTimeScale,
   theme,
   onInsightClick,
+  showDebug = false,
   className = ''
 }) => {
   const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
@@ -43,11 +45,25 @@ export const InsightOrbitRing: React.FC<InsightOrbitRingProps> = ({
     easingType: 'smooth'
   });
 
-  // Filter insights for current time scale
-  const filteredInsights = useMemo(() => 
-    insights.filter(insight => insight.timeScale === currentTimeScale),
-    [insights, currentTimeScale]
-  );
+  // Filter insights for current time scale with validation
+  const filteredInsights = useMemo(() => {
+    return insights.filter(insight => {
+      // Validate required properties
+      if (!insight.text || !insight.position || !insight.id) {
+        console.warn('Invalid insight filtered out:', insight);
+        return false;
+      }
+      
+      // Validate position values
+      if (isNaN(insight.position.angle) || isNaN(insight.position.radius)) {
+        console.warn('Invalid position values filtered out:', insight);
+        return false;
+      }
+      
+      // Filter by time scale
+      return insight.timeScale === currentTimeScale;
+    });
+  }, [insights, currentTimeScale]);
 
   // Sync with playback for enhanced narration
   const isPlaybackActive = hoveredInsight !== null;
@@ -169,8 +185,8 @@ export const InsightOrbitRing: React.FC<InsightOrbitRingProps> = ({
           baseOpacity * emotionStyle.opacity * (isHovered ? 1.2 : 1)
         );
         
-        if (!isActive && !isHovered && Math.random() > 0.3) {
-          // Only show some inactive insights to avoid clutter
+        // Only show some inactive insights to avoid clutter (and prevent orphaned circles)
+        if (!isActive && !isHovered && filteredInsights.length > 3 && Math.random() > 0.4) {
           return null;
         }
 
@@ -180,9 +196,37 @@ export const InsightOrbitRing: React.FC<InsightOrbitRingProps> = ({
             className="insight-glyph cursor-pointer"
             onMouseEnter={() => setHoveredInsight(insight.id)}
             onMouseLeave={() => setHoveredInsight(null)}
-            onClick={() => onInsightClick?.(insight)}
+            onClick={() => {
+              console.log('AI Insight clicked:', insight);
+              onInsightClick?.(insight);
+            }}
             opacity={finalOpacity}
           >
+            {/* Debug mode: Show insight boundaries and info */}
+            {showDebug && (
+              <g className="debug-info">
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={20}
+                  fill="none"
+                  stroke="red"
+                  strokeWidth="1"
+                  strokeDasharray="2,2"
+                  opacity="0.5"
+                />
+                <text
+                  x={x}
+                  y={y - 30}
+                  textAnchor="middle"
+                  className="text-xs font-mono"
+                  fill="red"
+                >
+                  {insight.id} • {insight.type}
+                </text>
+              </g>
+            )}
+            
             {/* Glow ring */}
             <circle
               cx={x}

@@ -57,6 +57,7 @@ const IndexContent = () => {
   const [poetryMode, setPoetryMode] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string>('berlin');
   const [showAIInsights, setShowAIInsights] = useState(true);
+  const [showDebugMode, setShowDebugMode] = useState(false);
 
   // Handle keyboard escape to exit poetry mode
   useEffect(() => {
@@ -405,7 +406,7 @@ const IndexContent = () => {
           />
         )}
 
-        {/* AI Insight Orbit Ring */}
+        {/* AI Insight Orbit Ring with debug capabilities */}
         <InsightOrbitRing
           insights={aiInsights}
           centerX={centerX}
@@ -414,8 +415,11 @@ const IndexContent = () => {
           isVisible={showAIInsights && !poetryMode}
           currentTimeScale={scale}
           theme={currentTheme}
+          showDebug={showDebugMode}
           onInsightClick={(insight) => {
-            console.log('AI Insight clicked:', insight);
+            if (showDebugMode) {
+              console.log('🐛 Debug - AI Insight clicked:', insight);
+            }
           }}
         />
 
@@ -449,7 +453,21 @@ const IndexContent = () => {
           onExit={() => setPoetryMode(false)}
         />
 
-        {/* Center time display for non-day scales */}
+        {/* Debug Toggle (development only) */}
+        {process.env.NODE_ENV === 'development' && (
+          <button
+            onClick={() => setShowDebugMode(!showDebugMode)}
+            className={`fixed top-4 right-4 z-50 px-3 py-1 rounded text-xs font-mono transition-all ${
+              showDebugMode 
+                ? 'bg-red-500 text-white' 
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            {showDebugMode ? '🐛 DEBUG ON' : '○ Debug'}
+          </button>
+        )}
+
+        {/* Central time display for non-day scales */}
         {!reflectiveMode && !poetryMode && scale !== 'day' && (
           <g className="central-time">
             <circle
