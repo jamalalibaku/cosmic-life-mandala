@@ -45,61 +45,71 @@ export const SkyArcGradient: React.FC<SkyArcGradientProps> = ({
     // Convert to degrees (0° = midnight, 90° = 6am, 180° = noon, 270° = 6pm)
     const timeAngle = (totalMinutes / (24 * 60)) * 360;
     
-    // Time of day colors
-    const getTimeColors = (hour: number) => {
-      if (hour >= 5 && hour < 7) {
-        // Dawn
+    // Time of day colors with smooth transitions
+    const getTimeColors = (hour: number, minute: number) => {
+      const totalHours = hour + minute / 60;
+      
+      // Define key time points with smooth interpolation
+      if (totalHours >= 5 && totalHours < 6.5) {
+        // Dawn transition
+        const progress = (totalHours - 5) / 1.5;
         return {
-          primary: 'hsl(25 80% 60%)',
-          secondary: 'hsl(45 70% 70%)',
-          accent: 'hsl(15 90% 55%)'
+          primary: `hsl(${15 + progress * 10} 80% ${60 + progress * 10}%)`,
+          secondary: `hsl(${35 + progress * 10} 70% ${70 + progress * 5}%)`,
+          accent: `hsl(${5 + progress * 10} 90% ${55 + progress * 5}%)`
         };
-      } else if (hour >= 7 && hour < 11) {
-        // Morning
+      } else if (totalHours >= 6.5 && totalHours < 10) {
+        // Morning progression
+        const progress = (totalHours - 6.5) / 3.5;
         return {
-          primary: 'hsl(200 60% 70%)',
-          secondary: 'hsl(45 80% 75%)',
-          accent: 'hsl(210 50% 80%)'
+          primary: `hsl(${200 - progress * 50} ${60 + progress * 20}% ${70 + progress * 5}%)`,
+          secondary: `hsl(${45} ${80}% ${75 + progress * 5}%)`,
+          accent: `hsl(${210 - progress * 30} ${50 + progress * 30}% ${80}%)`
         };
-      } else if (hour >= 11 && hour < 15) {
-        // Noon
+      } else if (totalHours >= 10 && totalHours < 15) {
+        // Midday peak
+        const progress = Math.abs(totalHours - 12.5) / 2.5;
         return {
-          primary: 'hsl(45 90% 80%)',
-          secondary: 'hsl(50 95% 85%)',
-          accent: 'hsl(40 85% 75%)'
+          primary: `hsl(${45} ${90 + progress * 5}% ${80 + progress * 5}%)`,
+          secondary: `hsl(${50} ${95}% ${85}%)`,
+          accent: `hsl(${40} ${85}% ${75}%)`
         };
-      } else if (hour >= 15 && hour < 18) {
-        // Afternoon
+      } else if (totalHours >= 15 && totalHours < 18) {
+        // Afternoon warmth
+        const progress = (totalHours - 15) / 3;
         return {
-          primary: 'hsl(35 75% 65%)',
-          secondary: 'hsl(45 80% 70%)',
-          accent: 'hsl(25 70% 60%)'
+          primary: `hsl(${35 - progress * 10} ${75 + progress * 10}% ${65}%)`,
+          secondary: `hsl(${45 - progress * 5} ${80}% ${70}%)`,
+          accent: `hsl(${25 - progress * 5} ${70 + progress * 20}% ${60}%)`
         };
-      } else if (hour >= 18 && hour < 20) {
-        // Sunset
+      } else if (totalHours >= 18 && totalHours < 20) {
+        // Sunset magic
+        const progress = (totalHours - 18) / 2;
         return {
-          primary: 'hsl(15 85% 55%)',
-          secondary: 'hsl(280 60% 60%)',
-          accent: 'hsl(25 90% 50%)'
+          primary: `hsl(${15 - progress * 5} ${85}% ${55 - progress * 10}%)`,
+          secondary: `hsl(${280 + progress * 20} ${60 + progress * 20}% ${60}%)`,
+          accent: `hsl(${25} ${90}% ${50}%)`
         };
-      } else if (hour >= 20 && hour < 22) {
-        // Dusk
+      } else if (totalHours >= 20 && totalHours < 22) {
+        // Dusk transition
+        const progress = (totalHours - 20) / 2;
         return {
-          primary: 'hsl(240 50% 45%)',
-          secondary: 'hsl(260 40% 50%)',
-          accent: 'hsl(220 60% 40%)'
+          primary: `hsl(${240} ${50 - progress * 10}% ${45 - progress * 15}%)`,
+          secondary: `hsl(${260} ${40}% ${50 - progress * 20}%)`,
+          accent: `hsl(${220 + progress * 20} ${60 - progress * 20}% ${40 - progress * 10}%)`
         };
       } else {
-        // Night
+        // Night depth
+        const nightProgress = totalHours > 22 ? (totalHours - 22) / 7 : (totalHours + 2) / 7;
         return {
-          primary: 'hsl(240 30% 25%)',
-          secondary: 'hsl(220 40% 20%)',
-          accent: 'hsl(260 25% 30%)'
+          primary: `hsl(${240} ${30 - nightProgress * 5}% ${25 - nightProgress * 10}%)`,
+          secondary: `hsl(${220} ${40 - nightProgress * 10}% ${20 - nightProgress * 5}%)`,
+          accent: `hsl(${260} ${25}% ${30 - nightProgress * 10}%)`
         };
       }
     };
     
-    const colors = getTimeColors(hours);
+    const colors = getTimeColors(hours, minutes);
     
     // Sun and moon positions (opposite each other)
     const sunAngle = timeAngle - 90; // Offset so noon is at top

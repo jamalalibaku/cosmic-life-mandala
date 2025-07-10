@@ -13,6 +13,8 @@ interface SunAuraRingProps {
   radius: number;
   theme: string;
   isPlaybackActive?: boolean;
+  activeLayerRadius?: number; // Anchor to outermost active layer
+  timeOfDay?: 'dawn' | 'morning' | 'noon' | 'afternoon' | 'sunset' | 'dusk' | 'night';
   className?: string;
 }
 
@@ -22,6 +24,8 @@ export const SunAuraRing: React.FC<SunAuraRingProps> = ({
   radius,
   theme,
   isPlaybackActive = false,
+  activeLayerRadius,
+  timeOfDay = 'noon',
   className = ''
 }) => {
   const [time, setTime] = useState(0);
@@ -86,44 +90,98 @@ export const SunAuraRing: React.FC<SunAuraRingProps> = ({
     return configs[theme] || configs.default;
   }, [theme]);
 
-  // Breathing scale with golden ratio
+  // Smooth breathing with damped easing instead of raw Math.sin
   const breathingScale = useMemo(() => {
-    return goldenRatio.breathingScale(time * 1000, 4000); // 4 second breathing cycle
+    const cycle = 6000; // 6 second breathing cycle
+    const phase = (time * 1000) % cycle / cycle;
+    // Use cubic easing for smoother breathing
+    const eased = 0.5 * (1 + Math.sin((phase * 2 - 0.5) * Math.PI));
+    return 0.95 + (eased * 0.1); // Range: 0.95 to 1.05
   }, [time]);
+
+  // Calculate structural anchor radius (outermost active layer)
+  const structuralRadius = useMemo(() => {
+    return activeLayerRadius || radius;
+  }, [activeLayerRadius, radius]);
+
+  // Time-of-day intensity modulation
+  const timeIntensity = useMemo(() => {
+    const intensities = {
+      dawn: 0.8,
+      morning: 1.0,
+      noon: 1.2,
+      afternoon: 1.0,
+      sunset: 1.1,
+      dusk: 0.7,
+      night: 0.4
+    };
+    return intensities[timeOfDay] || 1.0;
+  }, [timeOfDay]);
+
+  // Layered aura rings using golden ratio spacing
+  const layeredAuras = useMemo(() => {
+    const layers = [];
+    const baseRadius = structuralRadius * breathingScale;
+    
+    for (let i = 0; i < 3; i++) {
+      const layerRadius = baseRadius * Math.pow(goldenRatio.larger(1), i * 0.3);
+      const opacity = (auraConfig.intensity * timeIntensity * (0.8 - i * 0.2));
+      const blur = 4 + i * 3;
+      
+      layers.push({
+        id: i,
+        radius: layerRadius,
+        opacity: Math.max(0.1, opacity),
+        blur,
+        strokeWidth: 2 - i * 0.5
+      });
+    }
+    
+    return layers;
+  }, [structuralRadius, breathingScale, auraConfig.intensity, timeIntensity]);
+
+  // Smooth orbital patterns - no flickering
+  const orbitalPatterns = useMemo(() => {
+    const patternCount = 8;
+    const patterns = [];
+    
+    for (let i = 0; i < patternCount; i++) {
+      const baseAngle = (i / patternCount) * 360;
+      const driftAngle = time * 3; // Slow drift
+      const angle = baseAngle + driftAngle;
+      
+      const orbitRadius = structuralRadius * (0.7 + i * 0.05);
+      const x = centerX + Math.cos(goldenRatio.toRadians(angle)) * orbitRadius;
+      const y = centerY + Math.sin(goldenRatio.toRadians(angle)) * orbitRadius;
+      
+      // Smooth pulsing without harsh Math.sin transitions
+      const pulsePhase = (time + i * 0.5) % 3; // 3 second pulse cycle
+      const smoothPulse = 0.5 + 0.5 * Math.cos(pulsePhase * 2 * Math.PI / 3);
+      
+      patterns.push({
+        id: i,
+        x,
+        y,
+        angle,
+        size: 6 + smoothPulse * 4,
+        opacity: auraConfig.intensity * timeIntensity * (0.4 + smoothPulse * 0.3)
+      });
+    }
+    
+    return patterns;
+  }, [structuralRadius, centerX, centerY, time, auraConfig.intensity, timeIntensity]);
 
   // Playback spiral flare
   const spiralFlare = useMemo(() => {
     if (!isPlaybackActive) return null;
     
     const flareAngle = time * 30; // Slow rotation
-    const flareRadius = radius * (1 + Math.sin(time * 2) * 0.1);
+    const flareRadius = structuralRadius * (1 + Math.sin(time * 2) * 0.1);
     const flareX = centerX + Math.cos(goldenRatio.toRadians(flareAngle)) * flareRadius;
     const flareY = centerY + Math.sin(goldenRatio.toRadians(flareAngle)) * flareRadius;
     
     return { x: flareX, y: flareY, angle: flareAngle };
-  }, [isPlaybackActive, time, centerX, centerY, radius]);
-
-  // Generate aura patterns based on theme
-  const auraPatterns = useMemo(() => {
-    const patternCount = auraConfig.pattern === 'circuit' ? 8 : 12;
-    const patterns = [];
-    
-    for (let i = 0; i < patternCount; i++) {
-      const angle = (i / patternCount) * 360 + (time * 10);
-      const waveRadius = radius * (0.8 + Math.sin(time * 1.5 + i) * 0.2);
-      const opacity = auraConfig.intensity * (0.3 + Math.sin(time * 0.8 + i * 0.5) * 0.2);
-      
-      patterns.push({
-        id: i,
-        angle,
-        radius: waveRadius,
-        opacity,
-        size: 8 + Math.sin(time + i) * 4
-      });
-    }
-    
-    return patterns;
-  }, [auraConfig, radius, time]);
+  }, [isPlaybackActive, time, centerX, centerY, structuralRadius]);
 
   return (
     <g className={`sun-aura-ring ${className}`}>
@@ -160,73 +218,73 @@ export const SunAuraRing: React.FC<SunAuraRingProps> = ({
         </filter>
       </defs>
 
-      {/* Main breathing aura */}
-      <circle
-        cx={centerX}
-        cy={centerY}
-        r={radius * breathingScale}
-        fill={`url(#aura-gradient-${theme})`}
-        filter="url(#aura-glow)"
-        opacity={auraConfig.intensity}
-        className="pointer-events-none"
-      />
+      {/* Layered breathing aura rings */}
+      {layeredAuras.map(layer => (
+        <circle
+          key={`aura-layer-${layer.id}`}
+          cx={centerX}
+          cy={centerY}
+          r={layer.radius}
+          fill="none"
+          stroke={auraConfig.glowColor}
+          strokeWidth={layer.strokeWidth}
+          opacity={layer.opacity}
+          filter={`url(#aura-glow)`}
+          className="pointer-events-none"
+        />
+      ))}
 
-      {/* Theme-specific aura patterns */}
-      {auraPatterns.map(pattern => {
-        const x = centerX + Math.cos(goldenRatio.toRadians(pattern.angle)) * pattern.radius;
-        const y = centerY + Math.sin(goldenRatio.toRadians(pattern.angle)) * pattern.radius;
-        
-        return (
-          <g key={`pattern-${pattern.id}`} className="pointer-events-none">
-            {auraConfig.pattern === 'flame' && (
-              <ellipse
-                cx={x}
-                cy={y}
-                rx={pattern.size * 0.6}
-                ry={pattern.size * 1.4}
-                fill={auraConfig.glowColor}
-                opacity={pattern.opacity}
-                filter="url(#aura-glow)"
-                transform={`rotate(${pattern.angle + 90} ${x} ${y})`}
-              />
-            )}
-            
-            {auraConfig.pattern === 'burst' && (
-              <polygon
-                points={`${x},${y-pattern.size} ${x+pattern.size*0.3},${y} ${x},${y+pattern.size} ${x-pattern.size*0.3},${y}`}
-                fill={auraConfig.glowColor}
-                opacity={pattern.opacity}
-                filter="url(#aura-glow)"
-                transform={`rotate(${pattern.angle} ${x} ${y})`}
-              />
-            )}
-            
-            {auraConfig.pattern === 'petal' && (
-              <ellipse
-                cx={x}
-                cy={y}
-                rx={pattern.size * 0.8}
-                ry={pattern.size * 1.2}
-                fill={auraConfig.glowColor}
-                opacity={pattern.opacity}
-                filter="url(#aura-glow)"
-                transform={`rotate(${pattern.angle + 45} ${x} ${y})`}
-              />
-            )}
-            
-            {(auraConfig.pattern === 'circuit' || auraConfig.pattern === 'groove' || auraConfig.pattern === 'smoke' || auraConfig.pattern === 'wave') && (
-              <circle
-                cx={x}
-                cy={y}
-                r={pattern.size}
-                fill={auraConfig.glowColor}
-                opacity={pattern.opacity}
-                filter="url(#aura-glow)"
-              />
-            )}
-          </g>
-        );
-      })}
+      {/* Orbital patterns - smooth theme-specific shapes */}
+      {orbitalPatterns.map(pattern => (
+        <g key={`orbital-${pattern.id}`} className="pointer-events-none">
+          {auraConfig.pattern === 'flame' && (
+            <ellipse
+              cx={pattern.x}
+              cy={pattern.y}
+              rx={pattern.size * 0.6}
+              ry={pattern.size * 1.4}
+              fill={auraConfig.glowColor}
+              opacity={pattern.opacity}
+              filter="url(#aura-glow)"
+              transform={`rotate(${pattern.angle + 90} ${pattern.x} ${pattern.y})`}
+            />
+          )}
+          
+          {auraConfig.pattern === 'burst' && (
+            <polygon
+              points={`${pattern.x},${pattern.y-pattern.size} ${pattern.x+pattern.size*0.3},${pattern.y} ${pattern.x},${pattern.y+pattern.size} ${pattern.x-pattern.size*0.3},${pattern.y}`}
+              fill={auraConfig.glowColor}
+              opacity={pattern.opacity}
+              filter="url(#aura-glow)"
+              transform={`rotate(${pattern.angle} ${pattern.x} ${pattern.y})`}
+            />
+          )}
+          
+          {auraConfig.pattern === 'petal' && (
+            <ellipse
+              cx={pattern.x}
+              cy={pattern.y}
+              rx={pattern.size * 0.8}
+              ry={pattern.size * 1.2}
+              fill={auraConfig.glowColor}
+              opacity={pattern.opacity}
+              filter="url(#aura-glow)"
+              transform={`rotate(${pattern.angle + 45} ${pattern.x} ${pattern.y})`}
+            />
+          )}
+          
+          {(auraConfig.pattern === 'circuit' || auraConfig.pattern === 'groove' || auraConfig.pattern === 'smoke' || auraConfig.pattern === 'wave') && (
+            <circle
+              cx={pattern.x}
+              cy={pattern.y}
+              r={pattern.size}
+              fill={auraConfig.glowColor}
+              opacity={pattern.opacity}
+              filter="url(#aura-glow)"
+            />
+          )}
+        </g>
+      ))}
 
       {/* Playback spiral flare */}
       {spiralFlare && (

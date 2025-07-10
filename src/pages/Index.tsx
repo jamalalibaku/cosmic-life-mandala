@@ -80,13 +80,24 @@ const IndexContent = () => {
           showSunMoon={true}
         />
         
-        {/* Sun Aura Ring - Breathing center */}
+        {/* Sun Aura Ring - Breathing center anchored to outermost layer */}
         <SunAuraRing
           centerX={centerX}
           centerY={centerY}
           radius={timeDrift.applyBreathing(55)}
           theme={currentTheme}
           isPlaybackActive={showPlayback}
+          activeLayerRadius={scale === 'day' ? 340 : 320}
+          timeOfDay={(() => {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 7) return 'dawn';
+            if (hour >= 7 && hour < 11) return 'morning';
+            if (hour >= 11 && hour < 15) return 'noon';
+            if (hour >= 15 && hour < 18) return 'afternoon';
+            if (hour >= 18 && hour < 20) return 'sunset';
+            if (hour >= 20 && hour < 22) return 'dusk';
+            return 'night';
+          })()}
         />
         
         {/* Always present: Cosmic sunburst aura layer */}

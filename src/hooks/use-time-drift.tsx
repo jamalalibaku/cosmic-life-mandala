@@ -53,8 +53,8 @@ export const useTimeDrift = (config: TimeDriftConfig = {
       const currentTime = Date.now();
       const elapsed = (currentTime - startTime) / 1000; // seconds
 
-      // Calculate drift rotation (slow clockwise rotation)
-      const driftSpeed = 360 / (24 * 60 * 60); // degrees per second for 24h rotation
+      // Calculate drift rotation (slow clockwise rotation - 12h visible cycle)
+      const driftSpeed = 360 / (12 * 60 * 60); // degrees per second for 12h rotation (more visible)
       const driftAngle = (elapsed * driftSpeed * config.speed) % 360;
 
       // Calculate breathing scale
