@@ -18,6 +18,7 @@ interface SettingsPanelProps {
   showInsights: boolean;
   showPlayback: boolean;
   showTideRings: boolean;
+  showAIInsights: boolean;
   
   // Toggle functions
   onReflectiveModeChange: (value: boolean) => void;
@@ -26,6 +27,7 @@ interface SettingsPanelProps {
   onShowInsightsChange: (value: boolean) => void;
   onShowPlaybackChange: (value: boolean) => void;
   onShowTideRingsChange: (value: boolean) => void;
+  onShowAIInsightsChange: (value: boolean) => void;
 }
 
 export const SettingsPanel = ({
@@ -35,12 +37,14 @@ export const SettingsPanel = ({
   showInsights,
   showPlayback,
   showTideRings,
+  showAIInsights,
   onReflectiveModeChange,
   onPoetryModeChange,
   onShowFriendsChange,
   onShowInsightsChange,
   onShowPlaybackChange,
   onShowTideRingsChange,
+  onShowAIInsightsChange,
 }: SettingsPanelProps) => {
   const { themeConfig, currentTheme, setTheme } = useVisualSkin();
   const [isOpen, setIsOpen] = useState(false);
@@ -211,13 +215,20 @@ export const SettingsPanel = ({
                       activeLabel="🫂 friends visible"
                       inactiveLabel="○ show friends"
                     />
-                    <ToggleButton
-                      active={showInsights}
-                      onClick={() => onShowInsightsChange(!showInsights)}
-                      icon={Sparkles}
-                      activeLabel="✨ insights active"
-                      inactiveLabel="◐ show insights"
-                    />
+                     <ToggleButton
+                       active={showAIInsights}
+                       onClick={() => onShowAIInsightsChange(!showAIInsights)}
+                       icon={Sparkles}
+                       activeLabel="✨ AI insights orbit"
+                       inactiveLabel="◐ AI insights"
+                     />
+                     <ToggleButton
+                       active={showInsights}
+                       onClick={() => onShowInsightsChange(!showInsights)}
+                       icon={Sparkles}
+                       activeLabel="✨ insights active"
+                       inactiveLabel="◐ show insights"
+                     />
                     <ToggleButton
                       active={showPlayback}
                       onClick={() => onShowPlaybackChange(!showPlayback)}

@@ -29,6 +29,7 @@ import { RadialMonthConstellation } from '@/components/radial-month-constellatio
 import { RadialYearView } from '@/components/radial-year-view';
 import { RadialYearSeasons } from '@/components/radial-year-seasons';
 import { RadialFractalView } from '@/components/radial-fractal-view';
+import { InsightOrbitRing } from '@/components/insight-orbit-ring';
 import { mockWeatherData } from '@/data/weatherData';
 import { mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
@@ -38,6 +39,7 @@ import { mockInsightData } from '@/data/mock-insight-data';
 import { calculateLayerInteraction } from '@/utils/mood-engine';
 import { MoodInfluence } from '@/utils/mood-engine';
 import { Theme, themeConfigs } from '@/utils/theme-configs';
+import { generateInsights } from '@/utils/insight-engine';
 import { SettingsPanel } from '@/components/settings-panel';
 
 const IndexContent = () => {
@@ -53,6 +55,7 @@ const IndexContent = () => {
   const [currentMood, setCurrentMood] = useState<MoodInfluence | null>(null);
   const [poetryMode, setPoetryMode] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string>('berlin');
+  const [showAIInsights, setShowAIInsights] = useState(true);
 
   // Handle keyboard escape to exit poetry mode
   useEffect(() => {
@@ -82,6 +85,21 @@ const IndexContent = () => {
                       mockWeatherToday[0]?.condition || 'sunny') as 'sunny' | 'cloudy' | 'rainy' | 'stormy',
     mobilityLevel: mockMobilityData.reduce((sum, d) => sum + d.intensity, 0) / mockMobilityData.length
   };
+
+  // Generate AI insights
+  const aiInsights = generateInsights({
+    mood: mockMoodData,
+    sleep: mockSleepData,
+    mobility: mockMobilityData,
+    weather: mockWeatherToday.map(w => ({
+      hour: w.hour,
+      temperature: w.temperature,
+      condition: w.condition,
+      intensity: w.temperature / 30 // Convert temperature to intensity (0-1 scale)
+    })),
+    timeScale,
+    theme: currentTheme
+  });
 
   const renderTimelineContent = ({ scale, transitionProgress, zoomLevel, isTransitioning }: {
     scale: TimeScale;
@@ -386,7 +404,21 @@ const IndexContent = () => {
           />
         )}
 
-         {/* NOW Indicator - appears at appropriate position for each scale */}
+        {/* AI Insight Orbit Ring */}
+        <InsightOrbitRing
+          insights={aiInsights}
+          centerX={centerX}
+          centerY={centerY}
+          baseRadius={scale === 'day' ? 380 : scale === 'week' ? 340 : scale === 'month' ? 360 : 380}
+          isVisible={showAIInsights && !poetryMode}
+          currentTimeScale={scale}
+          theme={currentTheme}
+          onInsightClick={(insight) => {
+            console.log('AI Insight clicked:', insight);
+          }}
+        />
+
+        {/* NOW Indicator - appears at appropriate position for each scale */}
         <NowIndicator
           centerX={centerX}
           centerY={centerY}
@@ -493,12 +525,14 @@ const IndexContent = () => {
           showInsights={showInsights}
           showPlayback={showPlayback}
           showTideRings={showTideRings}
+          showAIInsights={showAIInsights}
           onReflectiveModeChange={setReflectiveMode}
           onPoetryModeChange={setPoetryMode}
           onShowFriendsChange={setShowFriends}
           onShowInsightsChange={setShowInsights}
           onShowPlaybackChange={setShowPlayback}
           onShowTideRingsChange={setShowTideRings}
+          onShowAIInsightsChange={setShowAIInsights}
         />
         
         {/* Fractal Time Zoom Manager */}
