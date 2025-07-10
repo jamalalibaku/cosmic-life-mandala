@@ -81,20 +81,13 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
 
   const themeStyles = getThemeStyles(theme);
 
-  // Position labels vertically along the right side (East direction)
+  // Position labels horizontally stacked on the right side (like the reference image)
   const labelPositions = labels.map((label, index) => {
-    const baseAngle = 0; // East direction (right side)
-    const verticalSpread = 60; // Degrees of vertical spread
-    const angleOffset = (index - (labels.length - 1) / 2) * (verticalSpread / Math.max(1, labels.length - 1));
-    const angle = baseAngle + angleOffset;
-    const radians = (angle * Math.PI) / 180;
+    // Fixed horizontal position on the right side
+    const x = centerX + 250; // Fixed distance from center
+    const y = centerY - 40 + (index * 35); // Vertical stack with proper spacing
     
-    // Position slightly outside the main ring area
-    const labelRadius = label.radius + 50;
-    const x = centerX + Math.cos(radians) * labelRadius;
-    const y = centerY + Math.sin(radians) * labelRadius;
-    
-    return { ...label, x, y, angle };
+    return { ...label, x, y, angle: 0 };
   });
 
   return (
@@ -140,50 +133,37 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
               </g>
             )}
             
-            {/* Connection line to ring */}
-            <line
-              x1={centerX + Math.cos((label.angle * Math.PI) / 180) * label.radius}
-              y1={centerY + Math.sin((label.angle * Math.PI) / 180) * label.radius}
-              x2={label.x - 20}
-              y2={label.y}
-              stroke={themeStyles.accent}
-              strokeWidth="1"
-              opacity={opacity * 0.4}
-              strokeDasharray="2,4"
-            />
-            
-            {/* Label background */}
+            {/* Clean pill-shaped label background (like reference) */}
             <rect
-              x={label.x - 18}
-              y={label.y - 12}
-              width="36"
+              x={label.x - 35}
+              y={label.y - 10}
+              width="70"
               height="20"
               rx="10"
-              fill="rgba(0, 0, 0, 0.3)"
+              fill="rgba(0, 0, 0, 0.4)"
               stroke={themeStyles.accent}
               strokeWidth="1"
-              opacity={opacity * 0.8}
+              opacity={opacity * 0.9}
             />
             
-            {/* Label text */}
+            {/* Clean label text (centered, readable) */}
             <text
               x={label.x}
-              y={label.y + 2}
+              y={label.y + 3}
               textAnchor="middle"
-              className={`text-xs ${themeStyles.font}`}
+              className={`text-sm ${themeStyles.font}`}
               fill={themeStyles.text}
               opacity={opacity}
-              filter="url(#label-glow)"
             >
               {label.text}
             </text>
             
-            {/* Active indicator dot */}
+            {/* Simple active indicator (clean dot) */}
             {label.isActive && (
               <circle
-                cx={label.x + 22}
-                cy={label.y - 8}
-                r="2"
+                cx={label.x + 40}
+                cy={label.y}
+                r="3"
                 fill={themeStyles.accent}
                 opacity={applyBreathingOpacity(0.8)}
               />
