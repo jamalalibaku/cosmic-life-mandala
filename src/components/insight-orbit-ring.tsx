@@ -49,6 +49,9 @@ export const InsightOrbitRing: React.FC<InsightOrbitRingProps> = ({
     [insights, currentTimeScale]
   );
 
+  // Sync with playback for enhanced narration
+  const isPlaybackActive = hoveredInsight !== null;
+
   // Rotate through insights every 45 seconds
   useEffect(() => {
     if (filteredInsights.length === 0) return;
@@ -217,21 +220,36 @@ export const InsightOrbitRing: React.FC<InsightOrbitRingProps> = ({
                   opacity="0.9"
                 />
                 
-                {/* Insight text */}
+                {/* Enhanced insight text with tone styling */}
                 <text
                   x={x}
                   y={y - 15}
                   textAnchor="middle"
-                  className="text-xs font-light"
+                  className={`text-xs ${
+                    insight.tone === 'poetic' ? 'font-light italic' :
+                    insight.tone === 'playful' ? 'font-medium' :
+                    'font-light'
+                  }`}
                   fill={themeColors.text}
                   opacity="0.9"
                 >
-                  {insight.text.length > 35 
+                  {insight.summary || (insight.text.length > 35 
                     ? `${insight.text.substring(0, 35)}...` 
-                    : insight.text}
+                    : insight.text)}
                 </text>
                 
-                {/* Emotion indicator */}
+                {/* Correlation strength indicator */}
+                {insight.correlationStrength && (
+                  <circle
+                    cx={x + 70}
+                    cy={y - 15}
+                    r={3}
+                    fill={themeColors.glow}
+                    opacity={insight.correlationStrength}
+                  />
+                )}
+                
+                {/* Time context and emotion indicator */}
                 <text
                   x={x}
                   y={y + 25}
@@ -240,7 +258,7 @@ export const InsightOrbitRing: React.FC<InsightOrbitRingProps> = ({
                   fill={themeColors.glow}
                   opacity="0.6"
                 >
-                  {insight.emotion}
+                  {insight.timeContext} • {insight.emotion}
                 </text>
               </g>
             )}

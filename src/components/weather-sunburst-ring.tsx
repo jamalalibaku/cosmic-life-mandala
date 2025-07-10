@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { WeatherTooltipOverlay } from './weather-tooltip-overlay';
 import { goldenRatio } from '../utils/golden-ratio';
 
 export type WeatherCondition = 'sunny' | 'cloudy' | 'rainy' | 'storm' | 'snowy' | 'clear-night';
@@ -88,6 +89,7 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
   className = ''
 }) => {
   const [hoveredSegment, setHoveredSegment] = useState<number | null>(null);
+  const [clickedSegment, setClickedSegment] = useState<number | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -247,6 +249,26 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
 
   const handleMouseLeave = () => {
     setHoveredSegment(null);
+    if (!clickedSegment) {
+      setTooltipPos(null);
+    }
+  };
+
+  const handleClick = (segmentIndex: number) => {
+    if (clickedSegment === segmentIndex) {
+      // Close if clicking the same segment
+      setClickedSegment(null);
+      setTooltipPos(null);
+    } else {
+      // Open new segment
+      setClickedSegment(segmentIndex);
+      const segment = segments[segmentIndex];
+      setTooltipPos({ x: segment.tooltipX, y: segment.tooltipY });
+    }
+  };
+
+  const handleTooltipClose = () => {
+    setClickedSegment(null);
     setTooltipPos(null);
   };
 
@@ -321,6 +343,7 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
             filter="url(#weather-glow)"
             onMouseEnter={(e) => handleMouseEnter(index, e)}
             onMouseLeave={handleMouseLeave}
+            onClick={() => handleClick(index)}
             className="transition-all duration-300 ease-out cursor-pointer"
             style={{
               transform: hoveredSegment === index ? 'scale(1.05)' : 'scale(1)',
@@ -340,6 +363,7 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
               style={{
                 fontSize: Math.max(8, (outerRadius - innerRadius) * 0.3)
               }}
+              onClick={() => handleClick(index)}
             >
               {segment.icon}
             </text>
@@ -363,9 +387,21 @@ export const WeatherSunburstRing: React.FC<WeatherSunburstRingProps> = ({
         </g>
       ))}
       
-      {/* Tooltip */}
-      {hoveredSegment !== null && tooltipPos && (
-        <g className="weather-tooltip">
+      {/* Enhanced Weather Tooltip Overlay */}
+      {clickedSegment !== null && tooltipPos && (
+        <WeatherTooltipOverlay
+          segment={segments[clickedSegment]}
+          x={tooltipPos.x}
+          y={tooltipPos.y}
+          isVisible={true}
+          onClose={handleTooltipClose}
+          theme={theme}
+        />
+      )}
+      
+      {/* Simple hover tooltip */}
+      {hoveredSegment !== null && clickedSegment === null && tooltipPos && (
+        <g className="weather-hover-tooltip">
           <rect
             x={tooltipPos.x - 30}
             y={tooltipPos.y - 25}

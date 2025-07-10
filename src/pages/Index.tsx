@@ -30,6 +30,7 @@ import { RadialYearView } from '@/components/radial-year-view';
 import { RadialYearSeasons } from '@/components/radial-year-seasons';
 import { RadialFractalView } from '@/components/radial-fractal-view';
 import { InsightOrbitRing } from '@/components/insight-orbit-ring';
+import { MoonPhaseMarker } from '@/components/moon-phase-marker';
 import { mockWeatherData } from '@/data/weatherData';
 import { mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
@@ -416,6 +417,14 @@ const IndexContent = () => {
           onInsightClick={(insight) => {
             console.log('AI Insight clicked:', insight);
           }}
+        />
+
+        {/* Moon Phase Marker - outer ring */}
+        <MoonPhaseMarker
+          centerX={centerX}
+          centerY={centerY}
+          radius={420}
+          theme={currentTheme}
         />
 
         {/* NOW Indicator - appears at appropriate position for each scale */}

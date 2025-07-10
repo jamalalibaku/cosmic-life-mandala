@@ -18,13 +18,18 @@ export type WeatherData = {
 
 export interface Insight {
   id: string;
-  type: 'mood' | 'pattern' | 'weather' | 'habit' | 'correlation';
+  type: 'mood' | 'pattern' | 'weather' | 'habit' | 'correlation' | 'sleep';
   text: string;
+  summary: string;
   timeScale: 'day' | 'week' | 'month' | 'year';
   emotion: 'neutral' | 'uplifting' | 'somber' | 'playful' | 'contemplative';
+  tone: 'poetic' | 'neutral' | 'playful' | 'reflective';
+  originLayer: 'mood' | 'weather' | 'mobility' | 'sleep';
+  timeContext: 'morning' | 'evening' | 'weekday' | 'weekend' | 'all-day';
   sourceLayer?: string;
   position?: { angle: number; radius: number };
   theme?: string;
+  correlationStrength?: number;
 }
 
 interface DataInput {
@@ -170,19 +175,21 @@ function analyzeSleepPatterns(sleep: SleepData[], timeScale: string): string[] {
 function analyzeCorrelations(data: DataInput): string[] {
   const insights: string[] = [];
   
+  // Sleep ↔ Mood correlation
   if (data.sleep.length > 0 && data.mood.length > 0) {
     const sleepAvg = data.sleep.reduce((sum, s) => sum + s.intensity, 0) / data.sleep.length;
     const moodAvg = data.mood.reduce((sum, m) => sum + m.intensity, 0) / data.mood.length;
     
     if (Math.abs(sleepAvg - moodAvg) < 0.2) {
       insights.push("Rest and energy dance in harmony");
-    } else if (sleepAvg > moodAvg) {
-      insights.push("Good sleep awaits its energy bloom");
-    } else {
-      insights.push("Active days call for deeper rest");
+    } else if (sleepAvg > moodAvg + 0.3) {
+      insights.push("Deep sleep awaits its energy bloom");
+    } else if (moodAvg > sleepAvg + 0.3) {
+      insights.push("High energy seeks deeper restoration");
     }
   }
   
+  // Mobility ↔ Mood correlation
   if (data.mobility.length > 0 && data.mood.length > 0) {
     const mobilityAvg = data.mobility.reduce((sum, m) => sum + m.intensity, 0) / data.mobility.length;
     const moodAvg = data.mood.reduce((sum, m) => sum + m.intensity, 0) / data.mood.length;
@@ -191,6 +198,23 @@ function analyzeCorrelations(data: DataInput): string[] {
       insights.push("Movement awakens joy and vitality");
     } else if (mobilityAvg < 0.3 && moodAvg > 0.6) {
       insights.push("Stillness nurtures inner brightness");
+    } else if (mobilityAvg > 0.6 && moodAvg < 0.4) {
+      insights.push("Motion seeks emotional resonance");
+    }
+  }
+  
+  // Weather ↔ Activity correlation
+  if (data.weather.length > 0 && data.mobility.length > 0) {
+    const rainyHours = data.weather.filter(w => w.condition.includes('rain')).length;
+    const sunnyHours = data.weather.filter(w => w.condition.includes('sunny')).length;
+    const highActivity = data.mobility.filter(m => m.intensity > 0.6).length;
+    
+    if (rainyHours > 6 && highActivity < 3) {
+      insights.push("Rain invites gentle indoor rhythms");
+    } else if (sunnyHours > 8 && highActivity > 6) {
+      insights.push("Sunshine amplifies movement desires");
+    } else if (rainyHours > 3 && highActivity > 5) {
+      insights.push("Weather flows, but spirit moves");
     }
   }
   
@@ -232,26 +256,53 @@ export function generateInsights(data: DataInput): Insight[] {
     ...correlationInsights
   ], data.theme);
   
-  // Convert to full insight objects
+  // Convert to full insight objects with enhanced metadata
   allInsightTexts.forEach((text, index) => {
     const angle = (index * 72) % 360; // Spread around circle
     const radius = 200 + (index * 30); // Varying distances
+    const timeContext = getTimeContext(index);
+    const originLayer = index < moodInsights.length ? 'mood' : 
+                       index < moodInsights.length + sleepInsights.length ? 'sleep' : 
+                       'mobility';
     
     insights.push({
       id: `insight-${id++}`,
       type: index < moodInsights.length ? 'mood' : 
             index < moodInsights.length + sleepInsights.length ? 'pattern' : 'correlation',
       text,
+      summary: text.length > 50 ? `${text.substring(0, 50)}...` : text,
       timeScale: data.timeScale,
       emotion: selectEmotion(text, data.theme),
-      sourceLayer: index < moodInsights.length ? 'mood' : 
-                  index < moodInsights.length + sleepInsights.length ? 'sleep' : 'correlation',
+      tone: selectTone(text, data.theme),
+      originLayer,
+      timeContext,
+      sourceLayer: originLayer,
       position: { angle, radius },
-      theme: data.theme
+      theme: data.theme,
+      correlationStrength: index >= moodInsights.length + sleepInsights.length ? 
+                          Math.random() * 0.5 + 0.5 : undefined
     });
   });
   
   return insights;
+}
+
+function getTimeContext(index: number): Insight['timeContext'] {
+  const contexts: Insight['timeContext'][] = ['morning', 'evening', 'weekday', 'weekend', 'all-day'];
+  return contexts[index % contexts.length];
+}
+
+function selectTone(text: string, theme?: string): Insight['tone'] {
+  const lowerText = text.toLowerCase();
+  
+  if (theme === 'floral' || theme === 'pastelParadise') return 'poetic';
+  if (theme === 'vinyl' || theme === 'techHUD') return 'playful';
+  if (theme === 'noir') return 'reflective';
+  
+  if (lowerText.includes('dance') || lowerText.includes('flow')) return 'poetic';
+  if (lowerText.includes('sync') || lowerText.includes('pattern')) return 'neutral';
+  
+  return 'reflective';
 }
 
 function selectEmotion(text: string, theme?: string): Insight['emotion'] {
