@@ -12,7 +12,9 @@ import { EmotionalTideRings } from '@/components/emotional-tide-rings';
 import { FractalTimeZoomManager, TimeScale } from '@/components/fractal-time-zoom-manager';
 import { RadialWeekView } from '@/components/radial-week-view';
 import { RadialMonthView } from '@/components/radial-month-view';
+import { RadialMonthConstellation } from '@/components/radial-month-constellation';
 import { RadialYearView } from '@/components/radial-year-view';
+import { RadialYearSeasons } from '@/components/radial-year-seasons';
 import { mockWeatherData } from '@/data/weatherData';
 import { mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
@@ -139,8 +141,15 @@ const Index = () => {
         )}
         
         {scale === 'month' && (
-          <RadialMonthView
-            monthData={mockMonthData}
+          <RadialMonthConstellation
+            monthData={mockMonthData.map(day => ({
+              ...day,
+              moodColor: currentMood?.primaryColor || 'hsl(280 70% 60%)',
+              weatherIcon: day.weatherBand === 'sunny' ? '☀️' : 
+                          day.weatherBand === 'rainy' ? '🌧️' : '☁️',
+              activityLevel: day.sleepMoodPulse,
+              emotionalPattern: currentMood?.moodType || 'calm'
+            }))}
             centerX={centerX}
             centerY={centerY}
             radius={300}
@@ -153,12 +162,19 @@ const Index = () => {
         )}
         
         {scale === 'year' && (
-          <RadialYearView
-            yearData={mockYearData}
+          <RadialYearSeasons
+            yearData={mockYearData.map(month => ({
+              ...month,
+              dominantMood: currentMood?.moodType === 'joyful' ? 'energetic' :
+                           currentMood?.moodType === 'drained' ? 'restful' :
+                           currentMood?.moodType === 'tense' ? 'chaotic' :
+                           currentMood?.moodType === 'creative' ? 'creative' : 'calm',
+              totalActiveDays: Math.round(month.dataSummary.avgActivity * 31)
+            }))}
             centerX={centerX}
             centerY={centerY}
             radius={320}
-            theme="cosmic"
+            theme="seasonal"
             onMonthClick={(month) => {
               console.log('Month clicked:', month);
               setTimeScale('month');
