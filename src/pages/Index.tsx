@@ -13,6 +13,7 @@ import { VisualSkinProvider, useVisualSkin } from '@/components/visual-skin-prov
 import { ThemeHaikuDisplay } from '@/components/theme-haiku-display';
 import { SunAuraRing } from '@/components/sun-aura-ring';
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
+import { NowIndicator } from '@/components/now-indicator';
 import { useTimeDrift } from '@/hooks/use-time-drift';
 import { FractalTimeZoomManager, TimeScale } from '@/components/fractal-time-zoom-manager';
 import { RadialWeekView } from '@/components/radial-week-view';
@@ -340,7 +341,18 @@ const IndexContent = () => {
           />
         )}
 
-        {/* Center time display - adapts to scale */}
+        {/* NOW Indicator - appears at appropriate position for each scale */}
+        <NowIndicator
+          centerX={centerX}
+          centerY={centerY}
+          radius={scale === 'day' ? 350 : 
+                  scale === 'week' ? 300 : 
+                  scale === 'month' ? 320 : 340}
+          timeScale={scale}
+          theme={currentTheme}
+        />
+
+        {/* Center time display for non-day scales */}
         {!reflectiveMode && scale !== 'day' && (
           <g className="central-time">
             <circle
@@ -352,14 +364,6 @@ const IndexContent = () => {
               strokeWidth="1"
               opacity="0.6"
             />
-            <text
-              x={centerX}
-              y={centerY - 15}
-              textAnchor="middle"
-              className="fill-yellow-200 text-sm font-light"
-            >
-              NOW
-            </text>
             <text
               x={centerX}
               y={centerY + 5}
