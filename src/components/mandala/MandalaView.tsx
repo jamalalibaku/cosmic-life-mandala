@@ -10,41 +10,54 @@ import { motion } from "framer-motion";
 import { RadialLayerSystem } from "@/components/mandala/RadialLayerSystem";
 import mandalaExpressiveTheme from "@/themes/mandala-expressive";
 
-// Life dimension data layers for radial system - refined color palette
+// Life dimension data layers for radial system - refined with layer types
 const createLayerData = () => [
   {
     name: "Moon",
     data: [{ phase: "waxing", luminosity: 0.7 }],
     color: "hsl(240, 25%, 65%)",
-    radius: 260
+    radius: 260,
+    layerType: "moon" as const
   },
   {
     name: "Weather", 
     data: [{ temp: 22, clouds: 0.3, wind: 0.5 }],
     color: "hsl(200, 30%, 60%)",
-    radius: 220
+    radius: 220,
+    layerType: "weather" as const
   },
   {
     name: "Plans",
-    data: [{ event: "meeting", priority: 0.8 }, { event: "workout", priority: 0.6 }],
+    data: [
+      { event: "meeting", priority: 0.8 }, 
+      { event: "workout", priority: 0.6 },
+      { event: "dinner", priority: 0.4 }
+    ],
     color: "hsl(260, 25%, 70%)",
-    radius: 180
+    radius: 180,
+    layerType: "plans" as const
   },
   {
     name: "Mobility",
     data: [
-      { activity: "walk", intensity: 0.4, distance: 30 },
-      { activity: "run", intensity: 0.8, distance: 70 },
-      { activity: "bike", intensity: 0.6, distance: 120 }
+      { activity: "walk", intensity: 0.4, distance: 3200 },
+      { activity: "run", intensity: 0.8, distance: 7500 },
+      { activity: "bike", intensity: 0.6, distance: 12000 }
     ],
     color: "hsl(140, 25%, 65%)",
-    radius: 140
+    radius: 140,
+    layerType: "mobility" as const
   },
   {
     name: "Places",
-    data: [{ location: "home", duration: 8 }, { location: "work", duration: 9 }],
+    data: [
+      { location: "home", duration: 8 }, 
+      { location: "work", duration: 9 },
+      { location: "cafe", duration: 2 }
+    ],
     color: "hsl(30, 30%, 70%)",
-    radius: 100
+    radius: 100,
+    layerType: "places" as const
   },
   {
     name: "Mood",
@@ -54,7 +67,8 @@ const createLayerData = () => [
       { emotion: "focus", valence: 0.1, energy: 0.5 }
     ],
     color: "hsl(340, 30%, 70%)",
-    radius: 70
+    radius: 70,
+    layerType: "mood" as const
   }
 ];
 

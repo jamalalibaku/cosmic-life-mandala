@@ -1,10 +1,13 @@
 /**
  * Radial Layer Architecture System
  * Hierarchical, concentric timeline structure for life dimensions
+ * Enhanced with elegant interactions and tooltips
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { RadialTooltip } from "@/components/interactions/RadialTooltip";
+import { InteractiveDataPoint } from "@/components/interactions/InteractiveDataPoint";
 
 interface LayerData {
   name: string;
@@ -12,6 +15,7 @@ interface LayerData {
   color: string;
   radius: number;
   zoomLevel?: "year" | "month" | "week" | "day" | "hour";
+  layerType?: "mood" | "places" | "mobility" | "plans" | "weather" | "moon";
 }
 
 interface RadialLayerSystemProps {
@@ -54,7 +58,10 @@ const Layer: React.FC<{
   zoomLevel: string;
   layerIndex: number;
   totalLayers: number;
-}> = ({ name, data, radius, color, zoomLevel, layerIndex, totalLayers }) => {
+  layerType?: "mood" | "places" | "mobility" | "plans" | "weather" | "moon";
+  onTooltipShow: (tooltipData: any) => void;
+  onTooltipHide: () => void;
+}> = ({ name, data, radius, color, zoomLevel, layerIndex, totalLayers, layerType, onTooltipShow, onTooltipHide }) => {
   const getDetailLevel = () => {
     switch (zoomLevel) {
       case "year": return "outline";
@@ -109,7 +116,7 @@ const Layer: React.FC<{
         }}
       />
 
-      {/* Data visualization based on zoom level */}
+      {/* Interactive data visualization based on zoom level */}
       {detailLevel !== "outline" && data.map((item, index) => {
         const angle = (index / data.length) * 2 * Math.PI;
         const x = Math.cos(angle) * radius;
@@ -118,25 +125,15 @@ const Layer: React.FC<{
         return (
           <motion.g key={index}>
             {detailLevel === "trends" && (
-              <motion.circle
-                cx={x}
-                cy={y}
-                r={2.5}
-                fill={color}
-                opacity={0.8}
-                style={{
-                  filter: `drop-shadow(0 0 4px ${color}60)`
-                }}
-                animate={{
-                  scale: [1, 1.1, 1],
-                  opacity: [0.8, 1, 0.8]
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  delay: index * 0.3,
-                  ease: "easeInOut"
-                }}
+              <InteractiveDataPoint
+                x={x}
+                y={y}
+                color={color}
+                size={2.5}
+                data={item}
+                layerType={layerType || "mood"}
+                onHover={onTooltipShow}
+                onLeave={onTooltipHide}
               />
             )}
             
@@ -148,7 +145,8 @@ const Layer: React.FC<{
                 strokeLinecap="round"
                 opacity={0.85}
                 style={{
-                  filter: `drop-shadow(0 0 2px ${color}40)`
+                  filter: `drop-shadow(0 0 2px ${color}40)`,
+                  cursor: "pointer"
                 }}
                 animate={{ 
                   pathLength: [0, 1],
@@ -158,29 +156,33 @@ const Layer: React.FC<{
                   pathLength: { duration: 1.5, delay: index * 0.1 },
                   opacity: { duration: 2, repeat: Infinity, delay: index * 0.2 }
                 }}
+                whileHover={{
+                  strokeWidth: 2,
+                  opacity: 1,
+                }}
+                onMouseEnter={(event) => {
+                  const rect = (event.target as SVGElement).getBoundingClientRect();
+                  onTooltipShow({
+                    title: layerType?.toUpperCase() || "DATA",
+                    value: `Segment ${index + 1}`,
+                    x: rect.left + window.scrollX,
+                    y: rect.top + window.scrollY,
+                  });
+                }}
+                onMouseLeave={onTooltipHide}
               />
             )}
 
             {(detailLevel === "detail" || detailLevel === "micro") && (
-              <motion.circle
-                cx={x}
-                cy={y}
-                r={detailLevel === "micro" ? 4 : 3}
-                fill={color}
-                opacity={0.9}
-                style={{
-                  filter: `drop-shadow(0 0 6px ${color}50)`
-                }}
-                animate={{ 
-                  scale: [1, 1.15, 1],
-                  opacity: [0.9, 1, 0.9]
-                }}
-                transition={{ 
-                  duration: 2.5,
-                  repeat: Infinity,
-                  delay: index * 0.2,
-                  ease: "easeInOut"
-                }}
+              <InteractiveDataPoint
+                x={x}
+                y={y}
+                color={color}
+                size={detailLevel === "micro" ? 4 : 3}
+                data={item}
+                layerType={layerType || "mood"}
+                onHover={onTooltipShow}
+                onLeave={onTooltipHide}
               />
             )}
           </motion.g>
@@ -307,28 +309,52 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   centerRadius = 40,
   layerSpacing = 50
 }) => {
-  return (
-    <motion.g
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
-    >
-      {/* Render layers from outside to inside */}
-      {layers.slice().reverse().map((layer, index) => (
-        <Layer
-          key={layer.name}
-          name={layer.name}
-          data={layer.data}
-          radius={layer.radius}
-          color={layer.color}
-          zoomLevel={currentZoom}
-          layerIndex={index}
-          totalLayers={layers.length}
-        />
-      ))}
+  const [tooltipData, setTooltipData] = useState<any>(null);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
 
-      {/* Glowing center - Self */}
-      <GlowingCore radius={centerRadius} />
-    </motion.g>
+  const handleTooltipShow = (data: any) => {
+    setTooltipData(data);
+    setTooltipVisible(true);
+  };
+
+  const handleTooltipHide = () => {
+    setTooltipVisible(false);
+    setTimeout(() => setTooltipData(null), 200);
+  };
+  
+  return (
+    <>
+      <motion.g
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+        {/* Render layers from outside to inside */}
+        {layers.slice().reverse().map((layer, index) => (
+          <Layer
+            key={layer.name}
+            name={layer.name}
+            data={layer.data}
+            radius={layer.radius}
+            color={layer.color}
+            zoomLevel={currentZoom}
+            layerIndex={index}
+            totalLayers={layers.length}
+            layerType={layer.layerType}
+            onTooltipShow={handleTooltipShow}
+            onTooltipHide={handleTooltipHide}
+          />
+        ))}
+
+        {/* Glowing center - Self */}
+        <GlowingCore radius={centerRadius} />
+      </motion.g>
+
+      {/* Global tooltip system */}
+      <RadialTooltip 
+        data={tooltipData} 
+        isVisible={tooltipVisible} 
+      />
+    </>
   );
 };
