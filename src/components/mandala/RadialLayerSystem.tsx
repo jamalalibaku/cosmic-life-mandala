@@ -4,13 +4,15 @@
  * Enhanced with elegant interactions and tooltips
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { RadialTooltip } from "@/components/interactions/RadialTooltip";
 import { InteractiveDataPoint } from "@/components/interactions/InteractiveDataPoint";
 import { ExpandedCard } from "@/components/interactions/ExpandedCard";
 import { EmojiBurst } from "@/components/interactions/EmojiBurst";
 import { useMotionField } from "@/hooks/useMotionField";
+import { SupernovaBurst } from "@/components/SupernovaBurst";
+import { analyzeMoodForSupernovas, SupernovaTrigger } from "@/utils/supernova-engine";
 
 interface LayerData {
   name: string;
@@ -344,6 +346,29 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   const [expandedCardVisible, setExpandedCardVisible] = useState(false);
   const [emojiBurstData, setEmojiBurstData] = useState<any>(null);
   const [emojiBurstActive, setEmojiBurstActive] = useState(false);
+  
+  // Supernova burst states
+  const [activeSupernovas, setActiveSupernovas] = useState<SupernovaTrigger[]>([]);
+  const [supernovaCounter, setSupernovaCounter] = useState(0);
+  
+  // Analyze mood data for emotional peaks on mount and data changes
+  useEffect(() => {
+    const moodLayer = layers.find(layer => layer.layerType === 'mood');
+    if (moodLayer && moodLayer.data.length > 0) {
+      const triggers = analyzeMoodForSupernovas(moodLayer.data, moodLayer.radius);
+      
+      // Stagger supernova triggers to avoid overwhelming the system
+      triggers.forEach((trigger, index) => {
+        setTimeout(() => {
+          if (trigger.shouldTrigger) {
+            setActiveSupernovas(prev => [...prev, { ...trigger, id: supernovaCounter + index }]);
+          }
+        }, index * 1500); // 1.5 second stagger between bursts
+      });
+      
+      setSupernovaCounter(prev => prev + triggers.length);
+    }
+  }, [layers, supernovaCounter]);
 
   const handleTooltipShow = (data: any) => {
     setTooltipData(data);
@@ -360,7 +385,7 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
     setTooltipVisible(false);
     
     // Add motion impulse on interaction
-    const impulseStrength = 2;
+    const impulseStrength = 3; // Increased for more dramatic response
     addImpulse(
       (Math.random() - 0.5) * impulseStrength,
       (Math.random() - 0.5) * impulseStrength
@@ -383,6 +408,21 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   const handleEmojiBurstComplete = () => {
     setEmojiBurstActive(false);
     setTimeout(() => setEmojiBurstData(null), 100);
+  };
+
+  const handleSupernovaComplete = (completedSupernova: SupernovaTrigger) => {
+    setActiveSupernovas(prev => 
+      prev.filter(supernova => supernova !== completedSupernova)
+    );
+    
+    // Add motion impulse from completed supernova
+    if (completedSupernova.position) {
+      const impulseStrength = completedSupernova.intensity * 4;
+      addImpulse(
+        (completedSupernova.position.x / 100) * impulseStrength,
+        (completedSupernova.position.y / 100) * impulseStrength
+      );
+    }
   };
   
   return (
@@ -442,6 +482,19 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           onComplete={handleEmojiBurstComplete}
         />
       )}
+
+      {/* Supernova burst effects */}
+      {activeSupernovas.map((supernova, index) => (
+        <SupernovaBurst
+          key={`supernova-${index}`}
+          isActive={true}
+          centerX={supernova.position?.x || 0}
+          centerY={supernova.position?.y || 0}
+          intensity={supernova.intensity}
+          emotionColor={supernova.color}
+          onComplete={() => handleSupernovaComplete(supernova)}
+        />
+      ))}
     </>
   );
 };
