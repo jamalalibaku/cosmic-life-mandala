@@ -85,11 +85,17 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
 
   const themeStyles = getThemeStyles(theme);
 
-  // Position labels horizontally stacked on the right side with enhanced spacing
+  // Position labels vertically on the right side with golden ratio spacing
+  const goldenRatio = 1.618;
+  const baseSpacing = 40;
+  const totalLabels = labels.length;
+  const totalHeight = (totalLabels - 1) * baseSpacing * goldenRatio;
+  
   const labelPositions = labels.map((label, index) => {
-    // Enhanced horizontal position to reduce collision with floating elements
-    const x = centerX + 280; // Slightly further east
-    const y = centerY - 50 + (index * 42); // Increased vertical spacing (1.2x)
+    // Position on right side, vertically centered with golden ratio spacing
+    const x = centerX + 320; // Right side positioning
+    const startY = centerY - (totalHeight / 2);
+    const y = startY + (index * baseSpacing * goldenRatio);
     
     return { ...label, x, y, angle: 0 };
   });
@@ -97,8 +103,18 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
   return (
     <g className={`data-layer-labels ${className}`}>
       <defs>
+        {/* Enhanced glow filter */}
         <filter id="label-glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        
+        {/* Hover glow filter */}
+        <filter id="hover-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
           <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
@@ -137,9 +153,16 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
               </g>
             )}
             
-            {/* Enhanced clickable group for single-click interaction */}
+            {/* Enhanced clickable group with smooth hover interactions */}
             <g
-              className="cursor-pointer transition-all duration-300 hover:scale-105"
+              className="cursor-pointer transition-all duration-300 group"
+              style={{ transformOrigin: `${label.x}px ${label.y}px` }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
               onClick={(e) => {
                 e.stopPropagation();
                 if (onLabelClick) {
@@ -153,80 +176,96 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
                 }
               }}
             >
-              {/* Enhanced label background with glow effect */}
+              {/* Enhanced label background with improved glow effect */}
               <rect
-                x={label.x - 38}
-                y={label.y - 12}
-                width="76"
-                height="24"
-                rx="12"
-                fill="rgba(0, 0, 0, 0.7)"
-                stroke={label.isActive ? themeStyles.accent : 'rgba(255,255,255,0.2)'}
+                x={label.x - 45}
+                y={label.y - 14}
+                width="90"
+                height="28"
+                rx="14"
+                fill="rgba(0, 0, 0, 0.8)"
+                stroke={label.isActive ? themeStyles.accent : 'rgba(255,255,255,0.3)'}
                 strokeWidth={label.isActive ? "2" : "1"}
                 opacity={opacity}
-                className={`transition-all duration-300 ${
+                className={`transition-all duration-300 group-hover:stroke-white/60 ${
                   label.isActive 
-                    ? 'shadow-lg' 
-                    : 'hover:fill-white/20 hover:stroke-white/40'
+                    ? 'drop-shadow-lg' 
+                    : 'group-hover:fill-white/10'
                 }`}
                 style={{
-                  filter: label.isActive ? `drop-shadow(0 0 8px ${themeStyles.accent})` : 'none'
+                  filter: label.isActive 
+                    ? `url(#label-glow) drop-shadow(0 0 12px ${themeStyles.accent}40)` 
+                    : 'none'
                 }}
               />
               
-              {/* Enhanced label text with better typography */}
+              {/* Enhanced label text with better typography and hover effects */}
               <text
                 x={label.x}
-                y={label.y + 4}
+                y={label.y + 5}
                 textAnchor="middle"
-                className={`text-sm font-medium ${themeStyles.font} transition-all duration-300`}
+                className={`text-sm font-medium ${themeStyles.font} transition-all duration-300 group-hover:fill-white`}
                 fill={label.isActive ? 'white' : themeStyles.text}
                 opacity={label.isActive ? 1 : opacity}
                 style={{ 
                   fontWeight: label.isActive ? 600 : 400, 
                   pointerEvents: 'none',
-                  textShadow: label.isActive ? '0 0 6px rgba(255,255,255,0.3)' : 'none'
+                  textShadow: label.isActive 
+                    ? `0 0 8px ${themeStyles.accent}60` 
+                    : 'none',
+                  filter: label.isActive ? 'url(#label-glow)' : 'none'
                 }}
               >
                 {label.text}
               </text>
 
-              {/* Interactive hover ring */}
+              {/* Enhanced interactive hover ring with smooth animation */}
               <circle
                 cx={label.x}
                 cy={label.y}
-                r="42"
+                r="48"
                 fill="none"
-                stroke="rgba(255,255,255,0.1)"
-                strokeWidth="1"
-                strokeDasharray="3,6"
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth="1.5"
+                strokeDasharray="4,8"
                 opacity="0"
-                className="transition-opacity duration-300 hover:opacity-30"
-                style={{ pointerEvents: 'none' }}
+                className="transition-all duration-300 group-hover:opacity-40 group-hover:stroke-white/50"
+                style={{ 
+                  pointerEvents: 'none',
+                  filter: 'url(#hover-glow)'
+                }}
               />
             </g>
             
-            {/* Enhanced active indicator with breathing animation */}
+            {/* Enhanced active indicator with proper glow effect */}
             {label.isActive && (
               <g>
+                {/* Main indicator dot */}
                 <circle
-                  cx={label.x + 45}
+                  cx={label.x + 52}
                   cy={label.y}
-                  r="4"
+                  r="5"
                   fill={themeStyles.accent}
-                  opacity={applyBreathingOpacity(0.9)}
-                  style={{ pointerEvents: 'none' }}
+                  opacity={applyBreathingOpacity(1)}
+                  style={{ 
+                    pointerEvents: 'none',
+                    filter: `url(#label-glow) drop-shadow(0 0 8px ${themeStyles.accent})`
+                  }}
                   className="animate-pulse"
                 />
+                {/* Outer ring */}
                 <circle
-                  cx={label.x + 45}
+                  cx={label.x + 52}
                   cy={label.y}
-                  r="6"
+                  r="8"
                   fill="none"
                   stroke={themeStyles.accent}
-                  strokeWidth="1"
-                  opacity={applyBreathingOpacity(0.4)}
-                  style={{ pointerEvents: 'none' }}
+                  strokeWidth="1.5"
+                  opacity={applyBreathingOpacity(0.6)}
+                  style={{ 
+                    pointerEvents: 'none',
+                    filter: `drop-shadow(0 0 4px ${themeStyles.accent}40)`
+                  }}
                 />
               </g>
             )}
