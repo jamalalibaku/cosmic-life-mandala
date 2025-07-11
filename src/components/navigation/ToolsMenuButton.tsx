@@ -114,7 +114,7 @@ export const ToolsMenuButton: React.FC<ToolsMenuButtonProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute bottom-full left-0 mb-2 z-50"
+            className="absolute bottom-full right-0 mb-2 z-50"
           >
             <div 
               className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden min-w-[300px]"
