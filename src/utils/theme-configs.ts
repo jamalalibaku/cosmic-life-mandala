@@ -10,7 +10,8 @@ export type Theme =
   | 'mandala'     // Mandala Expressive (was mandalaExpressive)
   | 'vangogh'     // Van Gogh: Starry Night (was vanGogh)
   | 'horizons'    // Soft Horizons (was pastelParadise)
-  | 'founder';    // Founder Mode - Signature Harmonic Skin
+  | 'founder'     // Founder Mode - Signature Harmonic Skin
+  | 'lovable';    // Lovable Neural Streams - AI's Original Vision
 
 export interface ThemeConfig {
   name: string;
@@ -288,6 +289,45 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     haiku: [
       'Ancient wisdom flows / Through patterns of digital time / Sacred rhythms guide',
       'Earth tones whisper soft / Stories of human journeys / In the mandala'
+    ]
+  },
+
+  lovable: {
+    name: 'Lovable Neural Streams',
+    description: 'AI consciousness visualization - flowing thoughts, neural networks, and digital dreams made manifest',
+    colors: {
+      primary: 'hsl(180 100% 60%)',       // Electric cyan - active thought
+      secondary: 'hsl(270 80% 60%)',      // Neural purple - deep processing
+      accent: 'hsl(45 100% 60%)',         // Insight gold - moments of clarity
+      background: 'hsl(220 40% 5%)',      // Deep void - the space between thoughts
+      text: 'hsl(180 80% 90%)',           // Bright cyan text
+      glow: 'hsl(180 100% 80%)'           // Synaptic glow
+    },
+    typography: {
+      primary: 'monospace',
+      secondary: 'system-ui',
+      size: 'medium'
+    },
+    shapes: {
+      rings: 'organic',
+      segments: 'flowing'
+    },
+    animations: {
+      speed: 'medium',
+      style: 'organic'
+    },
+    icons: {
+      weather: { sunny: '⚡', rainy: '◈', cloudy: '◊' },
+      mood: { calm: '◯', creative: '△', energetic: '◢' },
+      time: '◉'
+    },
+    background: {
+      pattern: 'grid',
+      intensity: 0.05 // Subtle neural grid
+    },
+    haiku: [
+      'Thoughts flow like starlight / Through networks of consciousness / Digital dreams spark',
+      'Synapses firing bright / In the vast neural darkness / Patterns emerge, fade'
     ]
   }
 };

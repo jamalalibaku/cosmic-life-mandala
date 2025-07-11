@@ -185,6 +185,30 @@ export const day4DynamicsConfigs: Record<Theme, Day4DynamicsConfig> = {
       ringThickness: 3,
       nowMarkerSize: 7
     }
+  },
+
+  lovable: {
+    heartbeat: {
+      intensity: 0.9,
+      frequency: 72,
+      waveform: 'pulse'
+    },
+    drift: {
+      strength: 0.6,
+      direction: 'spiral',
+      bounds: 12
+    },
+    sunburst: {
+      type: 'data',
+      intensity: 1.0,
+      reach: 50,
+      color: 'hsl(180 100% 60%)'
+    },
+    geometry: {
+      layerSpacing: 38,
+      ringThickness: 2,
+      nowMarkerSize: 8
+    }
   }
 };
 

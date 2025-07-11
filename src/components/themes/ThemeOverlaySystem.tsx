@@ -259,15 +259,17 @@ export const techHudOverlay: ThemeOverlay = {
   )
 };
 
-// Import Founder Mode overlay
+// Import theme overlays
 import { founderModeOverlay } from './FounderModeOverlay';
+import { lovableNeuralStreamsOverlay } from './LovableNeuralStreams';
 
 // Theme Registry
 export const themeOverlays: Record<string, ThemeOverlay> = {
   floral: floralOverlay,
   noir: noirOverlay,
   techHud: techHudOverlay,
-  founder: founderModeOverlay
+  founder: founderModeOverlay,
+  lovable: lovableNeuralStreamsOverlay
 };
 
 // Theme Overlay Manager Component
