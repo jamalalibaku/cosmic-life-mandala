@@ -7,6 +7,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Settings, MapPin, Clock } from 'lucide-react';
 import { TimeScale } from '@/components/fractal-time-zoom-manager';
+import { InsightIntelligenceTrigger } from '@/components/InsightIntelligenceTrigger';
 
 export interface UnifiedNavigationProps {
   currentTimeScale: TimeScale;
@@ -15,6 +16,12 @@ export interface UnifiedNavigationProps {
   showSettings?: boolean;
   themeConfig: any;
   className?: string;
+  currentTimeSlices?: any[];
+  recentInteractions?: Array<{
+    layerType: string;
+    timestamp: string;
+    dataValue: any;
+  }>;
 }
 
 const timeScaleOptions: { value: TimeScale; label: string; icon: string }[] = [
@@ -30,7 +37,9 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
   onSettingsClick,
   showSettings = true,
   themeConfig,
-  className = ''
+  className = '',
+  currentTimeSlices = [],
+  recentInteractions = []
 }) => {
   return (
     <motion.div
@@ -106,6 +115,12 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
           <Settings className="w-4 h-4" />
         </button>
       )}
+
+      {/* Insight Intelligence Trigger */}
+      <InsightIntelligenceTrigger
+        currentTimeSlices={currentTimeSlices}
+        recentInteractions={recentInteractions}
+      />
     </motion.div>
   );
 };

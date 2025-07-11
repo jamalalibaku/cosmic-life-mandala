@@ -31,6 +31,7 @@ import { RippleTrails } from "@/components/enhanced/RippleTrails";
 import { CosmicBackgroundPulse } from "@/components/cosmic/CosmicBackgroundPulse";
 import { CosmicRadialTicks } from "@/components/cosmic/CosmicRadialTicks";
 import { useZoomCompensation } from "@/hooks/useZoomCompensation";
+import { useInteractionTracking } from "@/hooks/useInteractionTracking";
 
 interface LayerData {
   name: string;
@@ -357,6 +358,20 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
     timestamp: new Date().toLocaleTimeString()
   });
 
+  // Time axis integration (needs to be before interaction tracking)
+  const { timeSlices, nowAngle, getTimeSliceData } = useTimeAxis();
+
+  // Interaction tracking for AI intelligence
+  const {
+    trackInteraction,
+    getRecentInteractions,
+    currentInsight,
+    isAnalyzing
+  } = useInteractionTracking(timeSlices, {
+    enableRealTimeAnalysis: true,
+    maxHistorySize: 100
+  });
+
   // Visual skin and theme integration
   const { currentTheme, themeConfig } = useVisualSkin();
 
@@ -375,8 +390,6 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
     enableDay4Dynamics: true
   });
 
-  // Time axis integration
-  const { timeSlices, nowAngle, getTimeSliceData } = useTimeAxis();
 
   const [tooltipData, setTooltipData] = useState<any>(null);
   const [tooltipVisible, setTooltipVisible] = useState(false);
@@ -435,6 +448,14 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   };
 
   const handleDataPointClick = (expandedData: any, burstData: any) => {
+    // Track interaction for AI analysis
+    trackInteraction(
+      expandedData.layerType || 'unknown',
+      expandedData,
+      burstData?.position,
+      `data-point-click-${currentZoom}`
+    );
+
     // Hide tooltip first
     setTooltipVisible(false);
     
@@ -466,6 +487,14 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
 
   // Handle clickable layer interactions
   const handleLayerClick = (layerData: any) => {
+    // Track layer interaction
+    trackInteraction(
+      layerData.layerType || 'layer',
+      layerData,
+      undefined,
+      `layer-click-${currentZoom}`
+    );
+
     setInfoPanelData({
       type: 'layer',
       title: layerData.name,
@@ -476,6 +505,14 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   };
 
   const handleSliceClick = (sliceData: any) => {
+    // Track slice interaction
+    trackInteraction(
+      sliceData.sliceType || 'slice',
+      sliceData,
+      { x: sliceData.x || 0, y: sliceData.y || 0 },
+      `slice-click-${currentZoom}`
+    );
+
     setInfoPanelData({
       type: 'slice',
       title: `Time Slice`,
