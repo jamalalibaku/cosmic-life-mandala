@@ -2,22 +2,46 @@ import React from "react";
 import { motion } from "framer-motion";
 import vanGoghTheme from "@/theme/van-gogh/van-gogh";
 
+// Real data points scattered as brushstrokes
 const moodData = [
-  { angle: 0, valence: 0.6, energy: 0.8, emotion: "joy", type: "arc" },
-  { angle: 60, valence: -0.3, energy: 0.5, emotion: "contemplative", type: "arc" },
-  { angle: 120, valence: 0.2, energy: 0.3, emotion: "calm", type: "arc" },
-  { angle: 180, valence: 0.9, energy: 0.9, emotion: "ecstatic", type: "arc" },
-  { angle: 240, valence: -0.1, energy: 0.7, emotion: "restless", type: "arc" },
-  { angle: 300, valence: 0.4, energy: 0.4, emotion: "focused", type: "inward" }
+  { angle: 0, valence: 0.6, energy: 0.8, emotion: "joy", type: "arc", time: "09:00", intensity: 0.9 },
+  { angle: 60, valence: -0.3, energy: 0.5, emotion: "contemplative", type: "arc", time: "11:30", intensity: 0.6 },
+  { angle: 120, valence: 0.2, energy: 0.3, emotion: "calm", type: "arc", time: "14:15", intensity: 0.4 },
+  { angle: 180, valence: 0.9, energy: 0.9, emotion: "ecstatic", type: "arc", time: "16:45", intensity: 0.95 },
+  { angle: 240, valence: -0.1, energy: 0.7, emotion: "restless", type: "arc", time: "19:20", intensity: 0.7 },
+  { angle: 300, valence: 0.4, energy: 0.4, emotion: "focused", type: "inward", time: "21:30", intensity: 0.5 }
 ];
 
 const sleepData = [
-  { angle: 45, depth: 0.8, phase: "deep", type: "spiral" },
-  { angle: 135, depth: 0.4, phase: "REM", type: "spiral" },
-  { angle: 225, depth: 0.2, phase: "light", type: "spiral" }
+  { angle: 45, depth: 0.8, phase: "deep", type: "spiral", duration: 180, time: "02:00" },
+  { angle: 135, depth: 0.4, phase: "REM", type: "spiral", duration: 90, time: "04:30" },
+  { angle: 225, depth: 0.2, phase: "light", type: "spiral", duration: 60, time: "06:15" }
 ];
 
+// Generate scattered brushstroke data points within rings
+const generateBrushstrokes = (ringRadius: number, count: number, dataType: string) => {
+  return Array.from({ length: count }, (_, i) => {
+    const angle = (360 / count) * i + Math.random() * 20 - 10; // Slight randomization
+    const radiusVariation = ringRadius + (Math.random() - 0.5) * 30; // Scatter within ring
+    const x = radiusVariation * Math.cos((angle * Math.PI) / 180);
+    const y = radiusVariation * Math.sin((angle * Math.PI) / 180);
+    
+    return {
+      x, y, angle, 
+      size: 2 + Math.random() * 4,
+      intensity: Math.random(),
+      rotation: Math.random() * 360,
+      dataType,
+      value: Math.random() // Simulated data value
+    };
+  });
+};
+
 export const VanGoghView = () => {
+  // Generate scattered brushstrokes for each ring
+  const moodBrushstrokes = generateBrushstrokes(150, 18, 'mood');
+  const spiritBrushstrokes = generateBrushstrokes(200, 24, 'spirit');
+  const timeBrushstrokes = generateBrushstrokes(250, 30, 'time');
   return (
     <motion.svg
       viewBox="-400 -400 800 800"
@@ -271,6 +295,164 @@ export const VanGoghView = () => {
               onClick={() => console.log(`Sleep phase: ${sleep.phase}`)}
               style={{ cursor: 'pointer' }}
             />
+          </motion.g>
+        );
+      })}
+
+      {/* Scattered Brushstrokes - Mood Ring */}
+      {moodBrushstrokes.map((brush, i) => (
+        <motion.ellipse
+          key={`mood-brush-${i}`}
+          cx={brush.x}
+          cy={brush.y}
+          rx={brush.size * 3}
+          ry={brush.size}
+          fill="hsl(45, 80%, 65%)"
+          opacity={0.3 + brush.intensity * 0.4}
+          filter="url(#paintStroke)"
+          transform={`rotate(${brush.rotation} ${brush.x} ${brush.y})`}
+          animate={{
+            scale: [1, 1 + brush.intensity * 0.2, 1],
+            opacity: [0.2, 0.6, 0.2],
+            rotate: [brush.rotation, brush.rotation + 10, brush.rotation]
+          }}
+          transition={{
+            duration: 3 + brush.intensity * 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: i * 0.1
+          }}
+          onClick={() => console.log(`Mood brushstroke: intensity ${brush.intensity.toFixed(2)}`)}
+          style={{ cursor: 'pointer' }}
+        />
+      ))}
+
+      {/* Scattered Brushstrokes - Spirit Ring */}
+      {spiritBrushstrokes.map((brush, i) => (
+        <motion.circle
+          key={`spirit-brush-${i}`}
+          cx={brush.x}
+          cy={brush.y}
+          r={brush.size}
+          fill="hsl(280, 70%, 60%)"
+          opacity={0.2 + brush.intensity * 0.3}
+          filter="url(#emotionalGlow)"
+          animate={{
+            scale: [0.8, 1.2, 0.8],
+            opacity: [0.1, 0.5, 0.1],
+            cx: [brush.x, brush.x + Math.sin(i) * 5, brush.x],
+            cy: [brush.y, brush.y + Math.cos(i) * 5, brush.y]
+          }}
+          transition={{
+            duration: 4 + brush.intensity * 3,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: i * 0.15
+          }}
+          onClick={() => console.log(`Spirit dot: value ${brush.value.toFixed(2)}`)}
+          style={{ cursor: 'pointer' }}
+        />
+      ))}
+
+      {/* Scattered Brushstrokes - Time Ring */}
+      {timeBrushstrokes.map((brush, i) => (
+        <motion.g key={`time-brush-${i}`}>
+          <motion.line
+            x1={brush.x - brush.size * 2}
+            y1={brush.y}
+            x2={brush.x + brush.size * 2}
+            y2={brush.y}
+            stroke="hsl(260, 60%, 70%)"
+            strokeWidth={1 + brush.intensity * 2}
+            strokeLinecap="round"
+            opacity={0.3 + brush.intensity * 0.4}
+            filter="url(#brushTexture)"
+            transform={`rotate(${brush.angle} ${brush.x} ${brush.y})`}
+            animate={{
+              scale: [1, 1 + brush.intensity * 0.15, 1],
+              opacity: [0.2, 0.7, 0.2],
+              strokeWidth: [1, 1 + brush.intensity * 3, 1]
+            }}
+            transition={{
+              duration: 2 + brush.intensity * 1.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.08
+            }}
+            onClick={() => console.log(`Time stroke: angle ${brush.angle.toFixed(1)}°`)}
+            style={{ cursor: 'pointer' }}
+          />
+        </motion.g>
+      ))}
+
+      {/* Calendar Hour Markers with Data Visualization */}
+      {Array.from({ length: 24 }, (_, hour) => {
+        const angle = (hour * 15) * Math.PI / 180; // 24 hours = 360°
+        const x = 280 * Math.cos(angle);
+        const y = 280 * Math.sin(angle);
+        const isCurrentHour = new Date().getHours() === hour;
+        const hasData = hour % 3 === 0; // Simulate data points every 3 hours
+        
+        return (
+          <motion.g key={`hour-${hour}`}>
+            {/* Hour marker */}
+            <motion.circle
+              cx={x}
+              cy={y}
+              r={isCurrentHour ? 4 : 2}
+              fill={isCurrentHour ? "hsl(45, 100%, 80%)" : "hsl(220, 40%, 60%)"}
+              opacity={isCurrentHour ? 1 : 0.5}
+              animate={{
+                scale: isCurrentHour ? [1, 1.3, 1] : [1, 1.1, 1],
+                opacity: isCurrentHour ? [0.8, 1, 0.8] : [0.4, 0.6, 0.4]
+              }}
+              transition={{
+                duration: isCurrentHour ? 2 : 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: hour * 0.1
+              }}
+              onClick={() => console.log(`Hour: ${hour}:00`)}
+              style={{ cursor: 'pointer' }}
+            />
+            
+            {/* Data visualization for significant hours */}
+            {hasData && (
+              <motion.path
+                d={`M ${x} ${y} Q ${x + 15} ${y - 15} ${x + 10} ${y + 10}`}
+                fill="none"
+                stroke="hsl(45, 70%, 60%)"
+                strokeWidth="2"
+                opacity="0.6"
+                filter="url(#paintStroke)"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.4, 0.8, 0.4]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: hour * 0.2
+                }}
+              />
+            )}
+            
+            {/* Hour label */}
+            <motion.text
+              x={x * 1.1}
+              y={y * 1.1}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill="hsl(220, 40%, 70%)"
+              fontSize="8"
+              opacity="0.4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              transition={{ delay: hour * 0.05 }}
+            >
+              {hour}
+            </motion.text>
           </motion.g>
         );
       })}
