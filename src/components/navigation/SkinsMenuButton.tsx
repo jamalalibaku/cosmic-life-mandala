@@ -29,13 +29,15 @@ export const SkinsMenuButton: React.FC<SkinsMenuButtonProps> = ({
       clearTimeout(hoverTimeout);
       setHoverTimeout(null);
     }
-    setIsOpen(true);
+    if (!isOpen) {
+      setIsOpen(true);
+    }
   };
 
   const handleMouseLeave = () => {
     const timeout = setTimeout(() => {
       setIsOpen(false);
-    }, 150); // Small delay to allow moving to menu
+    }, 200); // Increased delay to prevent flickering
     setHoverTimeout(timeout);
   };
 
