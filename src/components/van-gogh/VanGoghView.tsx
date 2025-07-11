@@ -87,50 +87,67 @@ export const VanGoghView = () => {
           <stop offset="100%" stopColor="hsl(210, 60%, 25%)" stopOpacity="0.3" />
         </radialGradient>
 
-        {/* Oil Canvas Texture Base */}
-        <filter id="oilCanvasTexture" x="-50%" y="-50%" width="200%" height="200%">
-          <feTurbulence 
-            baseFrequency="0.9 1.1" 
-            numOctaves="4" 
-            result="canvasNoise"
-            type="fractalNoise"
-            stitchTiles="stitch"
-          />
-          <feColorMatrix 
-            in="canvasNoise" 
-            values="0.8 0.3 0.1 0 0
-                    0.2 0.7 0.2 0 0
-                    0.1 0.2 0.9 0 0
-                    0 0 0 1 0"
-            result="coloredCanvas"
-          />
-          <feComposite in="SourceGraphic" in2="coloredCanvas" operator="multiply"/>
-          <feGaussianBlur stdDeviation="0.5" result="smoothCanvas"/>
-          <feMerge>
-            <feMergeNode in="smoothCanvas"/>
+        {/* Enhanced brush texture */}
+        <filter id="brushTexture" x="-50%" y="-50%" width="200%" height="200%">
+          <feTurbulence baseFrequency="0.9 1.2" numOctaves="3" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" />
+          <feGaussianBlur stdDeviation="0.8" />
+        </filter>
+
+        {/* Emotional glow with jitter */}
+        <filter id="emotionalGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+          <feTurbulence baseFrequency="0.3" numOctaves="2" result="jitter" />
+          <feDisplacementMap in="coloredBlur" in2="jitter" scale="2" />
+          <feMerge> 
+            <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
 
-        {/* Van Gogh Brushstroke Texture */}
-        <filter id="vanGoghBrushstroke" x="-30%" y="-30%" width="160%" height="160%">
+        {/* Enhanced swirl pattern */}
+        <filter id="swirl" x="-50%" y="-50%" width="200%" height="200%">
+          <feTurbulence baseFrequency="0.02 0.03" numOctaves="2" result="swirl" />
+          <feDisplacementMap in="SourceGraphic" in2="swirl" scale="8" />
+          <feGaussianBlur stdDeviation="1.5" />
+        </filter>
+
+        {/* Oil Canvas Texture - Fixed to avoid white artifacts */}
+        <filter id="oilCanvasTexture" x="-30%" y="-30%" width="160%" height="160%">
           <feTurbulence 
-            baseFrequency="1.2 0.8" 
-            numOctaves="3" 
-            result="brushTexture"
+            baseFrequency="0.6 0.8" 
+            numOctaves="2" 
+            result="canvasNoise"
             type="fractalNoise"
+            stitchTiles="stitch"
+          />
+          <feDisplacementMap 
+            in="SourceGraphic" 
+            in2="canvasNoise" 
+            scale="1.5"
+          />
+          <feGaussianBlur stdDeviation="0.3" />
+        </filter>
+
+        {/* Van Gogh Brushstroke - Simplified to avoid white layers */}
+        <filter id="vanGoghBrushstroke" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence 
+            baseFrequency="1.0 0.6" 
+            numOctaves="2" 
+            result="brushTexture"
           />
           <feDisplacementMap 
             in="SourceGraphic" 
             in2="brushTexture" 
-            scale="2.5"
-            result="brushed"
+            scale="1.8"
           />
-          <feGaussianBlur stdDeviation="0.3" result="smoothBrush"/>
-          <feMerge>
-            <feMergeNode in="brushed"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
+          <feGaussianBlur stdDeviation="0.5" />
+        </filter>
+
+        {/* Paint stroke filter */}
+        <filter id="paintStroke" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence baseFrequency="0.8 0.4" numOctaves="2" result="texture" />
+          <feDisplacementMap in="SourceGraphic" in2="texture" scale="1.5" />
         </filter>
 
         {/* Soft inner glow for core */}
@@ -181,7 +198,7 @@ export const VanGoghView = () => {
         stroke="hsl(220, 45%, 35%)" // Deep oil paint blue
         strokeWidth="6"
         strokeOpacity="0.25"
-        filter="url(#oilCanvasTexture)"
+        filter="url(#swirl)"
         animate={{
           d: [
             "M -350,0 Q -250,150 -100,50 Q 50,-80 200,20 Q 300,120 350,0",
@@ -261,7 +278,7 @@ export const VanGoghView = () => {
         ry={20}
         fill="hsl(42, 70%, 55%)" // Rich oil paint ochre
         opacity="0.25"
-        filter="url(#oilCanvasTexture)"
+        filter="url(#emotionalGlow)"
         animate={{
           cx: [-150, -135, -150], // Stabilized motion
           cy: [-100, -115, -100],
@@ -283,7 +300,7 @@ export const VanGoghView = () => {
         height={15}
         fill="hsl(280, 70%, 55%)" // Rich purple oil paint
         opacity="0.22"
-        filter="url(#oilCanvasTexture)"
+        filter="url(#brushTexture)"
         animate={{
           x: [120, 132, 120], // Stabilized motion
           y: [80, 68, 80],
@@ -320,7 +337,7 @@ export const VanGoghView = () => {
             strokeWidth="1.5"
             strokeOpacity="0.2"
             strokeDasharray={`${radius * 0.08}, ${radius * 0.06}`}
-            filter="url(#oilCanvasTexture)"
+            filter="url(#brushTexture)"
             animate={{
               strokeOpacity: [0.1, 0.3, 0.1],
               strokeWidth: [1, 2.5, 1]
@@ -363,7 +380,7 @@ export const VanGoghView = () => {
                 strokeLinecap="round"
                 strokeDasharray={strokeDash}
                 opacity={depthOpacity}
-                filter="url(#vanGoghBrushstroke)"
+                filter="url(#brushTexture)"
                 animate={{
                   scale: [depthScale, depthScale * 1.05, depthScale],
                   strokeDashoffset: [0, 20, 0],
@@ -394,7 +411,7 @@ export const VanGoghView = () => {
                 strokeLinecap="round"
                 strokeDasharray="8,4"
                 opacity={depthOpacity}
-                filter="url(#oilCanvasTexture)"
+                filter="url(#emotionalGlow)"
                 animate={{
                   scale: [depthScale, depthScale * 1.1, depthScale],
                   x1: [x * 0.6, x * 0.65, x * 0.6],
@@ -453,7 +470,7 @@ export const VanGoghView = () => {
               strokeWidth={3 + sleep.depth * 4}
               strokeLinecap="round"
               opacity={0.3 + sleep.depth * 0.4}
-               filter="url(#oilCanvasTexture)"
+               filter="url(#swirl)"
               animate={{
                 rotate: [0, 360],
                 scale: [1, 1.1, 1],
@@ -483,7 +500,7 @@ export const VanGoghView = () => {
             ry={brush.size * 1.5}
             fill="hsl(42, 85%, 55%)" // Rich ochre oil color
             opacity={0.12 + brush.intensity * 0.18}
-            filter="url(#oilCanvasTexture)"
+            filter="url(#paintStroke)"
             transform={`rotate(${brush.rotation} ${brush.x} ${brush.y})`}
             animate={{
               scale: [1, 1.02, 1], // Reduced motion for stability
@@ -505,7 +522,7 @@ export const VanGoghView = () => {
             ry={brush.size * 0.8}
             fill="hsl(45, 90%, 65%)" // Bright yellow stroke
             opacity={0.25 + brush.intensity * 0.25}
-            filter="url(#vanGoghBrushstroke)"
+            filter="url(#paintStroke)"
             transform={`rotate(${brush.rotation + 45} ${brush.x} ${brush.y})`}
             animate={{
               scale: [1, 1.03, 1],
@@ -534,7 +551,7 @@ export const VanGoghView = () => {
             ry={brush.size * 0.6}
             fill="hsl(280, 75%, 45%)" // Deep purple oil
             opacity={0.08 + brush.intensity * 0.15}
-            filter="url(#oilCanvasTexture)"
+            filter="url(#emotionalGlow)"
             transform={`rotate(${brush.rotation} ${brush.x} ${brush.y})`}
             animate={{
               scale: [0.95, 1.02, 0.95],
@@ -555,7 +572,7 @@ export const VanGoghView = () => {
             ry={brush.size * 0.4}
             fill="hsl(285, 80%, 60%)" // Lighter purple accent
             opacity={0.15 + brush.intensity * 0.2}
-            filter="url(#vanGoghBrushstroke)"
+            filter="url(#emotionalGlow)"
             transform={`rotate(${brush.rotation + 90} ${brush.x} ${brush.y})`}
             animate={{
               scale: [1, 1.01, 1],
@@ -584,7 +601,7 @@ export const VanGoghView = () => {
             ry={brush.size * 0.8}
             fill="hsl(220, 65%, 40%)" // Deep blue oil base
             opacity={0.06 + brush.intensity * 0.12}
-            filter="url(#oilCanvasTexture)"
+            filter="url(#brushTexture)"
             transform={`rotate(${brush.angle} ${brush.x} ${brush.y})`}
             animate={{
               scale: [1, 1.01, 1], // Very minimal motion for stability
@@ -605,7 +622,7 @@ export const VanGoghView = () => {
             ry={brush.size * 0.5}
             fill="hsl(240, 70%, 65%)" // Lighter blue accent
             opacity={0.18 + brush.intensity * 0.22}
-            filter="url(#vanGoghBrushstroke)"
+            filter="url(#brushTexture)"
             transform={`rotate(${brush.angle + 15} ${brush.x} ${brush.y})`}
             animate={{
               scale: [1, 1.02, 1],
@@ -662,7 +679,7 @@ export const VanGoghView = () => {
                 stroke="hsl(45, 70%, 60%)"
                 strokeWidth="2"
                 opacity="0.6"
-                filter="url(#vanGoghBrushstroke)"
+                filter="url(#paintStroke)"
                 animate={{
                   scale: [1, 1.2, 1],
                   opacity: [0.4, 0.8, 0.4]
@@ -737,7 +754,7 @@ export const VanGoghView = () => {
         stroke="hsl(220, 70%, 60%)"
         strokeWidth="3"
         strokeOpacity="0.4"
-        filter="url(#oilCanvasTexture)"
+        filter="url(#swirl)"
         animate={{
           d: [
             "M -300,0 Q -200,100 -100,0 Q 0,-100 100,0 Q 200,100 300,0",
