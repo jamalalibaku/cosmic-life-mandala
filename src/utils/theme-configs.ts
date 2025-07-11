@@ -12,7 +12,8 @@ export type Theme =
   | 'vinyl'
   | 'noir'
   | 'pastelParadise'
-  | 'mandalaExpressive';
+  | 'mandalaExpressive'
+  | 'vanGogh';
 
 export interface ThemeConfig {
   name: string;
@@ -360,6 +361,45 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     haiku: [
       'Emotions flow like rivers / Through the mandala of time / Each breath a new world',
       'Sleep ripples outward / While spirit trails dance in light / Being becomes form'
+    ]
+  },
+
+  vanGogh: {
+    name: 'Van Gogh\'s Starry Night',
+    description: 'A living painting of time - swirling, luminous, and deeply expressive',
+    colors: {
+      primary: 'hsl(45 90% 65%)',      // Van Gogh's golden yellow
+      secondary: 'hsl(220 80% 40%)',   // Deep cobalt blue
+      accent: 'hsl(35 100% 55%)',      // Burning orange
+      background: 'hsl(230 40% 8%)',   // Midnight sky
+      text: 'hsl(45 70% 85%)',         // Warm starlight
+      glow: 'hsl(45 100% 70%)'         // Brilliant yellow glow
+    },
+    typography: {
+      primary: 'serif',
+      secondary: 'cursive',
+      size: 'medium'
+    },
+    shapes: {
+      rings: 'organic',
+      segments: 'flowing'
+    },
+    animations: {
+      speed: 'medium',
+      style: 'organic'
+    },
+    icons: {
+      weather: { sunny: '☀️', rainy: '🌀', cloudy: '✨' },
+      mood: { calm: '🌙', creative: '🎨', energetic: '⭐' },
+      time: '☀️'
+    },
+    background: {
+      pattern: 'stars',
+      intensity: 0.7
+    },
+    haiku: [
+      'Starlight swirls like paint / Across the canvas of night / Time becomes a dream',
+      'Yellow suns and blue / Dance eternal through the sky / Beauty burns like fire'
     ]
   }
 };
