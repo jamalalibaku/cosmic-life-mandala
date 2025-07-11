@@ -3,12 +3,18 @@ import { motion } from "framer-motion";
 import vanGoghTheme from "@/theme/van-gogh/van-gogh";
 
 const moodData = [
-  { angle: 0, valence: 0.6, energy: 0.8, emotion: "joy" },
-  { angle: 60, valence: -0.3, energy: 0.5, emotion: "contemplative" },
-  { angle: 120, valence: 0.2, energy: 0.3, emotion: "calm" },
-  { angle: 180, valence: 0.9, energy: 0.9, emotion: "ecstatic" },
-  { angle: 240, valence: -0.1, energy: 0.7, emotion: "restless" },
-  { angle: 300, valence: 0.4, energy: 0.4, emotion: "focused" }
+  { angle: 0, valence: 0.6, energy: 0.8, emotion: "joy", type: "arc" },
+  { angle: 60, valence: -0.3, energy: 0.5, emotion: "contemplative", type: "arc" },
+  { angle: 120, valence: 0.2, energy: 0.3, emotion: "calm", type: "arc" },
+  { angle: 180, valence: 0.9, energy: 0.9, emotion: "ecstatic", type: "arc" },
+  { angle: 240, valence: -0.1, energy: 0.7, emotion: "restless", type: "arc" },
+  { angle: 300, valence: 0.4, energy: 0.4, emotion: "focused", type: "inward" }
+];
+
+const sleepData = [
+  { angle: 45, depth: 0.8, phase: "deep", type: "spiral" },
+  { angle: 135, depth: 0.4, phase: "REM", type: "spiral" },
+  { angle: 225, depth: 0.2, phase: "light", type: "spiral" }
 ];
 
 export const VanGoghView = () => {
@@ -111,63 +117,120 @@ export const VanGoghView = () => {
         />
       ))}
 
-      {/* Van Gogh's emotional brushstrokes */}
+      {/* Semantic Van Gogh Elements */}
       {moodData.map((mood, i) => {
         const color = vanGoghTheme.getMoodColor(mood.valence, mood.energy);
         const strokeMotion = vanGoghTheme.getStrokeMotion(mood.energy);
         
-        // Calculate position on the radial timeline
-        const baseRadius = 150 + mood.energy * 80;
-        const x = baseRadius * Math.cos((mood.angle * Math.PI) / 180);
-        const y = baseRadius * Math.sin((mood.angle * Math.PI) / 180);
+        // Depth layering - closer elements are larger and brighter
+        const depthRadius = 120 + i * 25;
+        const depthScale = 1 + (5 - i) * 0.1; // Closer = larger
+        const depthOpacity = 0.4 + (5 - i) * 0.12; // Closer = brighter
         
-        // Brush stroke size based on energy
-        const strokeWidth = 8 + mood.energy * 12;
-        const strokeLength = 20 + mood.energy * 30;
+        const x = depthRadius * Math.cos((mood.angle * Math.PI) / 180);
+        const y = depthRadius * Math.sin((mood.angle * Math.PI) / 180);
 
+        if (mood.type === "arc") {
+          // Mood arcs with breathing motion and stroke variation
+          const arcLength = 60 + mood.energy * 40;
+          const strokeDash = `${mood.energy * 10 + 5}, ${mood.energy * 5 + 2}`;
+          
+          return (
+            <motion.g key={`mood-arc-${i}`}>
+              <motion.path
+                d={`M ${x - arcLength/2} ${y} A ${depthRadius} ${depthRadius} 0 0 1 ${x + arcLength/2} ${y}`}
+                fill="none"
+                stroke={color}
+                strokeWidth={6 + mood.energy * 8}
+                strokeLinecap="round"
+                strokeDasharray={strokeDash}
+                opacity={depthOpacity}
+                filter="url(#brushTexture)"
+                animate={{
+                  scale: [depthScale, depthScale * 1.05, depthScale],
+                  strokeDashoffset: [0, 20, 0],
+                  opacity: [depthOpacity * 0.7, depthOpacity, depthOpacity * 0.7]
+                }}
+                transition={{
+                  duration: 3 + mood.energy * 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: i * 0.5
+                }}
+                onClick={() => console.log(`Van Gogh mood arc: ${mood.emotion}`)}
+                style={{ cursor: 'pointer' }}
+              />
+            </motion.g>
+          );
+        } else if (mood.type === "inward") {
+          // Focus inward lines with orbital wobble
+          return (
+            <motion.g key={`focus-line-${i}`}>
+              <motion.line
+                x1={x * 0.6}
+                y1={y * 0.6}
+                x2={x * 1.4}
+                y2={y * 1.4}
+                stroke={color}
+                strokeWidth={4 + mood.energy * 6}
+                strokeLinecap="round"
+                strokeDasharray="8,4"
+                opacity={depthOpacity}
+                filter="url(#emotionalGlow)"
+                animate={{
+                  scale: [depthScale, depthScale * 1.1, depthScale],
+                  x1: [x * 0.6, x * 0.65, x * 0.6],
+                  y1: [y * 0.6, y * 0.65, y * 0.6],
+                  opacity: [depthOpacity * 0.8, depthOpacity, depthOpacity * 0.8]
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: i * 0.3
+                }}
+                onClick={() => console.log(`Van Gogh focus line: ${mood.emotion}`)}
+                style={{ cursor: 'pointer' }}
+              />
+            </motion.g>
+          );
+        }
+      })}
+
+      {/* Sleep spirals with gentle drift */}
+      {sleepData.map((sleep, i) => {
+        const spiralRadius = 80 + i * 20;
+        const x = spiralRadius * Math.cos((sleep.angle * Math.PI) / 180);
+        const y = spiralRadius * Math.sin((sleep.angle * Math.PI) / 180);
+        const spiralColor = sleep.phase === "deep" ? "hsl(230, 60%, 30%)" : 
+                           sleep.phase === "REM" ? "hsl(280, 70%, 50%)" : 
+                           "hsl(200, 40%, 60%)";
+        
         return (
-          <g key={`emotion-${i}`}>
-            {/* Main emotional stroke */}
-            <motion.ellipse
-              cx={x}
-              cy={y}
-              rx={strokeLength}
-              ry={strokeWidth}
-              fill={color}
-              opacity={0.7 + mood.energy * 0.3}
-              filter="url(#brushTexture)"
-              transform={`rotate(${mood.angle} ${x} ${y})`}
-              animate={{
-                scale: strokeMotion.scale,
-                rotate: [mood.angle, mood.angle + strokeMotion.rotate[1], mood.angle + strokeMotion.rotate[2], mood.angle],
-                opacity: [0.6, 0.9, 0.6]
-              }}
-              transition={strokeMotion.transition}
-              onClick={() => console.log(`Van Gogh emotion: ${mood.emotion}, valence=${mood.valence}, energy=${mood.energy}`)}
-              style={{ cursor: 'pointer' }}
-            />
-            
-            {/* Trailing motion blur */}
-            <motion.ellipse
-              cx={x * 0.9}
-              cy={y * 0.9}
-              rx={strokeLength * 0.6}
-              ry={strokeWidth * 0.6}
-              fill={color}
-              opacity={0.3}
+          <motion.g key={`sleep-spiral-${i}`}>
+            <motion.path
+              d={`M ${x} ${y} Q ${x + 20} ${y - 20} ${x + 15} ${y + 15} Q ${x - 10} ${y + 25} ${x} ${y}`}
+              fill="none"
+              stroke={spiralColor}
+              strokeWidth={3 + sleep.depth * 4}
+              strokeLinecap="round"
+              opacity={0.3 + sleep.depth * 0.4}
               filter="url(#swirl)"
-              transform={`rotate(${mood.angle - 10} ${x * 0.9} ${y * 0.9})`}
               animate={{
-                scale: [0.8, 1.1, 0.8],
-                opacity: [0.2, 0.4, 0.2]
+                rotate: [0, 360],
+                scale: [1, 1.1, 1],
+                opacity: [0.3, 0.7, 0.3]
               }}
               transition={{
-                duration: strokeMotion.transition.duration * 1.5,
+                duration: 12 + i * 4,
                 repeat: Infinity,
-                ease: strokeMotion.transition.ease
+                ease: "linear",
+                delay: i * 2
               }}
+              onClick={() => console.log(`Sleep phase: ${sleep.phase}`)}
+              style={{ cursor: 'pointer' }}
             />
-          </g>
+          </motion.g>
         );
       })}
 
