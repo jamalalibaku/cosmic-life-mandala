@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import WeatherSunburst from '@/components/weather-sunburst';
-import { FluidWeatherContinuum } from '@/components/fluid-weather-continuum';
+import { AtmosphericWeatherRing } from '@/components/atmospheric-weather-ring';
 import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
 import { DataBlobRing } from '@/components/data-blob-ring';
 import { UserCore } from '@/components/user-core';
@@ -248,18 +248,16 @@ const IndexContent = () => {
               opacity="0.3"
             />
             
-            {/* 1. Weather - Fluid Atmospheric Continuum */}
-            <FluidWeatherContinuum
+            {/* 1. Weather - Atmospheric Outermost Ring */}
+            <AtmosphericWeatherRing
               weatherData={mockWeatherToday}
               centerX={centerX}
               centerY={centerY}
               innerRadius={295}
               outerRadius={325}
               theme={currentTheme as any}
-              weatherStyle="gradient"
-              showWeatherSegments={false}
-              showSkyPulse={true}
-              className="fluid-weather-layer"
+              showDebug={false}
+              className="atmospheric-weather-layer"
             />
           </>
         )}
