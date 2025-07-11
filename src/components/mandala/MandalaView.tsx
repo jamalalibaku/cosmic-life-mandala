@@ -2,10 +2,11 @@
  * (c) 2025 Cosmic Life Mandala – Radial Timeline Project
  * Founder and Author: Jamal Ali
  * Built by ChatGPT & Lovable · MIT Licensed
- * Phase 28 – Live Visual Composition
+ * Phase 28 – Live Visual Composition with Breathing Animation
  */
 
 import React from "react";
+import { motion } from "framer-motion";
 import { CoreCircle } from "@/components/mandala/CoreCircle";
 import { EmotionalCreature } from "@/components/mandala/EmotionalCreature";
 import { SleepRipple } from "@/components/mandala/SleepRipple";
@@ -35,9 +36,22 @@ const mobilityData = [
 export const MandalaView = () => {
   return (
     <div className="w-full h-full min-h-screen flex items-center justify-center bg-background">
-      <svg viewBox="-300 -300 600 600" width="80%" height="80%" className="max-w-4xl max-h-screen">
+      <motion.svg
+        viewBox="-300 -300 600 600"
+        width="80%"
+        height="80%"
+        className="max-w-4xl max-h-screen"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
         {/* Core breathing center */}
-        <CoreCircle />
+        <motion.g
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <CoreCircle />
+        </motion.g>
 
         {/* Sleep ripples */}
         {sleepData.map((sleep, i) => (
@@ -45,17 +59,25 @@ export const MandalaView = () => {
         ))}
 
         {/* Emotional Creatures */}
-        {moodSegments.map((mood, i) => (
-          <EmotionalCreature
-            key={i}
-            startAngle={mood.start}
-            arcLength={mood.duration * 15}
-            intensity={mood.energy}
-            valence={mood.valence}
-            arousal={mood.arousal}
-            emotion={mood.emotion}
-          />
-        ))}
+        {moodSegments.map((mood, i) => {
+          const breathDur = mandalaExpressiveTheme.breathingRhythms[mood.emotion] || 4;
+          return (
+            <motion.g
+              key={i}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: breathDur, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <EmotionalCreature
+                startAngle={mood.start}
+                arcLength={mood.duration * 15}
+                intensity={mood.energy}
+                valence={mood.valence}
+                arousal={mood.arousal}
+                emotion={mood.emotion}
+              />
+            </motion.g>
+          );
+        })}
 
         {/* Cosmic Mobility Trails */}
         {mobilityData.map((m, i) => (
@@ -67,7 +89,7 @@ export const MandalaView = () => {
             angle={(m.angle * Math.PI) / 180}
           />
         ))}
-      </svg>
+      </motion.svg>
     </div>
   );
 };
