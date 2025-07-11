@@ -125,7 +125,7 @@ export const PhaseTimelineTracker: React.FC<PhaseTimelineTrackerProps> = ({
                       <div className="text-xs text-muted-foreground">
                         {Math.round(entry.intensity * 100)}% intensity
                       </div>
-                      {entry.userReflection && (
+                      {entry.userReflections && entry.userReflections.length > 0 && (
                         <Sparkles className="w-4 h-4 text-amber-500" />
                       )}
                     </div>
@@ -150,10 +150,12 @@ export const PhaseTimelineTracker: React.FC<PhaseTimelineTrackerProps> = ({
                         </div>
                       )}
                       
-                      {entry.userReflection ? (
+                      {entry.userReflections && entry.userReflections.length > 0 ? (
                         <div className="p-3 bg-background/80 rounded border border-dashed">
-                          <div className="text-xs text-muted-foreground mb-1">Your reflection:</div>
-                          <p className="text-sm italic">"{entry.userReflection}"</p>
+                          <div className="text-xs text-muted-foreground mb-1">Your reflections:</div>
+                          {entry.userReflections.map((reflection, idx) => (
+                            <p key={idx} className="text-sm italic mb-1">"{reflection}"</p>
+                          ))}
                         </div>
                       ) : (
                         <div className="space-y-2">

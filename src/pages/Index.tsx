@@ -47,10 +47,11 @@ import { MoodInfluence } from '@/utils/mood-engine';
 import { Theme, themeConfigs } from '@/utils/theme-configs';
 import { generateInsights } from '@/utils/insight-engine';
 import { SettingsPanel } from '@/components/settings-panel';
-import { ConstellationToggle } from '@/components/interactions/ConstellationToggle';
 import { PhaseTransitionManager } from '@/components/PhaseTransitionManager';
 import { detectLifePhase } from '@/utils/life-phase-detection';
 import { usePhaseTheme } from '@/hooks/usePhaseTheme';
+import { useAwarenessRhythm } from '@/hooks/useAwarenessRhythm';
+import { AwarenessNotification } from '@/components/AwarenessNotification';
 import { getUserInsightProfile } from '@/utils/insight-memory';
 
 const IndexContent = () => {
@@ -71,8 +72,9 @@ const IndexContent = () => {
   const [showLayerDebug, setShowLayerDebug] = useState(false);
   const [persistentDebugMode, setPersistentDebugMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showInsightPanel, setShowInsightPanel] = useState(false);
 
-  // Life phase detection
+  // Life phase detection and awareness rhythm
   const userProfile = getUserInsightProfile();
   const mockInteractions = [
     { layerType: 'mood', timestamp: new Date().toISOString(), dataValue: 0.7 },
@@ -81,6 +83,15 @@ const IndexContent = () => {
   ];
   const currentLifePhase = detectLifePhase(userProfile, mockInteractions);
   const phaseTheme = usePhaseTheme(currentLifePhase.currentPhase);
+  
+  // Awareness rhythm system
+  const { awarenessState, clearAwarenessMessage } = useAwarenessRhythm({
+    userProfile,
+    recentInteractions: mockInteractions,
+    onInsightOpportunity: () => {
+      // Glow the Intelligence button or show notification
+    }
+  });
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -757,6 +768,17 @@ const IndexContent = () => {
           onShowPlaybackChange={setShowPlayback}
           onShowTideRingsChange={setShowTideRings}
           onShowAIInsightsChange={setShowAIInsights}
+        />
+        
+        {/* Awareness Notification System */}
+        <AwarenessNotification
+          message={awarenessState.awarenessMessage}
+          isVisible={!!awarenessState.awarenessMessage}
+          onDismiss={clearAwarenessMessage}
+          onExplore={() => {
+            setShowInsightPanel(true);
+            clearAwarenessMessage();
+          }}
         />
         
         {/* Fractal Time Zoom Manager */}

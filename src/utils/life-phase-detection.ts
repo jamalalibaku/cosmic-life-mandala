@@ -1,3 +1,5 @@
+import { PhaseHistoryEntry } from './phase-history-manager';
+
 export type LifePhase = 
   | 'awakening' 
   | 'building' 
@@ -11,12 +13,7 @@ export interface LifePhaseProfile {
   currentPhase: LifePhase;
   phaseStability: number; // 0-1 confidence
   transitionReadiness: number; // 0-1 curve detection
-  phaseHistory: Array<{
-    phase: LifePhase;
-    startDate: string;
-    endDate?: string;
-    intensity: number;
-  }>;
+  phaseHistory: PhaseHistoryEntry[];
   emotionalTone: 'gentle' | 'celebratory' | 'contemplative' | 'supportive' | 'encouraging';
   insights: string[];
 }
@@ -191,14 +188,17 @@ function calculateTransitionReadiness(patterns: any, metrics: any): number {
 }
 
 function generatePhaseHistory(userProfile: any, currentPhase: LifePhase) {
-  // Return simple mock history - actual persistence will be handled by the component
+  // Return simple mock history with proper structure
   return [
     {
+      phaseId: `${currentPhase}-${Date.now()}`,
       phase: currentPhase,
       startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
       endDate: undefined,
       intensity: 0.8,
-      transitionReason: undefined
+      stabilityScore: 0.8,
+      transitionReason: undefined,
+      userReflections: []
     }
   ];
 }

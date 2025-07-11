@@ -73,6 +73,14 @@ export function usePhaseTheme(currentPhase: LifePhase | null): PhaseThemeModifie
     const root = document.documentElement;
     root.style.setProperty('--phase-accent', theme.color);
     root.style.setProperty('--phase-glow-intensity', modifiers[currentPhase].glowIntensity.toString());
+    root.style.setProperty('--phase-pulse-speed', modifiers[currentPhase].pulseSpeed.toString());
+    root.style.setProperty('--phase-drift-direction', modifiers[currentPhase].driftDirection.toString());
+
+    // Apply subtle phase-based animation adjustments to motion systems
+    const motionElements = document.querySelectorAll('[data-phase-motion]');
+    motionElements.forEach(element => {
+      applyPhaseThemeToElement(element as HTMLElement, currentPhase, modifiers[currentPhase].glowIntensity * 0.1);
+    });
 
   }, [currentPhase]);
 

@@ -1,12 +1,15 @@
 import { LifePhase, LifePhaseProfile } from './life-phase-detection';
 
 export interface PhaseHistoryEntry {
+  phaseId: string;
   phase: LifePhase;
   startDate: string;
   endDate?: string;
   intensity: number;
+  stabilityScore: number;
+  transitionType?: string;
   transitionReason?: string;
-  userReflection?: string;
+  userReflections: string[];
 }
 
 export interface PhaseTransition {
@@ -76,10 +79,14 @@ export function updatePhaseHistory(
     
     // Add new phase entry
     const newEntry: PhaseHistoryEntry = {
+      phaseId: `${currentPhase}-${Date.now()}`,
       phase: currentPhase,
       startDate: now,
       intensity: phaseStability,
-      transitionReason: transition ? `Transitioned from ${transition.from}` : undefined
+      stabilityScore: phaseStability,
+      transitionType: transition ? `${transition.from} → ${transition.to}` : undefined,
+      transitionReason: transition ? `Transitioned from ${transition.from}` : undefined,
+      userReflections: []
     };
     
     history.push(newEntry);
@@ -102,7 +109,7 @@ export function updatePhaseHistory(
 export function addPhaseReflection(phaseIndex: number, reflection: string): void {
   const history = loadPhaseHistory();
   if (history[phaseIndex]) {
-    history[phaseIndex].userReflection = reflection;
+    history[phaseIndex].userReflections.push(reflection);
     savePhaseHistory(history);
   }
 }
@@ -139,7 +146,7 @@ export function exportPhaseHistory(): string {
       duration: entry.endDate 
         ? Math.ceil((new Date(entry.endDate).getTime() - new Date(entry.startDate).getTime()) / (1000 * 60 * 60 * 24))
         : 'ongoing',
-      reflection: entry.userReflection || 'No reflection recorded',
+      reflection: entry.userReflections.join('; ') || 'No reflection recorded',
       intensity: entry.intensity
     }))
   };
