@@ -18,30 +18,56 @@ const sleepData = [
   { angle: 225, depth: 0.2, phase: "light", type: "spiral", duration: 60, time: "06:15" }
 ];
 
-// Generate scattered brushstroke data points within rings
-const generateBrushstrokes = (ringRadius: number, count: number, dataType: string) => {
-  return Array.from({ length: count }, (_, i) => {
-    const angle = (360 / count) * i + Math.random() * 20 - 10; // Slight randomization
-    const radiusVariation = ringRadius + (Math.random() - 0.5) * 30; // Scatter within ring
-    const x = radiusVariation * Math.cos((angle * Math.PI) / 180);
-    const y = radiusVariation * Math.sin((angle * Math.PI) / 180);
-    
-    return {
-      x, y, angle, 
-      size: 2 + Math.random() * 4,
-      intensity: Math.random(),
-      rotation: Math.random() * 360,
-      dataType,
-      value: Math.random() // Simulated data value
-    };
-  });
+// Generate mosaic-like brushstrokes to fill the entire canvas like Starry Night
+const generateStarryNightMosaic = (density: number) => {
+  const brushstrokes = [];
+  const gridSize = 25; // Size of each mosaic cell
+  
+  for (let x = -400; x <= 400; x += gridSize) {
+    for (let y = -400; y <= 400; y += gridSize) {
+      const distance = Math.sqrt(x * x + y * y);
+      const angle = Math.atan2(y, x);
+      
+      // Create swirling pattern like Van Gogh's sky
+      const swirl = Math.sin(distance * 0.02 + angle * 3) * 0.5;
+      const offsetX = x + Math.random() * 12 - 6 + swirl * 15;
+      const offsetY = y + Math.random() * 12 - 6 + Math.cos(distance * 0.015) * 10;
+      
+      // Van Gogh Starry Night color palette
+      const colors = [
+        'hsl(220, 70%, 25%)', // Deep night blue
+        'hsl(230, 80%, 30%)', // Midnight blue
+        'hsl(240, 60%, 35%)', // Darker blue
+        'hsl(210, 90%, 20%)', // Very deep blue
+        'hsl(45, 90%, 70%)',  // Starry yellow
+        'hsl(42, 85%, 75%)',  // Light yellow
+        'hsl(200, 40%, 40%)', // Muted blue-gray
+      ];
+      
+      const colorIndex = Math.floor(Math.random() * colors.length);
+      const isYellow = colorIndex >= 4; // Yellow stars scattered
+      
+      if (Math.random() < density || (isYellow && Math.random() < 0.15)) {
+        brushstrokes.push({
+          x: offsetX,
+          y: offsetY,
+          size: 3 + Math.random() * 5,
+          color: colors[colorIndex],
+          rotation: angle * 180 / Math.PI + Math.random() * 30 - 15,
+          intensity: Math.random(),
+          swirl: swirl,
+          isYellow: isYellow
+        });
+      }
+    }
+  }
+  return brushstrokes;
 };
 
 export const VanGoghView = () => {
-  // Generate scattered brushstrokes for each ring
-  const moodBrushstrokes = generateBrushstrokes(150, 18, 'mood');
-  const spiritBrushstrokes = generateBrushstrokes(200, 24, 'spirit');
-  const timeBrushstrokes = generateBrushstrokes(250, 30, 'time');
+  // Generate Van Gogh Starry Night mosaic background
+  const starryNightMosaic = generateStarryNightMosaic(0.4); // 40% density
+  
   return (
     <motion.svg
       viewBox="-400 -400 800 800"
@@ -214,6 +240,34 @@ export const VanGoghView = () => {
           ease: "easeInOut"
         }}
       />
+
+      {/* Van Gogh Starry Night Mosaic Background */}
+      {starryNightMosaic.map((brush, i) => (
+        <motion.ellipse
+          key={`starry-mosaic-${i}`}
+          cx={brush.x}
+          cy={brush.y}
+          rx={brush.size * 1.8}
+          ry={brush.size * 0.8}
+          fill={brush.color}
+          opacity={brush.isYellow ? 0.4 + brush.intensity * 0.3 : 0.15 + brush.intensity * 0.2}
+          filter={brush.isYellow ? "url(#starTwinkle)" : "url(#brushTexture)"}
+          transform={`rotate(${brush.rotation} ${brush.x} ${brush.y})`}
+          animate={{
+            scale: brush.isYellow ? [0.8, 1.2, 0.8] : [0.98, 1.02, 0.98],
+            opacity: brush.isYellow ? 
+              [0.3, 0.7, 0.3] : 
+              [0.1 + brush.intensity * 0.15, 0.25 + brush.intensity * 0.2, 0.1 + brush.intensity * 0.15],
+            rotate: [brush.rotation, brush.rotation + (brush.swirl * 5), brush.rotation]
+          }}
+          transition={{
+            duration: brush.isYellow ? 4 + i * 0.1 : 45 + i * 0.3, // Stars twinkle faster
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: i * 0.05
+          }}
+        />
+      ))}
 
       {/* Atmospheric fog layer */}
       <motion.circle
@@ -489,156 +543,6 @@ export const VanGoghView = () => {
         );
       })}
 
-      {/* Oil Canvas Brushstrokes - Mood Ring with stabilized motion */}
-      {moodBrushstrokes.map((brush, i) => (
-        <motion.g key={`mood-brush-${i}`}>
-          {/* Oil canvas base stroke */}
-          <motion.ellipse
-            cx={brush.x}
-            cy={brush.y}
-            rx={brush.size * 4}
-            ry={brush.size * 1.5}
-            fill="hsl(42, 85%, 55%)" // Rich ochre oil color
-            opacity={0.12 + brush.intensity * 0.18}
-            filter="url(#paintStroke)"
-            transform={`rotate(${brush.rotation} ${brush.x} ${brush.y})`}
-            animate={{
-              scale: [1, 1.02, 1], // Reduced motion for stability
-              opacity: [0.08, 0.2, 0.08],
-              rotate: [brush.rotation, brush.rotation + 2, brush.rotation], // Minimal rotation
-            }}
-            transition={{
-              duration: 25 + brush.intensity * 15, // Slower, more stable
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.8
-            }}
-          />
-          {/* Van Gogh brushstroke overlay */}
-          <motion.ellipse
-            cx={brush.x}
-            cy={brush.y}
-            rx={brush.size * 2.5}
-            ry={brush.size * 0.8}
-            fill="hsl(45, 90%, 65%)" // Bright yellow stroke
-            opacity={0.25 + brush.intensity * 0.25}
-            filter="url(#paintStroke)"
-            transform={`rotate(${brush.rotation + 45} ${brush.x} ${brush.y})`}
-            animate={{
-              scale: [1, 1.03, 1],
-              opacity: [0.2, 0.35, 0.2],
-            }}
-            transition={{
-              duration: 20 + brush.intensity * 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.5
-            }}
-            onClick={() => console.log(`Oil mood brushstroke: intensity ${brush.intensity.toFixed(2)}`)}
-            style={{ cursor: 'pointer' }}
-          />
-        </motion.g>
-      ))}
-
-      {/* Oil Canvas Spirit Brushstrokes - Converted from dots */}
-      {spiritBrushstrokes.map((brush, i) => (
-        <motion.g key={`spirit-brush-${i}`}>
-          {/* Base oil stroke */}
-          <motion.ellipse
-            cx={brush.x}
-            cy={brush.y}
-            rx={brush.size * 2}
-            ry={brush.size * 0.6}
-            fill="hsl(280, 75%, 45%)" // Deep purple oil
-            opacity={0.08 + brush.intensity * 0.15}
-            filter="url(#emotionalGlow)"
-            transform={`rotate(${brush.rotation} ${brush.x} ${brush.y})`}
-            animate={{
-              scale: [0.95, 1.02, 0.95],
-              opacity: [0.05, 0.18, 0.05],
-            }}
-            transition={{
-              duration: 30 + brush.intensity * 20, // Very stable motion
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 1.2
-            }}
-          />
-          {/* Brush texture stroke */}
-          <motion.ellipse
-            cx={brush.x}
-            cy={brush.y}
-            rx={brush.size * 1.2}
-            ry={brush.size * 0.4}
-            fill="hsl(285, 80%, 60%)" // Lighter purple accent
-            opacity={0.15 + brush.intensity * 0.2}
-            filter="url(#emotionalGlow)"
-            transform={`rotate(${brush.rotation + 90} ${brush.x} ${brush.y})`}
-            animate={{
-              scale: [1, 1.01, 1],
-              opacity: [0.12, 0.25, 0.12],
-            }}
-            transition={{
-              duration: 18 + brush.intensity * 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.6
-            }}
-            onClick={() => console.log(`Oil spirit brushstroke: value ${brush.value.toFixed(2)}`)}
-            style={{ cursor: 'pointer' }}
-          />
-        </motion.g>
-      ))}
-
-      {/* Oil Canvas Time Brushstrokes - Stabilized stroke patterns */}
-      {timeBrushstrokes.map((brush, i) => (
-        <motion.g key={`time-brush-${i}`}>
-          {/* Base oil canvas stroke */}
-          <motion.ellipse
-            cx={brush.x}
-            cy={brush.y}
-            rx={brush.size * 3}
-            ry={brush.size * 0.8}
-            fill="hsl(220, 65%, 40%)" // Deep blue oil base
-            opacity={0.06 + brush.intensity * 0.12}
-            filter="url(#brushTexture)"
-            transform={`rotate(${brush.angle} ${brush.x} ${brush.y})`}
-            animate={{
-              scale: [1, 1.01, 1], // Very minimal motion for stability
-              opacity: [0.04, 0.15, 0.04],
-            }}
-            transition={{
-              duration: 35 + brush.intensity * 25, // Very slow, stable motion
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 1.5
-            }}
-          />
-          {/* Van Gogh brushstroke overlay */}
-          <motion.ellipse
-            cx={brush.x}
-            cy={brush.y}
-            rx={brush.size * 1.8}
-            ry={brush.size * 0.5}
-            fill="hsl(240, 70%, 65%)" // Lighter blue accent
-            opacity={0.18 + brush.intensity * 0.22}
-            filter="url(#brushTexture)"
-            transform={`rotate(${brush.angle + 15} ${brush.x} ${brush.y})`}
-            animate={{
-              scale: [1, 1.02, 1],
-              opacity: [0.15, 0.3, 0.15],
-            }}
-            transition={{
-              duration: 15 + brush.intensity * 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.4
-            }}
-            onClick={() => console.log(`Oil time brushstroke: angle ${brush.angle.toFixed(1)}°`)}
-            style={{ cursor: 'pointer' }}
-          />
-        </motion.g>
-      ))}
 
       {/* Calendar Hour Markers with Data Visualization */}
       {Array.from({ length: 24 }, (_, hour) => {
