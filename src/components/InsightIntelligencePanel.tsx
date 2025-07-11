@@ -26,6 +26,8 @@ import {
 } from 'lucide-react';
 import { getUserInsightProfile, getSophisticationLevel, exportUserProfile } from '@/utils/insight-memory';
 import { analyzeLayerCorrelations, detectTemporalPatterns, generateReflectionPrompts } from '@/utils/insight-engine';
+import { detectLifePhase, LifePhaseProfile, LifePhaseThemeMap } from '@/utils/life-phase-detection';
+import { generatePhaseAwareInsight } from '@/utils/phase-aware-insights';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -54,13 +56,17 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
   const [profile, setProfile] = useState(getUserInsightProfile());
   const [activeTab, setActiveTab] = useState('overview');
   const [expandedCorrelations, setExpandedCorrelations] = useState<string[]>([]);
+  const [lifePhase, setLifePhase] = useState<LifePhaseProfile | null>(null);
 
   // Refresh profile data
   useEffect(() => {
     if (isOpen) {
       setProfile(getUserInsightProfile());
+      // Detect life phase
+      const phaseProfile = detectLifePhase(profile, recentInteractions);
+      setLifePhase(phaseProfile);
     }
-  }, [isOpen]);
+  }, [isOpen, profile, recentInteractions]);
 
   const sophisticationLevel = getSophisticationLevel(profile);
   const nextLevel = sophisticationLevel.level < 5 ? sophisticationLevel.level + 1 : 5;
@@ -151,9 +157,19 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
                 <Brain className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Insight Intelligence</h2>
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  Insight Intelligence
+                  {lifePhase && (
+                    <span className="text-lg" title={`${lifePhase.currentPhase} phase: ${LifePhaseThemeMap[lifePhase.currentPhase].description}`}>
+                      {LifePhaseThemeMap[lifePhase.currentPhase].icon}
+                    </span>
+                  )}
+                </h2>
                 <p className="text-sm text-muted-foreground">
                   Level {sophisticationLevel.level}: {sophisticationLevel.description}
+                  {lifePhase && (
+                    <span className="ml-2">• {LifePhaseThemeMap[lifePhase.currentPhase].name} Phase</span>
+                  )}
                 </p>
               </div>
             </div>
@@ -286,6 +302,49 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* Life Phase */}
+                  {lifePhase && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <span className="text-lg">{LifePhaseThemeMap[lifePhase.currentPhase].icon}</span>
+                          Current Life Phase
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <Badge 
+                            variant="secondary" 
+                            className="capitalize"
+                            style={{ borderColor: LifePhaseThemeMap[lifePhase.currentPhase].color }}
+                          >
+                            {LifePhaseThemeMap[lifePhase.currentPhase].name}
+                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: LifePhaseThemeMap[lifePhase.currentPhase].color }} />
+                            <span className="text-sm text-muted-foreground">
+                              {Math.round(lifePhase.phaseStability * 100)}% stable
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="p-3 rounded-lg bg-gradient-to-r from-muted/30 to-muted/10">
+                          <p className="text-sm leading-relaxed">
+                            {LifePhaseThemeMap[lifePhase.currentPhase].description}
+                          </p>
+                        </div>
+                        
+                        {lifePhase.transitionReadiness > 0.6 && (
+                          <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                            <p className="text-sm text-amber-800 dark:text-amber-200">
+                              Your energy suggests a transition may be emerging. Change is stirring beneath the surface.
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Recent Activity */}
                   <Card>
@@ -488,25 +547,68 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-lg">
-                        <div className="flex items-start gap-3">
-                          <Sparkles className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-sm leading-relaxed">
-                              {generateReflectionPrompts(
-                                recentInteractions.map(i => ({
-                                  slice: {},
-                                  layerType: i.layerType,
-                                  timestamp: i.timestamp,
-                                  dataValue: i.dataValue,
-                                  angle: 0
-                                })),
-                                recentPatterns
-                              )}
-                            </p>
+                      {lifePhase ? (
+                        <div className="space-y-4">
+                          {/* Phase-Aware Insight */}
+                          <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-lg">
+                            <div className="flex items-start gap-3">
+                              <span className="text-lg mt-0.5 flex-shrink-0">
+                                {LifePhaseThemeMap[lifePhase.currentPhase].icon}
+                              </span>
+                              <div className="space-y-2">
+                                <p className="text-sm leading-relaxed">
+                                  {(() => {
+                                    const phaseInsight = generatePhaseAwareInsight(lifePhase, profile, recentInteractions);
+                                    return phaseInsight.message;
+                                  })()}
+                                </p>
+                                
+                                {(() => {
+                                  const phaseInsight = generatePhaseAwareInsight(lifePhase, profile, recentInteractions);
+                                  return phaseInsight.actionInvitation && (
+                                    <div className="mt-3 p-3 bg-white/50 dark:bg-black/20 rounded-lg border border-white/20">
+                                      <p className="text-sm text-muted-foreground">
+                                        <strong>Gentle invitation:</strong> {phaseInsight.actionInvitation}
+                                      </p>
+                                    </div>
+                                  );
+                                })()}
+                                
+                                {(() => {
+                                  const phaseInsight = generatePhaseAwareInsight(lifePhase, profile, recentInteractions);
+                                  return phaseInsight.reflectionPrompt && (
+                                    <div className="mt-3 p-3 bg-white/50 dark:bg-black/20 rounded-lg border border-white/20">
+                                      <p className="text-sm text-muted-foreground">
+                                        <strong>Reflection:</strong> {phaseInsight.reflectionPrompt}
+                                      </p>
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-lg">
+                          <div className="flex items-start gap-3">
+                            <Sparkles className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <p className="text-sm leading-relaxed">
+                                {generateReflectionPrompts(
+                                  recentInteractions.map(i => ({
+                                    slice: {},
+                                    layerType: i.layerType,
+                                    timestamp: i.timestamp,
+                                    dataValue: i.dataValue,
+                                    angle: 0
+                                  })),
+                                  recentPatterns
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
