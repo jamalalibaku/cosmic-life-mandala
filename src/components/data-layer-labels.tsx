@@ -15,13 +15,13 @@ interface LayerButton {
 }
 
 interface DataLayerLabelsProps {
-  activeControls: Record<string, boolean>;
+  activeControls?: Record<string, boolean>;
   theme: string;
   onToggle: (layerKey: string) => void;
 }
 
 export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
-  activeControls,
+  activeControls = {},
   theme,
   onToggle,
 }) => {
@@ -63,7 +63,7 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
   return (
     <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
       {layerData.map((layer, index) => {
-        const isActive = activeControls[layer.key as keyof typeof activeControls];
+        const isActive = activeControls?.[layer.key] || false;
         const isHovered = hoveredLabel === layer.key;
         
         return (
