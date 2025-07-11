@@ -49,7 +49,7 @@ export const VanGoghView = () => {
       height="100%"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 2, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ duration: 6, ease: [0.2, 0, 0.1, 1] }}
       className="cursor-pointer"
       style={{ pointerEvents: 'all' }}
     >
@@ -109,7 +109,7 @@ export const VanGoghView = () => {
         </filter>
       </defs>
 
-      {/* Background starry night */}
+      {/* Background starry night with gentle drift */}
       <motion.rect 
         width="1000" 
         height="1000" 
@@ -117,27 +117,51 @@ export const VanGoghView = () => {
         y="-500" 
         fill="url(#starrySky)"
         animate={{ rotate: 360 }}
-        transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 240, repeat: Infinity, ease: "linear" }}
       />
 
-      {/* Breathing sun rays */}
+      {/* Kandinsky-inspired flowing forms */}
+      <motion.path
+        d="M -350,0 Q -250,150 -100,50 Q 50,-80 200,20 Q 300,120 350,0"
+        fill="none"
+        stroke="hsl(260, 40%, 30%)"
+        strokeWidth="8"
+        strokeOpacity="0.2"
+        filter="url(#swirl)"
+        animate={{
+          d: [
+            "M -350,0 Q -250,150 -100,50 Q 50,-80 200,20 Q 300,120 350,0",
+            "M -350,30 Q -250,120 -100,80 Q 50,-50 200,50 Q 300,90 350,30",
+            "M -350,0 Q -250,150 -100,50 Q 50,-80 200,20 Q 300,120 350,0"
+          ],
+          strokeWidth: [6, 12, 6],
+          strokeOpacity: [0.1, 0.3, 0.1]
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+
+      {/* Slow breathing sun rays */}
       <motion.circle
         cx={0}
         cy={0}
         r={80}
         fill="url(#sunRays)"
         animate={{
-          scale: [1, 1.15, 1],
-          rotate: [0, 15, 0]
+          scale: [1, 1.08, 1],
+          rotate: [0, 8, 0]
         }}
         transition={{
-          duration: 8,
+          duration: 16,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
 
-      {/* Enhanced breathing center - Van Gogh's sun */}
+      {/* Deep breathing center - Van Gogh's sun */}
       <motion.circle
         cx={0}
         cy={0}
@@ -145,11 +169,11 @@ export const VanGoghView = () => {
         fill="url(#sunCore)"
         filter="url(#emotionalGlow)"
         animate={{
-          scale: [1, 1.08, 1],
-          opacity: [0.9, 1, 0.9]
+          scale: [1, 1.05, 1],
+          opacity: [0.85, 1, 0.85]
         }}
         transition={{
-          duration: 6,
+          duration: 12,
           repeat: Infinity,
           ease: "easeInOut"
         }}
@@ -157,7 +181,52 @@ export const VanGoghView = () => {
         style={{ cursor: 'pointer' }}
       />
 
-      {/* Radial time structure - emotional ribbons */}
+      {/* Floating geometric forms - Kandinsky style */}
+      <motion.ellipse
+        cx={-150}
+        cy={-100}
+        rx={40}
+        ry={20}
+        fill="hsl(45, 60%, 50%)"
+        opacity="0.3"
+        filter="url(#emotionalGlow)"
+        animate={{
+          cx: [-150, -130, -150],
+          cy: [-100, -120, -100],
+          rotate: [0, 15, 0],
+          opacity: [0.2, 0.4, 0.2]
+        }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 2
+        }}
+      />
+
+      <motion.rect
+        x={120}
+        y={80}
+        width={30}
+        height={15}
+        fill="hsl(280, 70%, 60%)"
+        opacity="0.25"
+        filter="url(#brushTexture)"
+        animate={{
+          x: [120, 140, 120],
+          y: [80, 60, 80],
+          rotate: [0, -10, 0],
+          scale: [1, 1.1, 1]
+        }}
+        transition={{
+          duration: 22,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 4
+        }}
+      />
+
+      {/* Radial time structure with slow motion */}
       {[80, 120, 160, 200, 240].map((radius, ringIndex) => (
         <motion.circle
           key={`ring-${radius}`}
@@ -165,17 +234,18 @@ export const VanGoghView = () => {
           cy={0}
           r={radius}
           fill="none"
-          stroke="hsl(220, 60%, 40%)"
-          strokeWidth="2"
-          strokeOpacity="0.3"
-          strokeDasharray={`${radius * 0.1}, ${radius * 0.05}`}
+          stroke="hsl(220, 50%, 40%)"
+          strokeWidth="1.5"
+          strokeOpacity="0.2"
+          strokeDasharray={`${radius * 0.08}, ${radius * 0.06}`}
           filter="url(#brushTexture)"
           animate={{
             rotate: ringIndex % 2 === 0 ? 360 : -360,
-            strokeOpacity: [0.2, 0.4, 0.2]
+            strokeOpacity: [0.1, 0.3, 0.1],
+            strokeWidth: [1, 2, 1]
           }}
           transition={{
-            duration: 20 + ringIndex * 5,
+            duration: 60 + ringIndex * 20,
             repeat: Infinity,
             ease: "linear"
           }}
@@ -299,7 +369,7 @@ export const VanGoghView = () => {
         );
       })}
 
-      {/* Scattered Brushstrokes - Mood Ring */}
+      {/* Scattered Brushstrokes - Mood Ring with dreamy motion */}
       {moodBrushstrokes.map((brush, i) => (
         <motion.ellipse
           key={`mood-brush-${i}`}
@@ -308,26 +378,28 @@ export const VanGoghView = () => {
           rx={brush.size * 3}
           ry={brush.size}
           fill="hsl(45, 80%, 65%)"
-          opacity={0.3 + brush.intensity * 0.4}
+          opacity={0.2 + brush.intensity * 0.3}
           filter="url(#paintStroke)"
           transform={`rotate(${brush.rotation} ${brush.x} ${brush.y})`}
           animate={{
-            scale: [1, 1 + brush.intensity * 0.2, 1],
-            opacity: [0.2, 0.6, 0.2],
-            rotate: [brush.rotation, brush.rotation + 10, brush.rotation]
+            scale: [1, 1 + brush.intensity * 0.15, 1],
+            opacity: [0.15, 0.4, 0.15],
+            rotate: [brush.rotation, brush.rotation + 8, brush.rotation],
+            cx: [brush.x, brush.x + Math.sin(i * 0.1) * 3, brush.x],
+            cy: [brush.y, brush.y + Math.cos(i * 0.1) * 3, brush.y]
           }}
           transition={{
-            duration: 3 + brush.intensity * 2,
+            duration: 12 + brush.intensity * 8,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: i * 0.1
+            delay: i * 0.3
           }}
           onClick={() => console.log(`Mood brushstroke: intensity ${brush.intensity.toFixed(2)}`)}
           style={{ cursor: 'pointer' }}
         />
       ))}
 
-      {/* Scattered Brushstrokes - Spirit Ring */}
+      {/* Scattered Brushstrokes - Spirit Ring with floating motion */}
       {spiritBrushstrokes.map((brush, i) => (
         <motion.circle
           key={`spirit-brush-${i}`}
@@ -335,19 +407,19 @@ export const VanGoghView = () => {
           cy={brush.y}
           r={brush.size}
           fill="hsl(280, 70%, 60%)"
-          opacity={0.2 + brush.intensity * 0.3}
+          opacity={0.15 + brush.intensity * 0.25}
           filter="url(#emotionalGlow)"
           animate={{
-            scale: [0.8, 1.2, 0.8],
-            opacity: [0.1, 0.5, 0.1],
-            cx: [brush.x, brush.x + Math.sin(i) * 5, brush.x],
-            cy: [brush.y, brush.y + Math.cos(i) * 5, brush.y]
+            scale: [0.9, 1.1, 0.9],
+            opacity: [0.1, 0.4, 0.1],
+            cx: [brush.x, brush.x + Math.sin(i * 0.05) * 8, brush.x],
+            cy: [brush.y, brush.y + Math.cos(i * 0.05) * 8, brush.y]
           }}
           transition={{
-            duration: 4 + brush.intensity * 3,
+            duration: 16 + brush.intensity * 12,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: i * 0.15
+            delay: i * 0.4
           }}
           onClick={() => console.log(`Spirit dot: value ${brush.value.toFixed(2)}`)}
           style={{ cursor: 'pointer' }}
