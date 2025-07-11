@@ -190,14 +190,20 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Level {sophisticationLevel.level}</span>
                         <span className="text-sm text-muted-foreground">
-                          {profile.totalInteractions} interactions
+                          {profile.totalInteractions === 1 
+                            ? "Your first gentle touch"
+                            : `${profile.totalInteractions} moments of curiosity`}
                         </span>
                       </div>
                       <Progress value={progressToNext} className="w-full" />
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>{sophisticationLevel.description}</span>
                         {sophisticationLevel.level < 5 && (
-                          <span>Next: {nextLevelThreshold - profile.totalInteractions} interactions</span>
+                          <span>
+                            {nextLevelThreshold - profile.totalInteractions === 1
+                              ? "One more touch to deepen"
+                              : `${nextLevelThreshold - profile.totalInteractions} touches until new depths emerge`}
+                          </span>
                         )}
                       </div>
                       
@@ -207,7 +213,11 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
                             {profile.discoveredCorrelations.length}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            Discovered Correlations
+                            {profile.discoveredCorrelations.length === 0
+                              ? "Patterns waiting to emerge"
+                              : profile.discoveredCorrelations.length === 1
+                              ? "One connection revealed"
+                              : "Threads of connection"}
                           </div>
                         </div>
                         <div className="p-3 bg-muted/50 rounded-lg">
@@ -215,7 +225,9 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
                             {Object.keys(profile.layerPreferences).length}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            Explored Layers
+                            {Object.keys(profile.layerPreferences).length <= 1
+                              ? "Beginning to wander"
+                              : "Realms of exploration"}
                           </div>
                         </div>
                       </div>
@@ -235,11 +247,19 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
                         <Badge variant="secondary" className="capitalize">
                           {profile.behaviorPatterns.explorationStyle}
                         </Badge>
-                        <span className="text-sm text-muted-foreground">Explorer</span>
+                        <span className="text-sm text-muted-foreground">
+                          {profile.behaviorPatterns.explorationStyle === 'deep' 
+                            ? 'Soul' 
+                            : profile.behaviorPatterns.explorationStyle === 'broad'
+                            ? 'Wanderer'
+                            : profile.behaviorPatterns.explorationStyle === 'focused'
+                            ? 'Seeker'
+                            : 'Gentle Visitor'}
+                        </span>
                       </div>
                       
                       <div className="space-y-2">
-                        <h4 className="font-medium">Most Explored Layers:</h4>
+                        <h4 className="font-medium">Where your attention flows:</h4>
                         <div className="space-y-2">
                           {Object.entries(profile.layerPreferences)
                             .sort(([,a], [,b]) => (b as number) - (a as number))
@@ -277,7 +297,7 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
                     </CardHeader>
                     <CardContent>
                       <div className="text-sm text-muted-foreground mb-2">
-                        Last active: {new Date(profile.lastActiveDate).toLocaleDateString()}
+                        Last seen: {new Date(profile.lastActiveDate).toLocaleDateString()}
                       </div>
                       {recentInteractions.length > 0 ? (
                         <div className="space-y-2">
