@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { TimeAxisProvider } from '@/contexts/TimeAxisContext';
 import WeatherSunburst from '@/components/weather-sunburst';
 import { AtmosphericWeatherRing } from '@/components/atmospheric-weather-ring';
 import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
@@ -770,8 +771,10 @@ const IndexContent = () => {
 const Index = () => {
   return (
     <VisualSkinProvider defaultTheme="default">
-      <IndexContent />
-      <ThemeHaikuDisplay />
+      <TimeAxisProvider>
+        <IndexContent />
+        <ThemeHaikuDisplay />
+      </TimeAxisProvider>
     </VisualSkinProvider>
   );
 };

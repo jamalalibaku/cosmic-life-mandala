@@ -10,7 +10,9 @@ import { RadialTooltip } from "@/components/interactions/RadialTooltip";
 import { InteractiveDataPoint } from "@/components/interactions/InteractiveDataPoint";
 import { ExpandedCard } from "@/components/interactions/ExpandedCard";
 import { EmojiBurst } from "@/components/interactions/EmojiBurst";
-import { useMotionField } from "@/hooks/useMotionField";
+import { useUnifiedMotion } from "@/hooks/useUnifiedMotion";
+import { useTimeAxis } from "@/contexts/TimeAxisContext";
+import { ThemeOverlayManager } from "@/components/themes/ThemeOverlaySystem";
 import { SupernovaBurst } from "@/components/SupernovaBurst";
 import { analyzeMoodForSupernovas, SupernovaTrigger } from "@/utils/supernova-engine";
 import { DebugSupernova } from "@/components/DebugSupernova";
@@ -339,13 +341,16 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
     currentZoom,
     timestamp: new Date().toLocaleTimeString()
   });
-  // Motion field for living system physics
-  const { getMotionTransform, addImpulse } = useMotionField({
+  // Unified motion system for living physics
+  const { getMotionTransform, addImpulse } = useUnifiedMotion({
     heartbeatInterval: 6000, // 6-second heartbeat
     heartbeatIntensity: 0.12, // Gentle pulse
     windStrength: 0.3, // Subtle ambient drift
-    gravity: 0.985 // Natural movement decay
+    friction: 0.985 // Natural movement decay
   });
+
+  // Time axis integration
+  const { timeSlices, nowAngle, getTimeSliceData } = useTimeAxis();
 
   const [tooltipData, setTooltipData] = useState<any>(null);
   const [tooltipVisible, setTooltipVisible] = useState(false);
