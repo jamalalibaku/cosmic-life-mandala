@@ -197,30 +197,6 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
 
   return (
     <div className={`fractal-zoom-container ${className}`}>
-      {/* Legacy scale indicator - can be hidden if ManualZoomControls is preferred */}
-      <div className="absolute top-4 left-4 z-10 opacity-50">
-        <div className="flex gap-2">
-          {scaleHierarchy.map((scale) => (
-            <button
-              key={scale}
-              onClick={() => !isTransitioning && animateTransition(scale)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
-                scale === currentScale
-                  ? 'bg-yellow-200/20 text-yellow-200 border border-yellow-200/30'
-                  : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'
-              }`}
-            >
-              {scale}
-            </button>
-          ))}
-        </div>
-        
-        {reflectivePlayback && (
-          <div className="mt-2 text-xs text-yellow-200/70">
-            ⧖ reflective playback
-          </div>
-        )}
-      </div>
 
       {/* Interactive Zoom Dial - REMOVED */}
       {/* Replaced with ManualZoomControls in top-right position */}
