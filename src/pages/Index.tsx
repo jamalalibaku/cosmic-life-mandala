@@ -63,6 +63,7 @@ import { getUserInsightProfile } from '@/utils/insight-memory';
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [reflectiveMode, setReflectiveMode] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
@@ -152,6 +153,29 @@ const IndexContent = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [poetryMode, persistentDebugMode]);
+
+  // Time navigation handler
+  const handleTimeNavigate = (direction: 'past' | 'future') => {
+    const newDate = new Date(currentDate);
+    const multiplier = direction === 'future' ? 1 : -1;
+    
+    switch (timeScale) {
+      case 'day':
+        newDate.setDate(newDate.getDate() + (1 * multiplier));
+        break;
+      case 'week':
+        newDate.setDate(newDate.getDate() + (7 * multiplier));
+        break;
+      case 'month':
+        newDate.setMonth(newDate.getMonth() + (1 * multiplier));
+        break;
+      case 'year':
+        newDate.setFullYear(newDate.getFullYear() + (1 * multiplier));
+        break;
+    }
+    
+    setCurrentDate(newDate);
+  };
 
   // Time drift hook for breathing and rotation with poetry mode adjustments
   const timeDrift = useTimeDrift({
@@ -903,11 +927,13 @@ const IndexContent = () => {
           )}
         </FractalTimeZoomManager>
 
-        {/* Manual Zoom Controls */}
+        {/* Enhanced Manual Zoom Controls - Replaces zoom dial */}
         <ManualZoomControls
           currentScale={timeScale}
           onScaleChange={setTimeScale}
-          position="bottom"
+          onTimeNavigate={handleTimeNavigate}
+          currentDate={currentDate}
+          position="top"
         />
 
         {/* Layer Pop-Out Insight Panel */}

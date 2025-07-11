@@ -11,6 +11,8 @@ import { TimeScale } from './fractal-time-zoom-manager';
 interface ManualZoomControlsProps {
   currentScale: TimeScale;
   onScaleChange: (scale: TimeScale) => void;
+  onTimeNavigate?: (direction: 'past' | 'future') => void;
+  currentDate?: Date;
   className?: string;
   position?: 'top' | 'bottom' | 'left' | 'right';
 }
@@ -47,6 +49,8 @@ const scaleOrder: TimeScale[] = ['day', 'week', 'month', 'year'];
 export const ManualZoomControls: React.FC<ManualZoomControlsProps> = ({
   currentScale,
   onScaleChange,
+  onTimeNavigate,
+  currentDate = new Date(),
   className = '',
   position = 'bottom'
 }) => {
@@ -67,8 +71,34 @@ export const ManualZoomControls: React.FC<ManualZoomControlsProps> = ({
     }
   };
 
+  // Time navigation functions
+  const navigatePast = () => {
+    onTimeNavigate?.('past');
+  };
+
+  const navigateFuture = () => {
+    onTimeNavigate?.('future');
+  };
+
+  // Format current date based on scale
+  const formatCurrentPeriod = () => {
+    const options: Intl.DateTimeFormatOptions = {};
+    switch (currentScale) {
+      case 'day':
+        return currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      case 'week':
+        return `Week of ${currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+      case 'month':
+        return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      case 'year':
+        return currentDate.getFullYear().toString();
+      default:
+        return currentDate.toLocaleDateString();
+    }
+  };
+
   const positionClasses = {
-    top: 'top-4 left-1/2 -translate-x-1/2',
+    top: 'top-4 right-4',
     bottom: 'bottom-6 left-1/2 -translate-x-1/2',
     left: 'left-4 top-1/2 -translate-y-1/2 flex-col',
     right: 'right-4 top-1/2 -translate-y-1/2 flex-col'
@@ -81,7 +111,40 @@ export const ManualZoomControls: React.FC<ManualZoomControlsProps> = ({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Main Controls */}
+      {/* Time Navigation Controls */}
+      <div className={`flex ${position === 'left' || position === 'right' ? 'flex-col' : 'flex-row'} items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl p-2 mb-2`}>
+        
+        {/* Navigate to Past */}
+        <motion.button
+          onClick={navigatePast}
+          className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition-all duration-200"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          title={`Previous ${currentScale}`}
+        >
+          <ChevronLeft size={14} className={position === 'left' || position === 'right' ? 'rotate-90' : ''} />
+        </motion.button>
+
+        {/* Current Period Display */}
+        <div className="text-center px-2 min-w-[120px]">
+          <div className="text-white/90 font-medium text-xs">
+            {formatCurrentPeriod()}
+          </div>
+        </div>
+
+        {/* Navigate to Future */}
+        <motion.button
+          onClick={navigateFuture}
+          className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition-all duration-200"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          title={`Next ${currentScale}`}
+        >
+          <ChevronRight size={14} className={position === 'left' || position === 'right' ? 'rotate-90' : ''} />
+        </motion.button>
+      </div>
+
+      {/* Scale Controls */}
       <div className={`flex ${position === 'left' || position === 'right' ? 'flex-col' : 'flex-row'} items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl p-2`}>
         
         {/* Zoom In Button */}

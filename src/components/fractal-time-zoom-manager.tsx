@@ -6,7 +6,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { goldenRatio, PHI } from '../utils/golden-ratio';
-import { ZoomDialControl } from './zoom-dial-control';
 import { DollyZoomTransition } from './cinematic/DollyZoomTransition';
 
 export type TimeScale = 'day' | 'week' | 'month' | 'year';
@@ -223,14 +222,8 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
         )}
       </div>
 
-      {/* Interactive Zoom Dial */}
-      <div className="absolute top-4 right-4 z-10">
-        <ZoomDialControl
-          currentScale={currentScale}
-          onScaleChange={animateTransition}
-          disabled={isTransitioning}
-        />
-      </div>
+      {/* Interactive Zoom Dial - REMOVED */}
+      {/* Replaced with ManualZoomControls in top-right position */}
 
       {/* Transition overlay */}
       {isTransitioning && (
