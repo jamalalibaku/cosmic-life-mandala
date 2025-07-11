@@ -63,9 +63,11 @@ export const BreathingWeatherRing: React.FC<BreathingWeatherRingProps> = ({
         fill="none"
         stroke="url(#weather-gradient)"
         strokeWidth={themeConfig.animations.speed === 'fast' ? 1 : 3}
-        opacity={0.4}
+        opacity={themeConfig.name === 'Mandala Expressive' ? 0.6 : 0.4}
         style={{
-          filter: `drop-shadow(0 0 8px ${themeConfig.colors.glow}40)`
+          filter: themeConfig.name === 'Mandala Expressive' 
+            ? `drop-shadow(0 0 ${breathing * 15}px ${themeConfig.colors.glow}60)`
+            : `drop-shadow(0 0 8px ${themeConfig.colors.glow}40)`
         }}
       />
 

@@ -47,12 +47,12 @@ export interface ThemeConfig {
   haiku: string[];
 }
 
-// Zoom scale compensation per view
+// Zoom scale compensation per view - Fixed mapping
 export const zoomCompensation = {
-  day: 0,     // Full zoom-in on center
-  week: 25,   // Close zoom
-  month: 50,  // Moderate zoom in
-  year: 100   // Full radial display
+  day: 150,    // Full zoom-in on center
+  week: 125,   // Close zoom  
+  month: 110,  // Moderate zoom in
+  year: 100    // Full radial display
 };
 
 export const themeConfigs: Record<Theme, ThemeConfig> = {
@@ -87,7 +87,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     },
     background: {
       pattern: 'stars',
-      intensity: 0.1 // Reduced background intensity
+      intensity: 0.02 // Minimal cosmic stillness
     },
     haiku: [
       'Time flows like starlight / Through the cosmic mandala / Now is all we need',
@@ -165,7 +165,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     },
     background: {
       pattern: 'stars',
-      intensity: 0.4
+      intensity: 0.3 // Increased for more layer visibility
     },
     haiku: [
       'Emotions flow like rivers / Through the mandala of time / Each breath a new world',
@@ -216,12 +216,12 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     name: 'Soft Horizons',
     description: 'Light background with dark data elements for clarity',
     colors: {
-      primary: 'hsl(320 60% 25%)',      // Dark for contrast
-      secondary: 'hsl(200 70% 30%)',    // Dark blue
-      accent: 'hsl(280 50% 35%)',       // Dark purple
-      background: 'hsl(320 20% 95%)',   // Light background
-      text: 'hsl(320 30% 20%)',         // Dark text for legibility
-      glow: 'hsl(330 60% 40%)'          // Darker glow
+      primary: 'hsl(320 70% 15%)',      // Deeper dark for strong contrast
+      secondary: 'hsl(200 80% 20%)',    // Deeper dark blue
+      accent: 'hsl(280 60% 25%)',       // Deeper dark purple
+      background: 'hsl(320 20% 98%)',   // Clean canvas white
+      text: 'hsl(320 40% 10%)',         // Rich dark text
+      glow: 'hsl(330 70% 30%)'          // Darker rich glow
     },
     typography: {
       primary: 'sans-serif',

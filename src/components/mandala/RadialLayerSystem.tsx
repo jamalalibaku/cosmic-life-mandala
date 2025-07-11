@@ -27,6 +27,7 @@ import { useVisualSkin } from "@/components/visual-skin-provider";
 import { getThemeGeometry } from "@/utils/day4-dynamics";
 import { BreathingWeatherRing } from "@/components/enhanced/BreathingWeatherRing";
 import { KandinskyDataMarbles } from "@/components/enhanced/KandinskyDataMarbles";
+import { RippleTrails } from "@/components/enhanced/RippleTrails";
 import { useZoomCompensation } from "@/hooks/useZoomCompensation";
 
 interface LayerData {
@@ -588,6 +589,12 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           <KandinskyDataMarbles
             marbles={dataMarbles}
             className="data-marbles-overlay"
+          />
+
+          {/* Ripple Trails for Mandala theme */}
+          <RippleTrails
+            center={{ x: 0, y: 0 }}
+            className="mandala-ripples"
           />
 
           {/* Glowing center with living heartbeat */}
