@@ -36,6 +36,8 @@ import { RadialFractalView } from '@/components/radial-fractal-view';
 import { InsightOrbitRing } from '@/components/insight-orbit-ring';
 import { MoonPhaseMarker } from '@/components/moon-phase-marker';
 import { DataLayerLabels } from '@/components/data-layer-labels';
+import { LayerPopOutPanel } from '@/components/LayerPopOutPanel';
+import { useLayerPopOut } from '@/hooks/useLayerPopOut';
 import { mockWeatherData } from '@/data/weatherData';
 import { mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
@@ -104,6 +106,9 @@ const IndexContent = () => {
     centerY: 350,
     enabled: true
   });
+
+  // Layer pop-out panel system
+  const { popOutState, openPopOut, closePopOut, togglePopOut } = useLayerPopOut();
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -528,17 +533,39 @@ const IndexContent = () => {
                 isActive: true, 
                 theme: currentTheme 
               },
-              { 
+               { 
                 id: 'sleep-label', 
                 text: 'Sleep', 
                 layer: 'sleep' as const, 
                 radius: 165, 
                 isActive: true, 
                 theme: currentTheme 
+              },
+              { 
+                id: 'self-label', 
+                text: 'Self', 
+                layer: 'self' as const, 
+                radius: 40, 
+                isActive: true, 
+                theme: currentTheme 
               }
             ]}
             theme={currentTheme}
             showDebug={showLayerDebug}
+            onLabelClick={(layerType, position, layerData) => {
+              // Track the interaction for consciousness system
+              consciousnessTracker.trackInteraction(layerType, position.x, position.y);
+              // Open the insight panel
+              togglePopOut(layerType, position, layerData, `Last 7 days`);
+            }}
+            layerDataMap={{
+              weather: mockWeatherToday,
+              plans: [], // Will be populated with actual plan data
+              mobility: mockMobilityData,
+              mood: mockMoodData,
+              sleep: mockSleepData,
+              self: [] // Core self-reflection data
+            }}
           />
         )}
 
@@ -826,6 +853,17 @@ const IndexContent = () => {
             </div>
           )}
         </FractalTimeZoomManager>
+
+        {/* Layer Pop-Out Insight Panel */}
+        <LayerPopOutPanel
+          isOpen={popOutState.isOpen}
+          onClose={closePopOut}
+          layerType={popOutState.layerType}
+          layerData={popOutState.layerData}
+          position={popOutState.position}
+          timeRange={popOutState.timeRange}
+          theme={currentTheme}
+        />
       </div>
     </div>
   );

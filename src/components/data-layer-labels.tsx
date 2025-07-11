@@ -10,7 +10,7 @@ import { useBreathingPulse } from '@/hooks/use-breathing-pulse';
 interface DataLayerLabel {
   id: string;
   text: string;
-  layer: 'weather' | 'mood' | 'mobility' | 'sleep' | 'plans';
+  layer: 'weather' | 'mood' | 'mobility' | 'sleep' | 'plans' | 'self';
   radius: number;
   isActive: boolean;
   theme: string;
@@ -23,6 +23,8 @@ interface DataLayerLabelsProps {
   theme: string;
   showDebug?: boolean;
   className?: string;
+  onLabelClick?: (layerType: string, position: { x: number; y: number }, layerData: any) => void;
+  layerDataMap?: Record<string, any[]>;
 }
 
 export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
@@ -31,7 +33,9 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
   labels,
   theme,
   showDebug = false,
-  className = ''
+  className = '',
+  onLabelClick,
+  layerDataMap = {}
 }) => {
   // Breathing pulse for gentle animation
   const { applyBreathingOpacity } = useBreathingPulse({
@@ -133,31 +137,48 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
               </g>
             )}
             
-            {/* Clean pill-shaped label background (like reference) */}
-            <rect
-              x={label.x - 35}
-              y={label.y - 10}
-              width="70"
-              height="20"
-              rx="10"
-              fill="rgba(0, 0, 0, 0.4)"
-              stroke={themeStyles.accent}
-              strokeWidth="1"
-              opacity={opacity * 0.9}
-            />
-            
-            {/* Enhanced label text with improved font weight */}
-            <text
-              x={label.x}
-              y={label.y + 3}
-              textAnchor="middle"
-              className={`text-sm font-normal ${themeStyles.font}`}
-              fill={themeStyles.text}
-              opacity={opacity}
-              style={{ fontWeight: 400 }} // Ensures consistent font weight
+            {/* Clickable group for interaction */}
+            <g
+              className="cursor-pointer transition-all duration-200 hover:scale-105"
+              onClick={(e) => {
+                if (onLabelClick) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const position = {
+                    x: rect.left + window.scrollX,
+                    y: rect.top + window.scrollY
+                  };
+                  const layerData = layerDataMap[label.layer] || [];
+                  onLabelClick(label.layer, position, layerData);
+                }
+              }}
             >
-              {label.text}
-            </text>
+              {/* Clean pill-shaped label background (like reference) */}
+              <rect
+                x={label.x - 35}
+                y={label.y - 10}
+                width="70"
+                height="20"
+                rx="10"
+                fill="rgba(0, 0, 0, 0.4)"
+                stroke={themeStyles.accent}
+                strokeWidth="1"
+                opacity={opacity * 0.9}
+                className="transition-all duration-200 hover:fill-white/10 hover:stroke-white/40"
+              />
+              
+              {/* Enhanced label text with improved font weight */}
+              <text
+                x={label.x}
+                y={label.y + 3}
+                textAnchor="middle"
+                className={`text-sm font-normal ${themeStyles.font} transition-colors duration-200`}
+                fill={themeStyles.text}
+                opacity={opacity}
+                style={{ fontWeight: 400, pointerEvents: 'none' }}
+              >
+                {label.text}
+              </text>
+            </g>
             
             {/* Simple active indicator (clean dot) */}
             {label.isActive && (
@@ -167,6 +188,7 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
                 r="3"
                 fill={themeStyles.accent}
                 opacity={applyBreathingOpacity(0.8)}
+                style={{ pointerEvents: 'none' }}
               />
             )}
           </g>
