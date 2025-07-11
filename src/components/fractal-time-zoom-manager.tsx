@@ -105,7 +105,9 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
     onScaleChange(targetScale);
   }, [currentScale, isTransitioning, onScaleChange]);
 
-  // Handle scroll zoom
+  // Scroll zoom disabled - now using manual controls
+  // This prevents conflicts with page scrolling and provides more deliberate interaction
+  /*
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       if (isTransitioning) return;
@@ -128,6 +130,7 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
       return () => element.removeEventListener('wheel', handleWheel);
     }
   }, [currentScale, isTransitioning, animateTransition]);
+  */
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -160,8 +163,8 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
 
   return (
     <div className={`fractal-zoom-container ${className}`}>
-      {/* Scale indicator */}
-      <div className="absolute top-4 left-4 z-10">
+      {/* Legacy scale indicator - can be hidden if ManualZoomControls is preferred */}
+      <div className="absolute top-4 left-4 z-10 opacity-50">
         <div className="flex gap-2">
           {scaleHierarchy.map((scale) => (
             <button
@@ -230,10 +233,10 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
         </div>
       </DollyZoomTransition>
 
-      {/* Usage hint */}
+      {/* Usage hint - updated for manual controls */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
         <div className="text-xs text-white/40 text-center">
-          scroll to zoom • arrow keys to navigate • click scale buttons
+          use zoom controls • D/W/M/Y keys • click scale buttons
         </div>
       </div>
     </div>

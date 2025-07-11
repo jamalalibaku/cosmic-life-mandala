@@ -9,6 +9,9 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sun, Calendar, Footprints, Heart, Moon, User } from 'lucide-react';
 
+import { useTimeAxis } from '@/contexts/TimeAxisContext';
+import { TimeScale } from '@/components/fractal-time-zoom-manager';
+
 interface LayerPopOutPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,6 +19,7 @@ interface LayerPopOutPanelProps {
   layerData: any;
   position: { x: number; y: number };
   timeRange: string;
+  currentTimeScale?: TimeScale;
   theme: string;
 }
 
@@ -105,6 +109,86 @@ const generateLayerInsight = (layerType: string, data: any) => {
   return insights[layerType] || insights.mood;
 };
 
+// Scale-specific insight generators
+const generateDayInsight = (layerType: string, data: any) => {
+  if (!Array.isArray(data) || data.length === 0) return "No hourly data available today";
+  
+  switch (layerType) {
+    case 'weather':
+      const temps = data.map(d => d.temperature || 0).filter(t => t > 0);
+      const conditions = data.map(d => d.condition).filter(Boolean);
+      return `Temperature range: ${Math.min(...temps)}°-${Math.max(...temps)}°C. Conditions: ${conditions.slice(0, 3).join(', ')}`;
+    case 'sleep':
+      const totalHours = data.reduce((sum, d) => sum + (d.durationHours || 0), 0);
+      return `${totalHours.toFixed(1)} hours of rest across ${data.length} sleep sessions`;
+    case 'mobility':
+      const steps = data.reduce((sum, d) => sum + (d.steps || 0), 0);
+      return `${steps.toLocaleString()} steps taken with ${data.length} activity periods`;
+    default:
+      return `${data.length} data points tracked throughout the day`;
+  }
+};
+
+const generateWeekInsight = (layerType: string, data: any) => {
+  if (!Array.isArray(data) || data.length === 0) return "Insufficient weekly data";
+  
+  const weeklyAvg = data.reduce((sum, d) => sum + (d.value || d.intensity || 0), 0) / data.length;
+  
+  switch (layerType) {
+    case 'weather':
+      return `Weekly average: ${weeklyAvg.toFixed(1)}°C. Your body's rhythm follows atmospheric patterns`;
+    case 'sleep':
+      return `Average nightly rest: ${weeklyAvg.toFixed(1)} hours. Your sleep cycle shows natural weekly rhythms`;
+    case 'mobility':
+      return `Weekly activity average: ${weeklyAvg.toFixed(1)}. Movement patterns reveal your body's weekly wisdom`;
+    case 'mood':
+      return `Emotional flow: ${(weeklyAvg * 100).toFixed(0)}% baseline. Your heart's weekly journey unfolds`;
+    default:
+      return `7-day pattern shows ${weeklyAvg.toFixed(1)} average with natural weekly cycles`;
+  }
+};
+
+const generateMonthInsight = (layerType: string, data: any) => {
+  if (!Array.isArray(data) || data.length === 0) return "Monthly patterns emerging";
+  
+  const monthlyTrend = data.length >= 4 ? "establishing patterns" : "beginning to emerge";
+  
+  switch (layerType) {
+    case 'weather':
+      return `Monthly atmospheric dance influences your entire being. Seasonal shifts create deeper body wisdom`;
+    case 'sleep':
+      return `30-day sleep evolution shows your body's natural lunar rhythms and recovery cycles`;
+    case 'mobility':
+      return `Monthly movement reveals seasonal body intelligence and activity flow patterns`;
+    case 'mood':
+      return `Emotional tides flow in monthly cycles, showing the deeper currents of your inner life`;
+    default:
+      return `Monthly patterns ${monthlyTrend} - your life's natural 30-day rhythms becoming visible`;
+  }
+};
+
+const generateYearInsight = (layerType: string, data: any) => {
+  if (!Array.isArray(data) || data.length === 0) return "Yearly wisdom unfolding";
+  
+  switch (layerType) {
+    case 'weather':
+      return `Seasonal attunement across 365 days - your body dances with Earth's yearly breath`;
+    case 'sleep':
+      return `Annual rest evolution - from winter's deep hibernation to summer's lighter rhythms`;
+    case 'mobility':
+      return `Yearly movement spiral - seasonal activity patterns reflecting nature's yearly cycles`;
+    case 'mood':
+      return `365-day emotional journey - the full spectrum of your heart's yearly evolution`;
+    default:
+      return `Annual life spiral completing - the sacred geometry of your yearly becoming`;
+  }
+};
+
+const getDefaultInsight = (layerType: string, data: any) => {
+  if (!Array.isArray(data) || data.length === 0) return "No data patterns detected yet";
+  return `${data.length} ${layerType} entries revealing the hidden patterns of your daily rhythm`;
+};
+
 const MiniSparkline: React.FC<{ data: any[]; color: string; width: number; height: number }> = ({ 
   data, color, width, height 
 }) => {
@@ -156,8 +240,10 @@ export const LayerPopOutPanel: React.FC<LayerPopOutPanelProps> = ({
   layerData,
   position,
   timeRange,
+  currentTimeScale = 'day',
   theme
 }) => {
+  const { zoomLevel } = useTimeAxis();
   const IconComponent = getLayerIcon(layerType);
   const layerColor = getLayerColor(layerType, theme);
   const insight = generateLayerInsight(layerType, layerData);

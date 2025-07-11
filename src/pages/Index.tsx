@@ -37,6 +37,7 @@ import { InsightOrbitRing } from '@/components/insight-orbit-ring';
 import { MoonPhaseMarker } from '@/components/moon-phase-marker';
 import { DataLayerLabels } from '@/components/data-layer-labels';
 import { LayerPopOutPanel } from '@/components/LayerPopOutPanel';
+import { ManualZoomControls } from '@/components/ManualZoomControls';
 import { useLayerPopOut } from '@/hooks/useLayerPopOut';
 import { mockWeatherData, mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
@@ -116,7 +117,7 @@ const IndexContent = () => {
   // Layer pop-out panel system
   const { popOutState, openPopOut, closePopOut, togglePopOut } = useLayerPopOut();
 
-  // Handle keyboard shortcuts
+  // Handle keyboard shortcuts for zoom and settings
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && poetryMode) {
@@ -127,6 +128,23 @@ const IndexContent = () => {
         setPersistentDebugMode(!persistentDebugMode);
         setShowLayerDebug(!persistentDebugMode);
         event.preventDefault();
+      }
+      // Quick zoom shortcuts
+      if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+        switch (event.key.toLowerCase()) {
+          case 'd':
+            setTimeScale('day');
+            break;
+          case 'w':
+            setTimeScale('week');
+            break;
+          case 'm':
+            setTimeScale('month');
+            break;
+          case 'y':
+            setTimeScale('year');
+            break;
+        }
       }
     };
 
@@ -882,6 +900,13 @@ const IndexContent = () => {
           )}
         </FractalTimeZoomManager>
 
+        {/* Manual Zoom Controls */}
+        <ManualZoomControls
+          currentScale={timeScale}
+          onScaleChange={setTimeScale}
+          position="bottom"
+        />
+
         {/* Layer Pop-Out Insight Panel */}
         <LayerPopOutPanel
           isOpen={popOutState.isOpen}
@@ -890,6 +915,7 @@ const IndexContent = () => {
           layerData={popOutState.layerData}
           position={popOutState.position}
           timeRange={popOutState.timeRange}
+          currentTimeScale={timeScale}
           theme={currentTheme}
         />
       </div>
