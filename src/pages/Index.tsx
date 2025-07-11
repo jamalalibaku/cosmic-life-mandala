@@ -10,6 +10,7 @@ import { AtmosphericWeatherRing } from '@/components/atmospheric-weather-ring';
 import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
 import { MandalaView } from '@/components/mandala/MandalaView';
 import { VanGoghMandalaView } from '@/components/mandala/VanGoghMandalaView';
+import { VanGoghView } from '@/components/van-gogh/VanGoghView';
 import { DataBlobRing } from '@/components/data-blob-ring';
 import { UserCore } from '@/components/user-core';
 import { FriendOrbitRing } from '@/components/friend-orbit-ring';
@@ -619,7 +620,7 @@ const IndexContent = () => {
         backgroundColor: themeConfig.colors.background,
         color: themeConfig.colors.text
       }}>
-        <VanGoghMandalaView />
+        <VanGoghView />
         
         {/* Settings panel still available */}
         <SettingsPanel
