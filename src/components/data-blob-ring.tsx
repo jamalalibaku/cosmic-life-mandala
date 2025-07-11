@@ -1,6 +1,13 @@
+/**
+ * (c) 2025 Cosmic Life Mandala – Radial Timeline Project
+ * Founder and Author: Jamal Ali
+ * Built by ChatGPT & Lovable · MIT Licensed
+ */
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { goldenRatio } from '../utils/golden-ratio';
 import { calculateMoodInfluence, MoodInfluence } from '../utils/mood-engine';
+import { OrganicDataBlob } from './organic-data-blob';
 
 export type DataBlobType = 'mobility' | 'mood' | 'sleep';
 
@@ -10,6 +17,8 @@ export type DataBlob = {
   intensity: number; // 0-1
   duration: number; // 0-1 (percentage of hour)
   value?: number;
+  sourceLayer?: string; // Phase 21: Data anchoring
+  dataPoint?: string;   // Phase 21: Specific time reference
 };
 
 interface DataBlobRingProps {
@@ -218,70 +227,72 @@ export const DataBlobRing: React.FC<DataBlobRingProps> = ({
         className="pointer-events-none"
       />
       
-      {/* Data blobs */}
-      {blobs.map((blob, index) => (
+      {/* Organic data blobs - Phase 21 */}
+      {blobs
+        .filter(blob => blob.intensity > 0.05) // Only show meaningful data points
+        .map((blob, index) => (
         <g key={`blob-${type}-${index}`}>
-          <circle
-            cx={blob.x}
-            cy={blob.y}
-            r={blob.size}
-            fill={`url(#blob-gradient-${type})`}
-            opacity={hoveredBlob === index ? 1 : blob.opacity}
-            filter={`url(#blob-glow-${type})`}
-            onMouseEnter={() => setHoveredBlob(index)}
-            onMouseLeave={() => setHoveredBlob(null)}
-            className="transition-all duration-300 ease-out cursor-pointer"
-            style={{
-              transform: hoveredBlob === index ? 'scale(1.2)' : 'scale(1)',
-              transformOrigin: `${blob.x}px ${blob.y}px`
-            }}
+          <OrganicDataBlob
+            x={blob.x}
+            y={blob.y}
+            size={blob.size}
+            intensity={blob.intensity}
+            duration={blob.duration}
+            type={type}
+            time={time}
+            index={index}
+            opacity={blob.opacity}
+            colors={colors}
+            onHover={(hovered) => setHoveredBlob(hovered ? index : null)}
+            isHovered={hoveredBlob === index}
           />
           
-          {/* Mood glyph overlay for mood blobs */}
-          {type === 'mood' && moodInfluence && blob.intensity > 0.5 && (
+          {/* Data-anchored mood glyph overlay */}
+          {type === 'mood' && moodInfluence && blob.intensity > 0.6 && (
             <text
               x={blob.x}
               y={blob.y + 3}
               textAnchor="middle"
               className="text-sm pointer-events-none"
-              opacity={blob.intensity * 0.8}
+              opacity={blob.intensity * 0.9}
               style={{
-                filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))',
-                animation: `glyphFloat 2s ease-in-out infinite ${index * 0.3}s`
+                filter: 'drop-shadow(0 0 3px rgba(0,0,0,0.9))',
+                animation: `glyphFloat 3s ease-in-out infinite ${index * 0.4}s`
               }}
             >
               {moodInfluence.glyphSymbol}
             </text>
           )}
           
-          {/* Tooltip on hover */}
+          {/* Enhanced tooltip with data source */}
           {hoveredBlob === index && (
             <g className="blob-tooltip">
               <rect
-                x={blob.x - 25}
-                y={blob.y - 35}
-                width="50"
-                height="25"
-                rx="4"
-                fill="rgba(0, 0, 0, 0.8)"
+                x={blob.x - 35}
+                y={blob.y - 45}
+                width="70"
+                height="35"
+                rx="6"
+                fill="rgba(0, 0, 0, 0.9)"
                 stroke={colors.glow}
-                strokeWidth="0.5"
+                strokeWidth="1"
+                filter="drop-shadow(0 2px 8px rgba(0,0,0,0.3))"
               />
               <text
                 x={blob.x}
-                y={blob.y - 20}
+                y={blob.y - 25}
                 textAnchor="middle"
-                className="fill-white text-xs font-medium"
+                className="fill-white text-xs font-semibold"
               >
-                {blob.hour.toString().padStart(2, '0')}:00
+                {blob.hour.toString().padStart(2, '0')}:00 {type}
               </text>
               <text
                 x={blob.x}
-                y={blob.y - 8}
+                y={blob.y - 12}
                 textAnchor="middle"
                 className="fill-gray-300 text-xs"
               >
-                {Math.round(blob.intensity * 100)}%
+                {Math.round(blob.intensity * 100)}% · {Math.round(blob.duration * 60)}m
               </text>
             </g>
           )}
