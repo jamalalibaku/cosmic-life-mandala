@@ -10,25 +10,25 @@ import { motion } from "framer-motion";
 import { RadialLayerSystem } from "@/components/mandala/RadialLayerSystem";
 import mandalaExpressiveTheme from "@/themes/mandala-expressive";
 
-// Life dimension data layers for radial system
+// Life dimension data layers for radial system - refined color palette
 const createLayerData = () => [
   {
     name: "Moon",
     data: [{ phase: "waxing", luminosity: 0.7 }],
-    color: "hsl(240, 30%, 70%)",
-    radius: 250
+    color: "hsl(240, 25%, 65%)",
+    radius: 260
   },
   {
     name: "Weather", 
     data: [{ temp: 22, clouds: 0.3, wind: 0.5 }],
-    color: "hsl(200, 60%, 60%)",
-    radius: 210
+    color: "hsl(200, 30%, 60%)",
+    radius: 220
   },
   {
     name: "Plans",
     data: [{ event: "meeting", priority: 0.8 }, { event: "workout", priority: 0.6 }],
-    color: "hsl(280, 50%, 65%)",
-    radius: 170
+    color: "hsl(260, 25%, 70%)",
+    radius: 180
   },
   {
     name: "Mobility",
@@ -37,14 +37,14 @@ const createLayerData = () => [
       { activity: "run", intensity: 0.8, distance: 70 },
       { activity: "bike", intensity: 0.6, distance: 120 }
     ],
-    color: "hsl(120, 60%, 55%)",
-    radius: 130
+    color: "hsl(140, 25%, 65%)",
+    radius: 140
   },
   {
     name: "Places",
     data: [{ location: "home", duration: 8 }, { location: "work", duration: 9 }],
-    color: "hsl(30, 70%, 60%)",
-    radius: 90
+    color: "hsl(30, 30%, 70%)",
+    radius: 100
   },
   {
     name: "Mood",
@@ -53,8 +53,8 @@ const createLayerData = () => [
       { emotion: "calm", valence: 0.3, energy: 0.3 },
       { emotion: "focus", valence: 0.1, energy: 0.5 }
     ],
-    color: "hsl(340, 80%, 65%)",
-    radius: 60
+    color: "hsl(340, 30%, 70%)",
+    radius: 70
   }
 ];
 
@@ -71,27 +71,35 @@ export const MandalaView = () => {
   const layerData = createLayerData();
 
   return (
-    <div className="w-full h-full min-h-screen flex items-center justify-center bg-background">
+    <div className="w-full h-full min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Subtle background texture */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute inset-0 bg-gradient-radial from-background-subtle via-background to-background-vignette" />
+      </div>
+      
       <motion.svg
-        viewBox="-300 -300 600 600"
-        width="80%"
-        height="80%"
-        className="max-w-4xl max-h-screen"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
+        viewBox="-320 -320 640 640"
+        width="85%"
+        height="85%"
+        className="max-w-5xl max-h-screen relative z-10"
+        style={{
+          filter: "drop-shadow(0 0 40px rgba(0, 0, 0, 0.3))"
+        }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
       >
         {/* Full radial system rotation to keep NOW at top */}
         <motion.g
           animate={{ rotate: rotationAngle }}
-          transition={{ type: "tween", duration: 2 }}
+          transition={{ type: "tween", duration: 3, ease: "easeInOut" }}
         >
           {/* Radial Layer Architecture System */}
           <RadialLayerSystem 
             layers={layerData}
             currentZoom="month"
-            centerRadius={40}
-            layerSpacing={50}
+            centerRadius={45}
+            layerSpacing={60}
           />
         </motion.g>
       </motion.svg>

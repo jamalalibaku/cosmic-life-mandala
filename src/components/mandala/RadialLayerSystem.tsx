@@ -29,17 +29,19 @@ const RingLabel: React.FC<{ name: string; radius: number; color: string }> = ({
   return (
     <motion.text
       x={0}
-      y={-radius - 15}
+      y={-radius - 18}
       textAnchor="middle"
       fill={color}
-      fontSize={12}
-      fontWeight="600"
-      opacity={0.8}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 0.8 }}
-      transition={{ duration: 0.5 }}
+      fontSize={10}
+      fontWeight="300"
+      fontFamily="Inter, system-ui, sans-serif"
+      letterSpacing="0.05em"
+      opacity={0.85}
+      initial={{ opacity: 0, y: -radius - 25 }}
+      animate={{ opacity: 0.85, y: -radius - 18 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
     >
-      {name}
+      {name.toUpperCase()}
     </motion.text>
   );
 };
@@ -50,7 +52,9 @@ const Layer: React.FC<{
   radius: number; 
   color: string;
   zoomLevel: string;
-}> = ({ name, data, radius, color, zoomLevel }) => {
+  layerIndex: number;
+  totalLayers: number;
+}> = ({ name, data, radius, color, zoomLevel, layerIndex, totalLayers }) => {
   const getDetailLevel = () => {
     switch (zoomLevel) {
       case "year": return "outline";
@@ -66,21 +70,42 @@ const Layer: React.FC<{
 
   return (
     <motion.g
-      initial={{ opacity: 0, scale: 0.8 }}
+      initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, delay: 0.1 }}
+      transition={{ duration: 1.2, delay: 0.1 * (totalLayers - layerIndex), ease: "easeOut" }}
     >
+      {/* Ring shadow */}
+      <circle
+        cx={0}
+        cy={0}
+        r={radius}
+        stroke="none"
+        fill="none"
+        style={{
+          filter: `drop-shadow(0 0 ${radius * 0.02}px ${color}40)`
+        }}
+      />
+      
       {/* Ring outline */}
       <motion.circle
         cx={0}
         cy={0}
         r={radius}
         stroke={color}
-        strokeWidth={detailLevel === "outline" ? 1 : 2}
+        strokeWidth={detailLevel === "outline" ? 0.8 : 1.2}
         fill="none"
-        opacity={0.6}
+        opacity={0.75}
+        style={{
+          filter: `drop-shadow(0 0 3px ${color}30)`,
+          strokeLinecap: "round"
+        }}
         animate={{ 
-          strokeDasharray: detailLevel === "outline" ? "5,5" : "none",
+          strokeDasharray: detailLevel === "outline" ? "3,6" : "none",
+          opacity: [0.75, 0.9, 0.75]
+        }}
+        transition={{
+          strokeDasharray: { duration: 0 },
+          opacity: { duration: 4, repeat: Infinity, ease: "easeInOut" }
         }}
       />
 
@@ -93,23 +118,46 @@ const Layer: React.FC<{
         return (
           <motion.g key={index}>
             {detailLevel === "trends" && (
-              <circle
+              <motion.circle
                 cx={x}
                 cy={y}
-                r={3}
+                r={2.5}
                 fill={color}
-                opacity={0.7}
+                opacity={0.8}
+                style={{
+                  filter: `drop-shadow(0 0 4px ${color}60)`
+                }}
+                animate={{
+                  scale: [1, 1.1, 1],
+                  opacity: [0.8, 1, 0.8]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  delay: index * 0.3,
+                  ease: "easeInOut"
+                }}
               />
             )}
             
             {detailLevel === "segments" && (
               <motion.path
-                d={`M ${x} ${y} L ${x * 1.1} ${y * 1.1}`}
+                d={`M ${x * 0.95} ${y * 0.95} L ${x * 1.05} ${y * 1.05}`}
                 stroke={color}
-                strokeWidth={2}
-                opacity={0.8}
-                animate={{ pathLength: [0, 1] }}
-                transition={{ duration: 1, delay: index * 0.1 }}
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                opacity={0.85}
+                style={{
+                  filter: `drop-shadow(0 0 2px ${color}40)`
+                }}
+                animate={{ 
+                  pathLength: [0, 1],
+                  opacity: [0.85, 1, 0.85]
+                }}
+                transition={{ 
+                  pathLength: { duration: 1.5, delay: index * 0.1 },
+                  opacity: { duration: 2, repeat: Infinity, delay: index * 0.2 }
+                }}
               />
             )}
 
@@ -117,17 +165,21 @@ const Layer: React.FC<{
               <motion.circle
                 cx={x}
                 cy={y}
-                r={detailLevel === "micro" ? 5 : 4}
+                r={detailLevel === "micro" ? 4 : 3}
                 fill={color}
                 opacity={0.9}
+                style={{
+                  filter: `drop-shadow(0 0 6px ${color}50)`
+                }}
                 animate={{ 
-                  scale: [1, 1.2, 1],
-                  opacity: [0.9, 0.6, 0.9]
+                  scale: [1, 1.15, 1],
+                  opacity: [0.9, 1, 0.9]
                 }}
                 transition={{ 
-                  duration: 2,
+                  duration: 2.5,
                   repeat: Infinity,
-                  delay: index * 0.2
+                  delay: index * 0.2,
+                  ease: "easeInOut"
                 }}
               />
             )}
@@ -145,56 +197,106 @@ const GlowingCore: React.FC<{ radius: number }> = ({ radius }) => {
   return (
     <motion.g>
       <defs>
-        <filter id="selfGlow">
-          <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+        <filter id="coreGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
           <feMerge> 
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
-        <radialGradient id="selfGradient" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="hsl(45, 90%, 80%)" stopOpacity={1} />
-          <stop offset="50%" stopColor="hsl(35, 80%, 60%)" stopOpacity={0.8} />
-          <stop offset="100%" stopColor="hsl(25, 70%, 40%)" stopOpacity={0.4} />
+        <radialGradient id="coreGradient" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="hsl(45, 70%, 75%)" stopOpacity={1} />
+          <stop offset="40%" stopColor="hsl(35, 60%, 65%)" stopOpacity={0.9} />
+          <stop offset="80%" stopColor="hsl(25, 50%, 50%)" stopOpacity={0.6} />
+          <stop offset="100%" stopColor="hsl(15, 40%, 35%)" stopOpacity={0.2} />
+        </radialGradient>
+        <radialGradient id="coreInnerGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="hsl(45, 90%, 85%)" stopOpacity={0.8} />
+          <stop offset="100%" stopColor="hsl(45, 90%, 85%)" stopOpacity={0} />
         </radialGradient>
       </defs>
+      
+      {/* Outer glow ring */}
+      <motion.circle
+        cx={0}
+        cy={0}
+        r={radius * 1.3}
+        fill="url(#coreInnerGlow)"
+        opacity={0.3}
+        animate={{ 
+          scale: [1, 1.05, 1],
+          opacity: [0.3, 0.5, 0.3]
+        }}
+        transition={{ 
+          duration: 5,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
       
       {/* Core self - breathing center */}
       <motion.circle
         cx={0}
         cy={0}
         r={radius}
-        fill="url(#selfGradient)"
-        filter="url(#selfGlow)"
+        fill="url(#coreGradient)"
+        filter="url(#coreGlow)"
         animate={{ 
-          scale: [1, 1.08, 1],
-          opacity: [0.9, 0.7, 0.9]
+          scale: [1, 1.06, 1],
+          opacity: [0.95, 0.8, 0.95]
         }}
         transition={{ 
-          duration: 4,
+          duration: 4.5,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
 
-      {/* Inner pulse */}
+      {/* Inner pulse ring */}
       <motion.circle
         cx={0}
         cy={0}
-        r={radius * 0.7}
-        stroke="hsl(45, 100%, 90%)"
-        strokeWidth={1}
+        r={radius * 0.75}
+        stroke="hsl(45, 80%, 85%)"
+        strokeWidth={0.8}
         fill="none"
-        opacity={0.5}
+        opacity={0.6}
+        style={{
+          filter: "drop-shadow(0 0 4px hsl(45, 80%, 85%))"
+        }}
         animate={{ 
-          scale: [1, 1.1, 1],
+          scale: [1, 1.08, 1],
+          opacity: [0.6, 0.9, 0.6]
         }}
         transition={{ 
-          duration: 3,
+          duration: 3.5,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
+
+      {/* Center label */}
+      <motion.text
+        x={0}
+        y={4}
+        textAnchor="middle"
+        fill="hsl(45, 70%, 90%)"
+        fontSize={8}
+        fontWeight="300"
+        fontFamily="Inter, system-ui, sans-serif"
+        letterSpacing="0.1em"
+        opacity={0.9}
+        animate={{
+          opacity: [0.9, 1, 0.9]
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      >
+        NOW
+      </motion.text>
     </motion.g>
   );
 };
@@ -220,6 +322,8 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           radius={layer.radius}
           color={layer.color}
           zoomLevel={currentZoom}
+          layerIndex={index}
+          totalLayers={layers.length}
         />
       ))}
 
