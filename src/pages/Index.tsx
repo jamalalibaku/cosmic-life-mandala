@@ -581,97 +581,31 @@ const IndexContent = () => {
           />
         )}
 
-        {/* Data Layer Labels - positioned vertically on the right with proper hierarchy */}
-        {scale === 'day' && !poetryMode && (
-          <DataLayerLabels
-            centerX={centerX}
-            centerY={centerY}
-            labels={[
-              { 
-                id: 'weather-label', 
-                text: 'Weather', 
-                layer: 'weather' as const, 
-                radius: 310, 
-                isActive: true, 
-                theme: currentTheme 
-              },
-              { 
-                id: 'plans-label', 
-                text: 'Plans', 
-                layer: 'plans' as const, 
-                radius: 285, 
-                isActive: false, 
-                theme: currentTheme 
-              },
-              { 
-                id: 'mobility-label', 
-                text: 'Mobility', 
-                layer: 'mobility' as const, 
-                radius: 245, 
-                isActive: true, 
-                theme: currentTheme 
-              },
-              { 
-                id: 'mood-label', 
-                text: 'Mood', 
-                layer: 'mood' as const, 
-                radius: 205, 
-                isActive: true, 
-                theme: currentTheme 
-              },
-               { 
-                id: 'sleep-label', 
-                text: 'Sleep', 
-                layer: 'sleep' as const, 
-                radius: 165, 
-                isActive: true, 
-                theme: currentTheme 
-              },
-              { 
-                id: 'wallet-label', 
-                text: 'Wallet', 
-                layer: 'wallet' as const, 
-                radius: 40, 
-                isActive: true, 
-                theme: currentTheme 
-              }
-            ]}
-            theme={currentTheme}
-            showDebug={showLayerDebug}
-            onLabelClick={(layerType, position, layerData) => {
-              // Trigger data click insight
-              onDataClick(layerType);
-              // Track the interaction for consciousness system
-              consciousnessTracker.trackInteraction(layerType, position.x, position.y);
-              
-              // Track wallet activity for any layer interaction
-              if (layerType !== 'wallet') {
-                mockWalletTracker.trackActivity(
-                  layerType as 'mood' | 'mobility' | 'plans' | 'sleep', 
-                  2, 
-                  `Explored ${layerType} layer`
-                );
-              }
-              
-              // Special handling for wallet layer
-              if (layerType === 'wallet') {
-                setWalletPanelPosition(position);
-                setShowWalletPanel(true);
-              } else {
-                // Open the insight panel for other layers
-                togglePopOut(layerType, position, layerData, `Last 7 days`);
-              }
-            }}
-            layerDataMap={{
-              weather: mockWeatherData,
-              plans: mockPlansData,
-              mobility: mockMobilityData,
-              mood: mockMoodData,
-              sleep: mockSleepData,
-              wallet: [] // Wallet currency tracking
-            }}
-          />
-        )}
+        {/* Data Layer Labels - now aligned with navigation buttons */}
+        <DataLayerLabels
+          activeControls={{
+            weather: true,
+            plans: false,
+            mobility: true,
+            sleep: true,
+            emotional: true,
+          }}
+          theme={currentTheme}
+          onToggle={(layerKey) => {
+            // Trigger data click insight
+            onDataClick(layerKey);
+            // Track the interaction for consciousness system
+            consciousnessTracker.trackInteraction(layerKey, 0, 0);
+            
+            // Track wallet activity for any layer interaction
+            mockWalletTracker.trackActivity(
+              layerKey as 'mood' | 'mobility' | 'plans' | 'sleep', 
+              2, 
+              `Toggled ${layerKey} layer`
+            );
+          }}
+        />
+
 
         {/* AI Insight Orbit Ring with debug capabilities */}
         <InsightOrbitRing

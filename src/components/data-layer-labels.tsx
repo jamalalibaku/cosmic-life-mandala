@@ -4,274 +4,163 @@
  * Built by ChatGPT & Lovable · MIT Licensed
  */
 
-import React from 'react';
-import { useBreathingPulse } from '@/hooks/use-breathing-pulse';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface DataLayerLabel {
-  id: string;
-  text: string;
-  layer: 'weather' | 'mood' | 'mobility' | 'sleep' | 'plans' | 'wallet';
-  radius: number;
-  isActive: boolean;
-  theme: string;
+interface LayerButton {
+  key: string;
+  label: string;
+  icon: string;
+  color: string;
 }
 
 interface DataLayerLabelsProps {
-  centerX: number;
-  centerY: number;
-  labels: DataLayerLabel[];
+  activeControls: Record<string, boolean>;
   theme: string;
-  showDebug?: boolean;
-  className?: string;
-  onLabelClick?: (layerType: string, position: { x: number; y: number }, layerData: any) => void;
-  layerDataMap?: Record<string, any[]>;
+  onToggle: (layerKey: string) => void;
 }
 
 export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
-  centerX,
-  centerY,
-  labels,
+  activeControls,
   theme,
-  showDebug = false,
-  className = '',
-  onLabelClick,
-  layerDataMap = {}
+  onToggle,
 }) => {
-  // Breathing pulse for gentle animation
-  const { applyBreathingOpacity } = useBreathingPulse({
-    enabled: true,
-    cycleMs: 4000,
-    intensity: 0.1,
-    phaseOffset: 0,
-    easingType: 'smooth'
-  });
+  const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
-  // Theme-specific styling
-  const getThemeStyles = (layerTheme: string) => {
-    const styles = {
-      default: {
-        text: 'hsl(45 80% 85%)',
-        accent: 'hsl(45 70% 70%)',
-        font: 'font-light tracking-wide'
-      },
-      floral: {
-        text: 'hsl(300 70% 85%)',
-        accent: 'hsl(320 80% 75%)',
-        font: 'font-light italic tracking-wide'
-      },
-      vinyl: {
-        text: 'hsl(45 80% 80%)',
-        accent: 'hsl(45 70% 65%)',
-        font: 'font-medium tracking-wider'
-      },
-      noir: {
-        text: 'hsl(240 50% 75%)',
-        accent: 'hsl(240 40% 60%)',
-        font: 'font-light tracking-wide'
-      },
-      techHUD: {
-        text: 'hsl(180 80% 75%)',
-        accent: 'hsl(180 70% 60%)',
-        font: 'font-mono font-light tracking-widest'
-      },
-      pastelParadise: {
-        text: 'hsl(280 60% 85%)',
-        accent: 'hsl(300 70% 80%)',
-        font: 'font-light tracking-wide'
-      }
-    };
-    return styles[layerTheme] || styles.default;
-  };
-
-  const themeStyles = getThemeStyles(theme);
-
-  // Position labels vertically on the right side with golden ratio spacing
-  const goldenRatio = 1.618;
-  const baseSpacing = 40;
-  const totalLabels = labels.length;
-  const totalHeight = (totalLabels - 1) * baseSpacing * goldenRatio;
-  
-  const labelPositions = labels.map((label, index) => {
-    // Position on right side, vertically centered with golden ratio spacing
-    const x = centerX + 320; // Right side positioning
-    const startY = centerY - (totalHeight / 2);
-    const y = startY + (index * baseSpacing * goldenRatio);
-    
-    return { ...label, x, y, angle: 0 };
-  });
+  const layerData = [
+    { 
+      key: 'weather', 
+      label: 'Weather', 
+      icon: '☀️',
+      color: 'from-orange-400 to-red-500'
+    },
+    { 
+      key: 'plans', 
+      label: 'Plans', 
+      icon: '📋',
+      color: 'from-blue-400 to-purple-500'
+    },
+    { 
+      key: 'mobility', 
+      label: 'Mobility', 
+      icon: '🚶',
+      color: 'from-green-400 to-teal-500'
+    },
+    { 
+      key: 'sleep', 
+      label: 'Sleep', 
+      icon: '😴',
+      color: 'from-purple-400 to-indigo-500'
+    },
+    { 
+      key: 'emotional', 
+      label: 'Emotional', 
+      icon: '💭',
+      color: 'from-pink-400 to-rose-500'
+    },
+  ];
 
   return (
-    <g className={`data-layer-labels ${className}`}>
-      <defs>
-        {/* Enhanced glow filter */}
-        <filter id="label-glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-        
-        {/* Hover glow filter */}
-        <filter id="hover-glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-
-      {labelPositions.map((label, index) => {
-        const opacity = label.isActive ? applyBreathingOpacity(0.9) : 0.5;
+    <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+      {layerData.map((layer, index) => {
+        const isActive = activeControls[layer.key as keyof typeof activeControls];
+        const isHovered = hoveredLabel === layer.key;
         
         return (
-          <g key={label.id} className="data-layer-label">
-            {/* Debug mode: Show label boundaries */}
-            {showDebug && (
-              <g className="debug-label-info">
-                <circle
-                  cx={label.x}
-                  cy={label.y}
-                  r="25"
-                  fill="none"
-                  stroke="red"
-                  strokeWidth="1"
-                  strokeDasharray="2,2"
-                  opacity="0.3"
-                />
-                <text
-                  x={label.x}
-                  y={label.y - 35}
-                  textAnchor="middle"
-                  className="text-xs font-mono"
-                  fill="red"
-                  opacity="0.7"
-                >
-                  {label.layer} • r{label.radius}
-                </text>
-              </g>
-            )}
-            
-            {/* Enhanced clickable group with smooth hover interactions */}
-            <g
-              className="cursor-pointer transition-all duration-300 group"
-              style={{ transformOrigin: `${label.x}px ${label.y}px` }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onLabelClick) {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const position = {
-                    x: rect.left + window.scrollX,
-                    y: rect.top + window.scrollY
-                  };
-                  const layerData = layerDataMap[label.layer] || [];
-                  onLabelClick(label.layer, position, layerData);
+          <motion.div
+            key={layer.key}
+            className="relative group"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              duration: 0.5, 
+              delay: index * 0.1,
+              ease: "easeOut" 
+            }}
+            onMouseEnter={() => setHoveredLabel(layer.key)}
+            onMouseLeave={() => setHoveredLabel(null)}
+          >
+            <motion.button
+              onClick={() => onToggle(layer.key)}
+              className={`
+                relative overflow-hidden
+                w-12 h-12 rounded-lg
+                flex items-center justify-center
+                text-lg font-bold
+                backdrop-blur-sm
+                transition-all duration-300
+                border
+                ${isActive 
+                  ? 'border-white/40 shadow-xl' 
+                  : 'border-white/20 hover:border-white/30'
                 }
+              `}
+              style={{
+                background: isActive 
+                  ? `linear-gradient(135deg, ${layer.color.split(' ')[1]}, ${layer.color.split(' ')[3]})`
+                  : `linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))`,
+                filter: isActive 
+                  ? `drop-shadow(0 0 15px ${layer.color.includes('orange') ? '#f97316' : 
+                      layer.color.includes('blue') ? '#3b82f6' : 
+                      layer.color.includes('green') ? '#10b981' : 
+                      layer.color.includes('purple') ? '#8b5cf6' : '#ec4899'}60)` 
+                  : 'none'
               }}
+              whileHover={{ 
+                scale: 1.05,
+                y: -2,
+                transition: { duration: 0.2 }
+              }}
+              whileTap={{ scale: 0.95 }}
             >
-              {/* Enhanced label background with improved glow effect */}
-              <rect
-                x={label.x - 45}
-                y={label.y - 14}
-                width="90"
-                height="28"
-                rx="14"
-                fill="rgba(0, 0, 0, 0.8)"
-                stroke={label.isActive ? themeStyles.accent : 'rgba(255,255,255,0.3)'}
-                strokeWidth={label.isActive ? "2" : "1"}
-                opacity={opacity}
-                className={`transition-all duration-300 group-hover:stroke-white/60 ${
-                  label.isActive 
-                    ? 'drop-shadow-lg' 
-                    : 'group-hover:fill-white/10'
-                }`}
-                style={{
-                  filter: label.isActive 
-                    ? `url(#label-glow) drop-shadow(0 0 12px ${themeStyles.accent}40)` 
-                    : 'none'
-                }}
-              />
+              <span className="relative z-10 drop-shadow-sm">
+                {layer.icon}
+              </span>
               
-              {/* Enhanced label text with better typography and hover effects */}
-              <text
-                x={label.x}
-                y={label.y + 5}
-                textAnchor="middle"
-                className={`text-sm font-medium ${themeStyles.font} transition-all duration-300 group-hover:fill-white`}
-                fill={label.isActive ? 'white' : themeStyles.text}
-                opacity={label.isActive ? 1 : opacity}
-                style={{ 
-                  fontWeight: label.isActive ? 600 : 400, 
-                  pointerEvents: 'none',
-                  textShadow: label.isActive 
-                    ? `0 0 8px ${themeStyles.accent}60` 
-                    : 'none',
-                  filter: label.isActive ? 'url(#label-glow)' : 'none'
-                }}
-              >
-                {label.text}
-              </text>
+              {/* Enhanced glow effect */}
+              {isActive && (
+                <motion.div
+                  className="absolute inset-0 rounded-lg opacity-40"
+                  style={{
+                    background: `linear-gradient(135deg, ${layer.color.split(' ')[1]}, ${layer.color.split(' ')[3]})`,
+                    filter: `blur(6px) brightness(1.5)`
+                  }}
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    opacity: [0.4, 0.6, 0.4]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              )}
+            </motion.button>
 
-              {/* Enhanced interactive hover ring with smooth animation */}
-              <circle
-                cx={label.x}
-                cy={label.y}
-                r="48"
-                fill="none"
-                stroke="rgba(255,255,255,0.2)"
-                strokeWidth="1.5"
-                strokeDasharray="4,8"
-                opacity="0"
-                className="transition-all duration-300 group-hover:opacity-40 group-hover:stroke-white/50"
-                style={{ 
-                  pointerEvents: 'none',
-                  filter: 'url(#hover-glow)'
-                }}
-              />
-            </g>
-            
-            {/* Enhanced active indicator with proper glow effect */}
-            {label.isActive && (
-              <g>
-                {/* Main indicator dot */}
-                <circle
-                  cx={label.x + 52}
-                  cy={label.y}
-                  r="5"
-                  fill={themeStyles.accent}
-                  opacity={applyBreathingOpacity(1)}
-                  style={{ 
-                    pointerEvents: 'none',
-                    filter: `url(#label-glow) drop-shadow(0 0 8px ${themeStyles.accent})`
-                  }}
-                  className="animate-pulse"
-                />
-                {/* Outer ring */}
-                <circle
-                  cx={label.x + 52}
-                  cy={label.y}
-                  r="8"
-                  fill="none"
-                  stroke={themeStyles.accent}
-                  strokeWidth="1.5"
-                  opacity={applyBreathingOpacity(0.6)}
-                  style={{ 
-                    pointerEvents: 'none',
-                    filter: `drop-shadow(0 0 4px ${themeStyles.accent}40)`
-                  }}
-                />
-              </g>
-            )}
-          </g>
+            {/* Label tooltip */}
+            <AnimatePresence>
+              {isHovered && (
+                <motion.div
+                  className="absolute top-14 left-1/2 transform -translate-x-1/2
+                             bg-black/80 text-white px-3 py-1 rounded-lg text-sm
+                             backdrop-blur-sm border border-white/20 whitespace-nowrap"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {layer.label}
+                  {/* Arrow pointer */}
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2">
+                    <div className="border-4 border-transparent border-b-black/80"></div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         );
       })}
-    </g>
+    </div>
   );
 };
