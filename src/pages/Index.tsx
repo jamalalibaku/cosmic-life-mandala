@@ -59,6 +59,7 @@ import { RitualCompanion } from '@/components/RitualCompanion';
 import { RippleVisualization } from '@/components/RippleVisualization';
 import { useConsciousnessTracker } from '@/hooks/useConsciousnessTracker';
 import { getUserInsightProfile } from '@/utils/insight-memory';
+import { BehavioralTools } from '@/components/interactions/BehavioralTools';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -81,6 +82,7 @@ const IndexContent = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showInsightPanel, setShowInsightPanel] = useState(false);
   const [showRitualCompanion, setShowRitualCompanion] = useState(false);
+  const [activeBehavioralTool, setActiveBehavioralTool] = useState<'touch' | 'fix' | 'scale' | null>(null);
 
   // Life phase detection and awareness rhythm
   const userProfile = getUserInsightProfile();
@@ -934,6 +936,15 @@ const IndexContent = () => {
           onTimeNavigate={handleTimeNavigate}
           currentDate={currentDate}
           position="top"
+        />
+
+        {/* Behavioral Tools - Adria's Emotional Interaction Design */}
+        <BehavioralTools
+          centerX={350}
+          centerY={350}
+          currentScale={timeScale}
+          isVisible={true}
+          onToolActivate={setActiveBehavioralTool}
         />
 
         {/* Layer Pop-Out Insight Panel */}
