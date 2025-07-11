@@ -31,7 +31,7 @@ interface VisualSkinProviderProps {
 
 export const VisualSkinProvider: React.FC<VisualSkinProviderProps> = ({
   children,
-  defaultTheme = 'default'
+  defaultTheme = 'cosmic'
 }) => {
   const [currentTheme, setCurrentTheme] = useState<Theme>(defaultTheme);
   const [isTransitioning, setIsTransitioning] = useState(false);

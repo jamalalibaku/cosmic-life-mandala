@@ -16,38 +16,28 @@ interface PoetryLine {
 }
 
 const poetryLines: PoetryLine[] = [
-  // Default theme
-  { text: "A thought moved through you / before the rain touched the earth / it's still with you now", theme: 'default', timeScale: 'day', position: 'center' },
-  { text: "The night wrapped your walk / in silence and sodium light / heartbeat syncs with sky", theme: 'default', timeScale: 'day', position: 'drift' },
-  { text: "Seven dawns gather / like breadcrumbs on your mind's path / this week holds stories", theme: 'default', timeScale: 'week', position: 'orbit' },
-  { text: "Moon cycles through you / thirty days of small decisions / shape who you become", theme: 'default', timeScale: 'month', position: 'center' },
-  { text: "Seasons turn within / four quarters of breath and change / you are the constant", theme: 'default', timeScale: 'year', position: 'drift' },
+  // Cosmic theme
+  { text: "A thought moved through you / before the rain touched the earth / it's still with you now", theme: 'cosmic', timeScale: 'day', position: 'center' },
+  { text: "The night wrapped your walk / in silence and sodium light / heartbeat syncs with sky", theme: 'cosmic', timeScale: 'day', position: 'drift' },
+  { text: "Seven dawns gather / like breadcrumbs on your mind's path / this week holds stories", theme: 'cosmic', timeScale: 'week', position: 'orbit' },
+  { text: "Moon cycles through you / thirty days of small decisions / shape who you become", theme: 'cosmic', timeScale: 'month', position: 'center' },
+  { text: "Seasons turn within / four quarters of breath and change / you are the constant", theme: 'cosmic', timeScale: 'year', position: 'drift' },
 
-  // Floral theme
-  { text: "Petals fall between / heartbeats and morning coffee / beauty in the pause", theme: 'floral', timeScale: 'day', position: 'center' },
-  { text: "Garden of moments / each step plants tomorrow's bloom / walk with intention", theme: 'floral', timeScale: 'week', position: 'orbit' },
-  { text: "Roots reach deeper now / thirty days of quiet growth / beneath notice, strength", theme: 'floral', timeScale: 'month', position: 'drift' },
+  // Interface theme
+  { text: "Data streams like rain / through circuits of consciousness / we are the machine", theme: 'interface', timeScale: 'day', position: 'center' },
+  { text: "Seven cycles run / in the neural network's dance / patterns become truth", theme: 'interface', timeScale: 'week', position: 'orbit' },
 
-  // Vinyl theme
-  { text: "Needle finds the groove / of your daily ritual song / static becomes rhythm", theme: 'vinyl', timeScale: 'day', position: 'center' },
-  { text: "Seven tracks spinning / memories pressed into time / this week's greatest hits", theme: 'vinyl', timeScale: 'week', position: 'orbit' },
-  { text: "Album of the month / thirty songs of who you were / play it all again", theme: 'vinyl', timeScale: 'month', position: 'drift' },
+  // Mandala theme
+  { text: "Emotions flow like rivers / Through the mandala of time / Each breath a new world", theme: 'mandala', timeScale: 'day', position: 'center' },
+  { text: "Seven sacred circles / Each day a prayer in motion / Being becomes form", theme: 'mandala', timeScale: 'week', position: 'orbit' },
 
-  // TechHUD theme
-  { text: "Data streams like rain / through circuits of consciousness / we are the machine", theme: 'techHUD', timeScale: 'day', position: 'center' },
-  { text: "Seven cycles run / in the neural network's dance / patterns become truth", theme: 'techHUD', timeScale: 'week', position: 'orbit' },
+  // Van Gogh theme
+  { text: "Starlight swirls like paint / Across the canvas of night / Time becomes a dream", theme: 'vangogh', timeScale: 'day', position: 'center' },
+  { text: "Seven burning suns / Dance eternal through the sky / Beauty burns like fire", theme: 'vangogh', timeScale: 'week', position: 'drift' },
 
-  // Noir theme
-  { text: "Shadows know your name / spoken in the space between / streetlight and intention", theme: 'noir', timeScale: 'day', position: 'center' },
-  { text: "Black and white choices / fade to gray in memory's / developing solution", theme: 'noir', timeScale: 'week', position: 'drift' },
-
-  // Tattoo theme
-  { text: "Ink beneath the skin / marks time in permanent ways / stories carved in flesh", theme: 'tattoo', timeScale: 'day', position: 'center' },
-  { text: "Seven marks of change / etched into the living canvas / we are what endures", theme: 'tattoo', timeScale: 'week', position: 'orbit' },
-
-  // Pastel Paradise theme
-  { text: "Soft clouds drift like thoughts / through the pastel afternoon / gentle time unfolds", theme: 'pastelParadise', timeScale: 'day', position: 'center' },
-  { text: "Seven dreamy days / float like cotton candy skies / sweetness holds the hours", theme: 'pastelParadise', timeScale: 'week', position: 'drift' }
+  // Horizons theme
+  { text: "Soft clouds drift like thoughts / through the pastel afternoon / gentle time unfolds", theme: 'horizons', timeScale: 'day', position: 'center' },
+  { text: "Seven dreamy days / float like cotton candy skies / sweetness holds the hours", theme: 'horizons', timeScale: 'week', position: 'drift' }
 ];
 
 interface PoetryOverlayProps {
@@ -90,12 +80,12 @@ export const PoetryOverlay: React.FC<PoetryOverlayProps> = ({
 
     const relevantLines = getRelevantPoetry();
     if (relevantLines.length === 0) {
-      // Fallback to default theme lines
-      const defaultLines = poetryLines.filter(line => 
-        line.theme === 'default' && line.timeScale === timeScale
+      // Fallback to cosmic theme lines
+      const cosmicLines = poetryLines.filter(line => 
+        line.theme === 'cosmic' && line.timeScale === timeScale
       );
-      if (defaultLines.length > 0) {
-        setCurrentPoetry(defaultLines[Math.floor(Math.random() * defaultLines.length)]);
+      if (cosmicLines.length > 0) {
+        setCurrentPoetry(cosmicLines[Math.floor(Math.random() * cosmicLines.length)]);
       }
     } else {
       setCurrentPoetry(relevantLines[Math.floor(Math.random() * relevantLines.length)]);

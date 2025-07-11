@@ -163,8 +163,37 @@ All major components tagged with:
 - Bounded physics system preventing runaway scaling
 - Transition locks preventing multiple simultaneous effects
 
-**Next Phase**: ZIP9-Delta: Wheel of Time & Real-time Registration (Lap 5)
+**Next Phase**: ZIP9-Epsilon: Cinematic Zoom Transitions (Lap 6)
 
 ---
 
-**Last Updated:** 2025-01-11 | **Phase:** ZIP9-Delta | **Status:** System Stabilized
+## 🌀 ZIP9-Epsilon: Wheel of Time & Skin Consolidation (Lap 5) - COMPLETE ✅
+
+**Status**: Timeline Rotation & Theme Consolidation Active
+**Completion**: 2025-01-11
+
+### Achievements:
+- ✅ **Fixed NOW at 0° (North)** - NOW indicator anchored at top
+- ✅ **Counterclockwise timeline rotation** - Slices rotate beneath fixed NOW
+- ✅ **Temporal visual states** - Past/present/future differentiation
+- ✅ **5 core themes only** - cosmic, interface, mandala, vangogh, horizons
+- ✅ **Wheel of time logic** - Rotation speed based on zoom level
+- ✅ **Memory trail system** - Past fades, future ghosted, present enhanced
+
+### Technical Implementation:
+- Wheel of time rotation engine with zoom-based speed calculation
+- Temporal state detection for each slice (past/present/future)
+- Visual properties system: opacity, blur, saturation, stroke patterns
+- Theme consolidation from 9 themes to 5 core selections
+- Rotation applied to timeline while NOW stays fixed at 0°
+
+### Visual Effects:
+- **Present slices**: Full opacity, enhanced animation, glow effects
+- **Past slices**: Faded (60% opacity), slight blur, reduced saturation
+- **Future slices**: Ghosted (40% opacity), dashed strokes, more blur
+
+**Next Phase**: ZIP9-Epsilon: Cinematic Zoom Transitions (Lap 6)
+
+---
+
+**Last Updated:** 2025-01-11 | **Phase:** ZIP9-Epsilon | **Status:** Wheel of Time Active

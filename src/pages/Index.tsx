@@ -246,7 +246,7 @@ const IndexContent = () => {
               cy={centerY}
               r={285}
               fill="none"
-              stroke={currentTheme === 'floral' ? 'hsl(280 30% 70%)' : 'hsl(240 20% 60%)'}
+              stroke={currentTheme === 'horizons' ? 'hsl(280 30% 70%)' : 'hsl(240 20% 60%)'}
               strokeWidth="1"
               strokeDasharray="2,4"
               opacity="0.3"
@@ -611,7 +611,7 @@ const IndexContent = () => {
   };
 
   // Render Van Gogh Mandala View for Van Gogh theme  
-  if (currentTheme === 'vanGogh') {
+  if (currentTheme === 'vangogh') {
     return (
       <div className="relative w-full h-screen overflow-hidden" style={{
         fontFamily: themeConfig.typography.primary,
@@ -648,12 +648,12 @@ const IndexContent = () => {
 
   console.log('🎨 Current theme check:', { 
     currentTheme, 
-    isMandalaExpressive: currentTheme === 'mandalaExpressive',
+    isMandalaExpressive: currentTheme === 'mandala',
     timestamp: new Date().toLocaleTimeString()
   });
 
   // Render Mandala View for mandala theme
-  if (currentTheme === 'mandalaExpressive') {
+  if (currentTheme === 'mandala') {
     console.log('🌀 Rendering MandalaView...');
     return (
       <div className="relative w-full h-screen overflow-hidden" style={{
@@ -767,7 +767,7 @@ const IndexContent = () => {
 // Main Index component with theme provider
 const Index = () => {
   return (
-    <VisualSkinProvider defaultTheme="default">
+    <VisualSkinProvider defaultTheme="cosmic">
       <TimeAxisProvider>
         <IndexContent />
         <ThemeHaikuDisplay />

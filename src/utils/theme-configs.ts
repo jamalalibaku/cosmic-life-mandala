@@ -5,15 +5,11 @@
  */
 
 export type Theme = 
-  | 'default'
-  | 'tattoo'
-  | 'floral'
-  | 'techHUD'
-  | 'vinyl'
-  | 'noir'
-  | 'pastelParadise'
-  | 'mandalaExpressive'
-  | 'vanGogh';
+  | 'cosmic'      // Cosmic Default
+  | 'interface'   // Digital Interface (was techHUD)  
+  | 'mandala'     // Mandala Expressive (was mandalaExpressive)
+  | 'vangogh'     // Van Gogh: Starry Night (was vanGogh)
+  | 'horizons';   // Soft Horizons (was pastelParadise)
 
 export interface ThemeConfig {
   name: string;
@@ -52,7 +48,7 @@ export interface ThemeConfig {
 }
 
 export const themeConfigs: Record<Theme, ThemeConfig> = {
-  default: {
+  cosmic: {
     name: 'Cosmic Default',
     description: 'Golden cosmic poetry in motion',
     colors: {
@@ -91,85 +87,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     ]
   },
 
-  tattoo: {
-    name: 'Ink & Steel',
-    description: 'Bold tribal patterns with edge',
-    colors: {
-      primary: 'hsl(0 0% 10%)',
-      secondary: 'hsl(0 70% 50%)',
-      accent: 'hsl(0 0% 90%)',
-      background: 'hsl(0 0% 5%)',
-      text: 'hsl(0 0% 95%)',
-      glow: 'hsl(0 80% 60%)'
-    },
-    typography: {
-      primary: 'system-ui',
-      secondary: 'monospace',
-      size: 'large'
-    },
-    shapes: {
-      rings: 'jagged',
-      segments: 'sharp'
-    },
-    animations: {
-      speed: 'fast',
-      style: 'pulsing'
-    },
-    icons: {
-      weather: { sunny: '🔥', rainy: '⚡', cloudy: '💀' },
-      mood: { calm: '🗡️', creative: '⚔️', energetic: '💥' },
-      time: '⚡'
-    },
-    background: {
-      pattern: 'grid',
-      intensity: 0.3
-    },
-    haiku: [
-      'Steel meets flesh today / The needle writes our story / Time carved into skin',
-      'Black ink flows like blood / Through channels of memory / We are what endures'
-    ]
-  },
-
-  floral: {
-    name: 'Garden of Time',
-    description: 'Organic blooms and gentle growth',
-    colors: {
-      primary: 'hsl(320 60% 70%)',
-      secondary: 'hsl(120 50% 60%)',
-      accent: 'hsl(280 70% 75%)',
-      background: 'hsl(100 20% 12%)',
-      text: 'hsl(320 40% 85%)',
-      glow: 'hsl(320 80% 80%)'
-    },
-    typography: {
-      primary: 'serif',
-      secondary: 'cursive',
-      size: 'medium'
-    },
-    shapes: {
-      rings: 'organic',
-      segments: 'flowing'
-    },
-    animations: {
-      speed: 'slow',
-      style: 'organic'
-    },
-    icons: {
-      weather: { sunny: '🌸', rainy: '🌿', cloudy: '🍃' },
-      mood: { calm: '🌺', creative: '🌻', energetic: '🌹' },
-      time: '🌷'
-    },
-    background: {
-      pattern: 'flowers',
-      intensity: 0.4
-    },
-    haiku: [
-      'A petal falls soft / As the day begins again / Life turns on its stem',
-      'Roots drink from deep time / While blossoms dance with today / Growth is all we know'
-    ]
-  },
-
-  techHUD: {
+  interface: {
     name: 'Digital Interface',
     description: 'Cyberpunk HUD aesthetics',
     colors: {
@@ -208,124 +126,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     ]
   },
 
-  vinyl: {
-    name: 'Analog Dreams',
-    description: 'Warm vinyl nostalgia',
-    colors: {
-      primary: 'hsl(35 60% 50%)',
-      secondary: 'hsl(15 70% 40%)',
-      accent: 'hsl(45 80% 60%)',
-      background: 'hsl(25 20% 10%)',
-      text: 'hsl(35 40% 80%)',
-      glow: 'hsl(35 70% 70%)'
-    },
-    typography: {
-      primary: 'serif',
-      secondary: 'system-ui',
-      size: 'medium'
-    },
-    shapes: {
-      rings: 'vinyl',
-      segments: 'smooth'
-    },
-    animations: {
-      speed: 'slow',
-      style: 'gentle'
-    },
-    icons: {
-      weather: { sunny: '🎵', rainy: '🎶', cloudy: '🎼' },
-      mood: { calm: '🎧', creative: '🎸', energetic: '🥁' },
-      time: '🎤'
-    },
-    background: {
-      pattern: 'grooves',
-      intensity: 0.5
-    },
-    haiku: [
-      'The needle finds groove / In the circle of old songs / Memory plays on',
-      'Warm analog days / Spin eternal on the deck / Music holds all time'
-    ]
-  },
-
-  noir: {
-    name: 'Midnight City',
-    description: 'Film noir shadows and neon',
-    colors: {
-      primary: 'hsl(0 0% 20%)',
-      secondary: 'hsl(300 100% 40%)',
-      accent: 'hsl(60 100% 60%)',
-      background: 'hsl(0 0% 2%)',
-      text: 'hsl(0 0% 85%)',
-      glow: 'hsl(300 80% 60%)'
-    },
-    typography: {
-      primary: 'serif',
-      secondary: 'system-ui',
-      size: 'medium'
-    },
-    shapes: {
-      rings: 'angular',
-      segments: 'sharp'
-    },
-    animations: {
-      speed: 'medium',
-      style: 'mechanical'
-    },
-    icons: {
-      weather: { sunny: '🌆', rainy: '🌃', cloudy: '🏙️' },
-      mood: { calm: '🌙', creative: '💡', energetic: '⚡' },
-      time: '🕐'
-    },
-    background: {
-      pattern: 'noir',
-      intensity: 0.7
-    },
-    haiku: [
-      'Shadows whisper time / The past is a dim ellipse / Neon ticks forward',
-      'Night holds all secrets / In the glow of street lamp light / Dawn reveals nothing'
-    ]
-  },
-
-  pastelParadise: {
-    name: 'Soft Horizons',
-    description: 'Dreamy pastel minimalism',
-    colors: {
-      primary: 'hsl(330 50% 80%)',
-      secondary: 'hsl(200 60% 75%)',
-      accent: 'hsl(280 40% 85%)',
-      background: 'hsl(320 20% 95%)',
-      text: 'hsl(320 30% 30%)',
-      glow: 'hsl(330 60% 70%)'
-    },
-    typography: {
-      primary: 'sans-serif',
-      secondary: 'serif',
-      size: 'medium'
-    },
-    shapes: {
-      rings: 'organic',
-      segments: 'flowing'
-    },
-    animations: {
-      speed: 'slow',
-      style: 'gentle'
-    },
-    icons: {
-      weather: { sunny: '☁️', rainy: '💧', cloudy: '🌈' },
-      mood: { calm: '💫', creative: '✨', energetic: '🌟' },
-      time: '☁️'
-    },
-    background: {
-      pattern: 'pastel',
-      intensity: 0.3
-    },
-    haiku: [
-      'Soft clouds drift like thoughts / Through the pastel afternoon / Gentle time unfolds',
-      'Colors blur to dreams / In the hazy summer light / Peace flows like water'
-    ]
-  },
-
-  mandalaExpressive: {
+  mandala: {
     name: 'Mandala Expressive',
     description: 'Living, breathing visualization of emotion, sleep, and mobility',
     colors: {
@@ -364,8 +165,8 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     ]
   },
 
-  vanGogh: {
-    name: 'Van Gogh\'s Starry Night',
+  vangogh: {
+    name: 'Van Gogh: Starry Night',
     description: 'A living painting of time - swirling, luminous, and deeply expressive',
     colors: {
       primary: 'hsl(45 90% 65%)',      // Van Gogh's golden yellow
@@ -400,6 +201,45 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     haiku: [
       'Starlight swirls like paint / Across the canvas of night / Time becomes a dream',
       'Yellow suns and blue / Dance eternal through the sky / Beauty burns like fire'
+    ]
+  },
+
+  horizons: {
+    name: 'Soft Horizons',
+    description: 'Dreamy pastel minimalism',
+    colors: {
+      primary: 'hsl(330 50% 80%)',
+      secondary: 'hsl(200 60% 75%)',
+      accent: 'hsl(280 40% 85%)',
+      background: 'hsl(320 20% 95%)',
+      text: 'hsl(320 30% 30%)',
+      glow: 'hsl(330 60% 70%)'
+    },
+    typography: {
+      primary: 'sans-serif',
+      secondary: 'serif',
+      size: 'medium'
+    },
+    shapes: {
+      rings: 'organic',
+      segments: 'flowing'
+    },
+    animations: {
+      speed: 'slow',
+      style: 'gentle'
+    },
+    icons: {
+      weather: { sunny: '☁️', rainy: '💧', cloudy: '🌈' },
+      mood: { calm: '💫', creative: '✨', energetic: '🌟' },
+      time: '☁️'
+    },
+    background: {
+      pattern: 'pastel',
+      intensity: 0.3
+    },
+    haiku: [
+      'Soft clouds drift like thoughts / Through the pastel afternoon / Gentle time unfolds',
+      'Colors blur to dreams / In the hazy summer light / Peace flows like water'
     ]
   }
 };
