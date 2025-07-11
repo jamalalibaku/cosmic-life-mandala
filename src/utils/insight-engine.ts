@@ -430,15 +430,136 @@ export const generateReflectionPrompts = (
   interactionHistory: SliceInsightData[], 
   patterns?: ReturnType<typeof detectTemporalPatterns>
 ): string => {
-  const prompts = [
-    "What patterns do you notice in your sleep and mood?",
-    "How does weather influence your daily activities?",
-    "When do you feel most energized during the week?",
-    "What external factors affect your wellbeing most?"
-  ];
   
-  // Future: AI-generated personalized prompts based on data
-  return prompts[Math.floor(Math.random() * prompts.length)];
+  if (!interactionHistory || interactionHistory.length === 0) {
+    return "What patterns do you notice in your daily rhythms?";
+  }
+
+  // Analyze interaction behavior
+  const layerFrequency = interactionHistory.reduce((acc, interaction) => {
+    acc[interaction.layerType] = (acc[interaction.layerType] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const mostExploredLayer = Object.entries(layerFrequency)
+    .sort(([,a], [,b]) => b - a)[0]?.[0];
+
+  const totalInteractions = interactionHistory.length;
+  const recentInteractions = interactionHistory.slice(-5);
+  
+  // Analyze time patterns in interactions
+  const interactionTimes = interactionHistory.map(i => new Date(i.timestamp).getHours());
+  const commonHours = interactionTimes.reduce((acc, hour) => {
+    acc[hour] = (acc[hour] || 0) + 1;
+    return acc;
+  }, {} as Record<number, number>);
+  
+  const peakInteractionHour = Object.entries(commonHours)
+    .sort(([,a], [,b]) => b - a)[0]?.[0];
+
+  // Generate personalized prompts based on behavior patterns
+  const behaviorPrompts: string[] = [];
+
+  // Based on most explored layer
+  if (mostExploredLayer) {
+    switch (mostExploredLayer) {
+      case 'mood':
+        behaviorPrompts.push(
+          "You've been exploring your mood patterns frequently. What emotional triggers are you most curious about?",
+          "Your mood data seems to fascinate you. What have you discovered about your emotional rhythms?",
+          "You often check your mood insights. Are there specific times when your emotions feel most unpredictable?"
+        );
+        break;
+      case 'sleep':
+        behaviorPrompts.push(
+          "Sleep appears to be a key focus for you. How has tracking these patterns changed your bedtime routine?",
+          "You frequently explore sleep data. What connections have you noticed with your energy levels?",
+          "Your sleep patterns draw your attention often. Are there habits you're trying to optimize?"
+        );
+        break;
+      case 'mobility':
+        behaviorPrompts.push(
+          "Movement data captures your interest regularly. What activity patterns surprise you most?",
+          "You often examine your mobility insights. How does your activity align with your energy goals?",
+          "Physical activity seems important to you. What motivates your movement on different days?"
+        );
+        break;
+      case 'weather':
+        behaviorPrompts.push(
+          "Weather patterns intrigue you. How much do environmental conditions influence your planning?",
+          "You frequently check weather correlations. Are you a person who adapts easily to climate changes?",
+          "Environmental data draws your attention. What weather conditions bring out your best self?"
+        );
+        break;
+    }
+  }
+
+  // Based on interaction frequency
+  if (totalInteractions > 10) {
+    behaviorPrompts.push(
+      "You're a dedicated data explorer! What's the most surprising pattern you've discovered about yourself?",
+      "With so much exploration, you're becoming a self-awareness expert. What would you tell someone just starting to track their life?",
+      "Your consistent curiosity is impressive. Which insights have actually changed your daily behavior?"
+    );
+  } else if (totalInteractions > 5) {
+    behaviorPrompts.push(
+      "You're developing a good habit of self-reflection. What questions are you hoping your data will answer?",
+      "Your growing exploration shows real commitment. What patterns are starting to emerge for you?",
+      "You're building momentum in understanding yourself. What aspect of your life feels most mysterious still?"
+    );
+  }
+
+  // Based on time patterns
+  if (peakInteractionHour) {
+    const hour = parseInt(peakInteractionHour);
+    if (hour >= 6 && hour <= 9) {
+      behaviorPrompts.push("You often reflect in the morning. How does reviewing your data influence your day ahead?");
+    } else if (hour >= 18 && hour <= 22) {
+      behaviorPrompts.push("Evening reflection seems natural to you. What helps you process the day's patterns?");
+    } else if (hour >= 22 || hour <= 2) {
+      behaviorPrompts.push("Late-night exploration of your data - are you a natural night owl, or is something keeping you curious?");
+    }
+  }
+
+  // Based on detected patterns
+  if (patterns) {
+    if (patterns.trend.direction === 'increasing') {
+      behaviorPrompts.push(`Your ${mostExploredLayer} shows an upward trend. What positive changes might be contributing to this?`);
+    } else if (patterns.trend.direction === 'decreasing') {
+      behaviorPrompts.push(`There's a declining pattern in your ${mostExploredLayer}. What factors might be influencing this shift?`);
+    }
+    
+    if (patterns.cycles.strength > 0.6) {
+      behaviorPrompts.push(`Your data shows strong cyclical patterns. How aware were you of these rhythms before tracking them?`);
+    }
+    
+    if (patterns.anomalies.percentage > 15) {
+      behaviorPrompts.push(`You have quite a few data anomalies. Are you someone who thrives on variety, or do these surprise you?`);
+    }
+  }
+
+  // Recent interaction patterns
+  const recentLayers = [...new Set(recentInteractions.map(i => i.layerType))];
+  if (recentLayers.length === 1) {
+    behaviorPrompts.push(`You've been focused on ${recentLayers[0]} lately. What's drawing your attention to this area?`);
+  } else if (recentLayers.length >= 3) {
+    behaviorPrompts.push("You're exploring multiple areas recently. Are you looking for connections between different aspects of your life?");
+  }
+
+  // Fallback prompts for edge cases
+  const fallbackPrompts = [
+    "What aspect of your daily rhythm would you most like to understand better?",
+    "If you could change one pattern in your life, what would it be?",
+    "What external factors have the biggest impact on your wellbeing?",
+    "How has tracking your life data changed your self-awareness?",
+    "What would your ideal daily rhythm look like?"
+  ];
+
+  // Select a prompt
+  const allPrompts = behaviorPrompts.length > 0 ? behaviorPrompts : fallbackPrompts;
+  const selectedPrompt = allPrompts[Math.floor(Math.random() * allPrompts.length)];
+  
+  return selectedPrompt;
 };
 
 /**
