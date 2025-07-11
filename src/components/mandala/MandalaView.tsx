@@ -79,26 +79,34 @@ export const MandalaView = () => {
             </motion.g>
           ))}
 
-          {/* Emotional Creatures */}
-          {moodSegments.map((mood, i) => {
-            const breathDur = mandalaExpressiveTheme.breathingRhythms[mood.emotion] || 4;
-            return (
-              <motion.g
-                key={i}
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: breathDur, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <EmotionalCreature
-                  startAngle={mood.start}
-                  arcLength={mood.duration * 15}
-                  intensity={mood.energy}
-                  valence={mood.valence}
-                  arousal={mood.arousal}
-                  emotion={mood.emotion}
-                />
-              </motion.g>
-            );
-          })}
+        {/* Emotional Creatures with proper breathing rhythms */}
+        {moodSegments.map((mood, i) => {
+          const breathDur = mandalaExpressiveTheme.breathingRhythms[mood.emotion] || 4;
+          return (
+            <motion.g
+              key={i}
+              animate={{ 
+                scale: [1, 1.03 + mood.energy * 0.02, 1],
+                rotate: [0, mood.valence * 2, 0] 
+              }}
+              transition={{ 
+                duration: breathDur, 
+                repeat: Infinity, 
+                ease: "easeInOut",
+                delay: i * 0.3 
+              }}
+            >
+              <EmotionalCreature
+                startAngle={mood.start}
+                arcLength={mood.duration * 15}
+                intensity={mood.energy}
+                valence={mood.valence}
+                arousal={mood.arousal}
+                emotion={mood.emotion}
+              />
+            </motion.g>
+          );
+        })}
 
           {/* Cosmic Mobility Trails */}
           {mobilityData.map((m, i) => (
