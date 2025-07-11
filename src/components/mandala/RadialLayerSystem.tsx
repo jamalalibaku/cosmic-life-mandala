@@ -333,6 +333,12 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   centerRadius = 40,
   layerSpacing = 50
 }) => {
+  // IMMEDIATE DEBUG: Log component mount and basic props
+  console.log('🚀 RadialLayerSystem component mounted!', {
+    layersReceived: layers?.length || 0,
+    currentZoom,
+    timestamp: new Date().toLocaleTimeString()
+  });
   // Motion field for living system physics
   const { getMotionTransform, addImpulse } = useMotionField({
     heartbeatInterval: 6000, // 6-second heartbeat
@@ -354,9 +360,21 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   
   // Analyze mood data for emotional peaks on mount and data changes
   useEffect(() => {
+    console.log('🔍 RadialLayerSystem checking for mood data...', { 
+      totalLayers: layers.length,
+      layerTypes: layers.map(l => l.layerType || 'unknown')
+    });
+    
     const moodLayer = layers.find(layer => layer.layerType === 'mood');
+    console.log('🧠 Mood layer found:', moodLayer ? `${moodLayer.data.length} mood points` : 'none');
+    
     if (moodLayer && moodLayer.data.length > 0) {
       const triggers = analyzeMoodForSupernovas(moodLayer.data, moodLayer.radius);
+      console.log('🌟 Supernova analysis complete:', {
+        moodDataCount: moodLayer.data.length,
+        triggers: triggers.length,
+        triggersDetails: triggers
+      });
       
       // Stagger supernova triggers to avoid overwhelming the system
       triggers.forEach((trigger, index) => {
