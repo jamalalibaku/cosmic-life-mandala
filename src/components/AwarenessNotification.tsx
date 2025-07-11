@@ -8,25 +8,64 @@ interface AwarenessNotificationProps {
   isVisible: boolean;
   onDismiss: () => void;
   onExplore?: () => void;
+  isHoverBased?: boolean;
+  x?: number;
+  y?: number;
 }
 
 export const AwarenessNotification: React.FC<AwarenessNotificationProps> = ({
   message,
   isVisible,
   onDismiss,
-  onExplore
+  onExplore,
+  isHoverBased = false,
+  x = 0,
+  y = 0
 }) => {
   if (!message || !isVisible) return null;
 
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, y: -20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -20, scale: 0.95 }}
-        className="fixed top-4 right-4 z-50 max-w-sm"
+        initial={{ 
+          opacity: 0, 
+          y: isHoverBased ? 10 : -20, 
+          scale: 0.95 
+        }}
+        animate={{ 
+          opacity: 1, 
+          y: 0, 
+          scale: 1 
+        }}
+        exit={{ 
+          opacity: 0, 
+          y: isHoverBased ? 10 : -20, 
+          scale: 0.95 
+        }}
+        transition={{ 
+          type: "spring",
+          bounce: 0.2,
+          duration: 0.4
+        }}
+        className={`
+          z-50 max-w-sm pointer-events-auto
+          ${isHoverBased 
+            ? 'fixed' 
+            : 'fixed top-4 right-4'
+          }
+        `}
+        style={isHoverBased ? {
+          left: Math.max(16, Math.min(x - 200, window.innerWidth - 240)),
+          top: Math.max(16, y - 80)
+        } : {}}
       >
-        <div className="bg-background/95 backdrop-blur-sm border border-primary/20 rounded-lg shadow-lg p-4">
+        <div className={`
+          backdrop-blur-sm border rounded-lg shadow-lg p-4 
+          ${isHoverBased 
+            ? 'bg-background/98 border-primary/30 shadow-xl' 
+            : 'bg-background/95 border-primary/20'
+          }
+        `}>
           <div className="flex items-start gap-3">
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}

@@ -68,6 +68,9 @@ import { getUserInsightProfile } from '@/utils/insight-memory';
 import { PlansLayerRing } from '@/components/plans-layer-ring';
 import { WalletCurrencyPanel } from '@/components/enhanced/WalletCurrencyPanel';
 import { EnhancedSettingsButton } from '@/components/enhanced/EnhancedSettingsButton';
+import { MinimalistTimeSymbol } from '@/components/MinimalistTimeSymbol';
+import { TimeScaleColumn } from '@/components/TimeScaleColumn';
+import { HoverBasedInsights } from '@/components/HoverBasedInsights';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -825,21 +828,14 @@ const IndexContent = () => {
       
       {/* Main content */}
       <div className="relative z-10 text-center w-full">
-        <h1 
-          className={`text-6xl font-bold mb-4 text-transparent bg-clip-text transition-all duration-500 ${poetryMode ? 'opacity-30 text-sm' : 'opacity-100'}`}
-          style={{
-            backgroundImage: `linear-gradient(to right, ${themeConfig.colors.primary}, ${themeConfig.colors.accent})`,
-            fontFamily: themeConfig.typography.primary
-          }}
-        >
-          {poetryMode ? 'silence, symbols, and stillness' : 'Cosmic Life Mandala'}
-        </h1>
-        <p 
-          className={`text-xl mb-8 transition-all duration-500 ${poetryMode ? 'opacity-0' : 'opacity-100'}`}
-          style={{ color: themeConfig.colors.text }}
-        >
-          {themeConfig.description}
-        </p>
+        {/* Minimalist Time Symbol replacing large title */}
+        <MinimalistTimeSymbol poetryMode={poetryMode} />
+
+        {/* Time Scale Column on the left */}
+        <TimeScaleColumn
+          currentScale={timeScale}
+          onScaleChange={setTimeScale}
+        />
         
         {/* Unified Settings Panel */}
         <SettingsPanel
@@ -859,16 +855,33 @@ const IndexContent = () => {
           onShowAIInsightsChange={setShowAIInsights}
         />
         
-        {/* Awareness Notification System */}
-        <AwarenessNotification
-          message={awarenessState.awarenessMessage}
-          isVisible={!!awarenessState.awarenessMessage}
+        {/* Hover-Based Insights System */}
+        <HoverBasedInsights
+          currentTimeSlices={[]}
+          recentInteractions={mockInteractions}
+          awarenessState={awarenessState}
           onDismiss={clearAwarenessMessage}
           onExplore={() => {
             setShowInsightPanel(true);
             clearAwarenessMessage();
           }}
-        />
+        >
+          {/* Fractal Time Zoom Manager wrapped in hover detection */}
+          <FractalTimeZoomManager
+            currentScale={timeScale}
+            onScaleChange={setTimeScale}
+            reflectivePlayback={reflectiveMode}
+            className="w-full h-[700px] relative"
+          >
+            {(zoomProps) => (
+              <div className="flex justify-center">
+                <svg width="700" height="700" className="drop-shadow-2xl">
+                  {renderTimelineContent(zoomProps)}
+                </svg>
+              </div>
+            )}
+          </FractalTimeZoomManager>
+        </HoverBasedInsights>
 
         {/* Ritual Companion Dialog */}
         <RitualCompanion
@@ -879,21 +892,6 @@ const IndexContent = () => {
           centerY={350}
         />
         
-        {/* Fractal Time Zoom Manager */}
-        <FractalTimeZoomManager
-          currentScale={timeScale}
-          onScaleChange={setTimeScale}
-          reflectivePlayback={reflectiveMode}
-          className="w-full h-[700px] relative"
-        >
-          {(zoomProps) => (
-            <div className="flex justify-center">
-              <svg width="700" height="700" className="drop-shadow-2xl">
-                {renderTimelineContent(zoomProps)}
-              </svg>
-            </div>
-          )}
-        </FractalTimeZoomManager>
 
         {/* Bottom-Right Navigation Stack - All controls consolidated */}
         <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-4">
