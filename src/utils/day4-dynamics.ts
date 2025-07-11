@@ -161,6 +161,30 @@ export const day4DynamicsConfigs: Record<Theme, Day4DynamicsConfig> = {
       ringThickness: 2,
       nowMarkerSize: 5
     }
+  },
+
+  founder: {
+    heartbeat: {
+      intensity: 0.8,
+      frequency: 55,
+      waveform: 'organic'
+    },
+    drift: {
+      strength: 0.5,
+      direction: 'spiral',
+      bounds: 10
+    },
+    sunburst: {
+      type: 'shimmer',
+      intensity: 0.7,
+      reach: 45,
+      color: 'hsl(15 80% 60%)'
+    },
+    geometry: {
+      layerSpacing: 42,
+      ringThickness: 3,
+      nowMarkerSize: 7
+    }
   }
 };
 

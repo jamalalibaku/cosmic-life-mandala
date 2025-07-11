@@ -9,7 +9,8 @@ export type Theme =
   | 'interface'   // Digital Interface (was techHUD)  
   | 'mandala'     // Mandala Expressive (was mandalaExpressive)
   | 'vangogh'     // Van Gogh: Starry Night (was vanGogh)
-  | 'horizons';   // Soft Horizons (was pastelParadise)
+  | 'horizons'    // Soft Horizons (was pastelParadise)
+  | 'founder';    // Founder Mode - Signature Harmonic Skin
 
 export interface ThemeConfig {
   name: string;
@@ -248,6 +249,45 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     haiku: [
       'Soft clouds drift like thoughts / Through the pastel afternoon / Gentle time unfolds',
       'Colors blur to dreams / In the hazy summer light / Peace flows like water'
+    ]
+  },
+
+  founder: {
+    name: 'Founder Mode',
+    description: 'Signature harmonic skin combining global art, refined motion, and poetic data visualization',
+    colors: {
+      primary: 'hsl(15 70% 45%)',        // Persian terracotta
+      secondary: 'hsl(200 60% 35%)',     // Japanese indigo
+      accent: 'hsl(45 85% 50%)',         // Mughal gold
+      background: 'hsl(230 25% 12%)',    // Deep cosmic canvas
+      text: 'hsl(45 40% 85%)',           // Warm parchment
+      glow: 'hsl(15 80% 60%)'            // Soft ember glow
+    },
+    typography: {
+      primary: 'serif',
+      secondary: 'system-ui',
+      size: 'medium'
+    },
+    shapes: {
+      rings: 'organic',
+      segments: 'flowing'
+    },
+    animations: {
+      speed: 'slow',
+      style: 'organic'
+    },
+    icons: {
+      weather: { sunny: '🌅', rainy: '🌊', cloudy: '⛅' },
+      mood: { calm: '🕯️', creative: '🎭', energetic: '🔥' },
+      time: '⏳'
+    },
+    background: {
+      pattern: 'stars',
+      intensity: 0.03 // Minimal, deep void with subtle texture
+    },
+    haiku: [
+      'Ancient wisdom flows / Through patterns of digital time / Sacred rhythms guide',
+      'Earth tones whisper soft / Stories of human journeys / In the mandala'
     ]
   }
 };
