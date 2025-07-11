@@ -51,7 +51,7 @@ import { SettingsPanel } from '@/components/settings-panel';
 import { PhaseTransitionManager } from '@/components/PhaseTransitionManager';
 import { detectLifePhase } from '@/utils/life-phase-detection';
 import { usePhaseTheme } from '@/hooks/usePhaseTheme';
-import { useAwarenessRhythm } from '@/hooks/useAwarenessRhythm';
+import { useEnhancedAwarenessRhythm } from '@/hooks/useEnhancedAwarenessRhythm';
 import { AwarenessNotification } from '@/components/AwarenessNotification';
 import { RitualCompanion } from '@/components/RitualCompanion';
 import { RippleVisualization } from '@/components/RippleVisualization';
@@ -89,13 +89,20 @@ const IndexContent = () => {
   const currentLifePhase = detectLifePhase(userProfile, mockInteractions);
   const phaseTheme = usePhaseTheme(currentLifePhase.currentPhase);
   
-  // Awareness rhythm system
-  const { awarenessState, clearAwarenessMessage } = useAwarenessRhythm({
+  // Enhanced awareness rhythm system
+  const { awarenessState, clearAwarenessMessage, onDataClick } = useEnhancedAwarenessRhythm({
     userProfile,
     recentInteractions: mockInteractions,
+    explorationStyle: (['gentle', 'analytical', 'intuitive', 'playful'].includes(userProfile.behaviorPatterns?.explorationStyle) 
+      ? userProfile.behaviorPatterns?.explorationStyle 
+      : 'gentle') as 'gentle' | 'analytical' | 'intuitive' | 'playful',
+    onPhaseTransition: (transition) => {
+      console.log('🌀 Phase transition detected:', transition);
+    },
     onInsightOpportunity: () => {
       // Glow the Intelligence button or show notification
-    }
+    },
+    ambientInsightFrequency: 25 // Show ambient insights every 25 minutes
   });
 
   // Consciousness tracking system
@@ -572,6 +579,8 @@ const IndexContent = () => {
             theme={currentTheme}
             showDebug={showLayerDebug}
             onLabelClick={(layerType, position, layerData) => {
+              // Trigger data click insight
+              onDataClick(layerType);
               // Track the interaction for consciousness system
               consciousnessTracker.trackInteraction(layerType, position.x, position.y);
               // Open the insight panel
