@@ -44,25 +44,37 @@ interface MemoryChapter {
     timestamp: string;
     content: string;
     layersInvolved: string[];
+    poeticContent?: string;
   }>;
   interactionCount: number;
   significantMoments: string[];
+  userReflections: Array<{
+    text: string;
+    timestamp: string;
+    emotionHint?: string;
+  }>;
+  aiReflection?: string;
 }
 
 interface MemoryLaneViewProps {
   isOpen: boolean;
   onClose: () => void;
   currentTimeSlices?: any[];
+  onNavigateToInsights?: () => void;
 }
 
 export const MemoryLaneView: React.FC<MemoryLaneViewProps> = ({
   isOpen,
   onClose,
-  currentTimeSlices = []
+  currentTimeSlices = [],
+  onNavigateToInsights
 }) => {
   const [profile, setProfile] = useState(getUserInsightProfile());
   const [selectedChapter, setSelectedChapter] = useState<MemoryChapter | null>(null);
   const [viewMode, setViewMode] = useState<'timeline' | 'chapters'>('chapters');
+  const [reflectionText, setReflectionText] = useState('');
+  const [isAddingReflection, setIsAddingReflection] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>('');
 
   // Refresh profile data
   useEffect(() => {
@@ -71,23 +83,50 @@ export const MemoryLaneView: React.FC<MemoryLaneViewProps> = ({
     }
   }, [isOpen]);
 
+  // Handle adding reflection
+  const handleAddReflection = (chapterId: string) => {
+    if (!reflectionText.trim()) return;
+    
+    // Store reflection in localStorage for now
+    const reflections = JSON.parse(localStorage.getItem(`reflections-${chapterId}`) || '[]');
+    reflections.push({
+      text: reflectionText,
+      timestamp: new Date().toISOString(),
+      emotionHint: 'contemplative'
+    });
+    localStorage.setItem(`reflections-${chapterId}`, JSON.stringify(reflections));
+    
+    setReflectionText('');
+    setIsAddingReflection(false);
+    
+    // Refresh to show new reflection
+    setProfile(getUserInsightProfile());
+  };
+
+  // Load reflections for chapters
+  const loadReflections = (chapterId: string) => {
+    return JSON.parse(localStorage.getItem(`reflections-${chapterId}`) || '[]');
+  };
+
   // Generate memory chapters from user interaction history
   const memoryChapters = useMemo(() => {
     const chapters: MemoryChapter[] = [];
     
     if (!profile || profile.totalInteractions === 0) {
-      return [{
-        id: 'genesis',
-        startDate: profile?.createdAt || new Date().toISOString(),
-        endDate: new Date().toISOString(),
-        title: 'The Beginning',
-        description: 'Your journey into self-awareness starts here',
-        dominantLayer: 'exploration',
-        emotionalTone: 'curious' as const,
-        discoveries: [],
-        interactionCount: 0,
-        significantMoments: ['First glimpse into the cosmic mandala']
-      }];
+        return [{
+          id: 'genesis',
+          startDate: profile?.createdAt || new Date().toISOString(),
+          endDate: new Date().toISOString(),
+          title: 'The Beginning',
+          description: 'Your first gentle steps into the cosmic spiral of self-awareness',
+          dominantLayer: 'exploration',
+          emotionalTone: 'curious' as const,
+          discoveries: [],
+          interactionCount: 0,
+          significantMoments: ['First glimpse into the cosmic mandala'],
+          userReflections: [],
+          aiReflection: 'Every journey begins with a single touch — yours started here, where curiosity met cosmos.'
+        }];
     }
 
     // Create chapters based on interaction patterns and time periods
@@ -102,18 +141,25 @@ export const MemoryLaneView: React.FC<MemoryLaneViewProps> = ({
         startDate: profile.createdAt,
         endDate: new Date().toISOString(),
         title: 'First Steps',
-        description: 'Gentle touches and curious exploration',
+        description: 'Gentle touches and curious wandering through the layers of time',
         dominantLayer: Object.entries(profile.layerPreferences)
           .sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || 'unknown',
         emotionalTone: 'curious',
         discoveries: profile.discoveredCorrelations.map(corr => ({
           type: 'correlation' as const,
           timestamp: corr.discoveredAt,
-          content: `Discovered connection between ${corr.layers.join(' and ')}`,
+          content: `Connection discovered between ${corr.layers.join(' and ')}`,
+          poeticContent: `A pattern whispered between ${corr.layers.join(' and ')}`,
           layersInvolved: corr.layers
         })),
         interactionCount: profile.totalInteractions,
-        significantMoments: ['First interaction with the timeline', 'Beginning to see patterns']
+        significantMoments: [
+          'Your first interaction with the temporal spiral', 
+          'Patterns beginning to surface from the gentle chaos',
+          'The mandala starts to respond to your presence'
+        ],
+        userReflections: [],
+        aiReflection: `You've traced ${profile.totalInteractions} gentle steps along your spiral. Each touch reveals more of the pattern beneath.`
       });
     } else if (profile.totalInteractions <= 15) {
       chapters.push({
@@ -130,21 +176,27 @@ export const MemoryLaneView: React.FC<MemoryLaneViewProps> = ({
             type: 'correlation' as const,
             timestamp: corr.discoveredAt,
             content: `${corr.layers.join(' ↔ ')} connection revealed`,
+            poeticContent: `A deeper rhythm found between ${corr.layers.join(' and ')}`,
             layersInvolved: corr.layers
           })),
           ...(profile.sophisticationLevel > 1 ? [{
             type: 'level-up' as const,
             timestamp: profile.lastActiveDate,
             content: `Advanced to Level ${profile.sophisticationLevel}: ${getSophisticationLevel(profile).description}`,
+            poeticContent: `You unlocked a deeper rhythm — Level ${profile.sophisticationLevel} consciousness blooms`,
             layersInvolved: Object.keys(profile.layerPreferences)
           }] : [])
         ],
         interactionCount: profile.totalInteractions,
         significantMoments: [
-          'First meaningful correlation discovered',
-          'Understanding deepens',
-          profile.sophisticationLevel > 1 ? 'Intelligence level advancement' : 'Building foundation'
-        ]
+          'The first meaningful pattern emerged from the noise',
+          'Your understanding began to deepen and strengthen',
+          profile.sophisticationLevel > 1 ? 'A new level of awareness awakened' : 'Building the foundation of insight'
+        ],
+        userReflections: [],
+        aiReflection: profile.sophisticationLevel > 1 
+          ? 'Your awareness has blossomed into new dimensions. The patterns speak to you differently now.'
+          : 'You are learning the language of your own rhythms. Trust what emerges.'
       });
     } else {
       // Multiple chapters for advanced users
@@ -167,7 +219,9 @@ export const MemoryLaneView: React.FC<MemoryLaneViewProps> = ({
             layersInvolved: corr.layers
           })),
         interactionCount: midPoint,
-        significantMoments: ['First deep dive', 'Pattern recognition begins']
+        significantMoments: ['First deep dive', 'Pattern recognition begins'],
+        userReflections: [],
+        aiReflection: 'The first maps of your inner landscape are being drawn. Each step reveals more territory.'
       });
 
       chapters.push({
@@ -198,7 +252,11 @@ export const MemoryLaneView: React.FC<MemoryLaneViewProps> = ({
           'Advanced pattern synthesis',
           'Behavioral intelligence emerges',
           profile.sophisticationLevel >= 4 ? 'Deep understanding unlocked' : 'Sophisticated analysis begins'
-        ]
+        ],
+        userReflections: [],
+        aiReflection: profile.sophisticationLevel >= 4 
+          ? 'Where wisdom meets data, where insight becomes companion. You have become a student of your own symphony.'
+          : 'The patterns grow more sophisticated as your awareness deepens. Each interaction builds upon the last.'
       });
     }
 
@@ -270,23 +328,40 @@ export const MemoryLaneView: React.FC<MemoryLaneViewProps> = ({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === 'chapters' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('chapters')}
-              >
-                Chapters
-              </Button>
-              <Button
-                variant={viewMode === 'timeline' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('timeline')}
-              >
-                Timeline
-              </Button>
-              <Button variant="ghost" size="sm" onClick={onClose}>
-                ×
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={viewMode === 'chapters' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('chapters')}
+                  className="relative overflow-hidden"
+                >
+                  <BookOpen className="w-4 h-4 mr-1" />
+                  Chapters
+                </Button>
+                <Button
+                  variant={viewMode === 'timeline' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('timeline')}
+                  className="relative overflow-hidden"
+                >
+                  <Clock className="w-4 h-4 mr-1" />
+                  Timeline
+                </Button>
+                {onNavigateToInsights && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onNavigateToInsights}
+                    className="text-muted-foreground hover:text-primary"
+                  >
+                    <Sparkles className="w-4 h-4 mr-1" />
+                    Insights
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" onClick={onClose}>
+                  ×
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -298,6 +373,7 @@ export const MemoryLaneView: React.FC<MemoryLaneViewProps> = ({
                   {memoryChapters.map((chapter, index) => {
                     const ChapterIcon = getChapterIcon(chapter.emotionalTone);
                     const LayerIcon = getLayerIcon(chapter.dominantLayer);
+                    const reflections = loadReflections(chapter.id);
                     
                     return (
                       <motion.div
@@ -305,34 +381,83 @@ export const MemoryLaneView: React.FC<MemoryLaneViewProps> = ({
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
+                        className="relative"
                       >
+                        {/* Gentle glow effect */}
+                        <motion.div
+                          className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/5 to-transparent opacity-0"
+                          animate={{ 
+                            opacity: selectedChapter?.id === chapter.id ? 0.6 : 0,
+                            scale: selectedChapter?.id === chapter.id ? 1.02 : 1 
+                          }}
+                          transition={{ duration: 0.3 }}
+                        />
+                        
                         <Card 
-                          className={`cursor-pointer transition-all hover:shadow-md ${
-                            selectedChapter?.id === chapter.id ? 'ring-2 ring-primary' : ''
+                          className={`cursor-pointer transition-all duration-300 hover:shadow-lg border-2 ${
+                            selectedChapter?.id === chapter.id 
+                              ? 'border-primary/50 shadow-primary/20 shadow-lg' 
+                              : 'border-transparent hover:border-primary/20'
                           }`}
-                          onClick={() => setSelectedChapter(chapter)}
+                          onClick={() => setSelectedChapter({ ...chapter, userReflections: reflections })}
                         >
                           <CardContent className="p-4">
                             <div className="flex items-start gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                <ChapterIcon className="w-4 h-4 text-primary" />
-                              </div>
+                              <motion.div 
+                                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 relative overflow-hidden"
+                                style={{
+                                  background: chapter.emotionalTone === 'curious' 
+                                    ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
+                                    : chapter.emotionalTone === 'focused'
+                                    ? 'linear-gradient(135deg, #10b981, #047857)'
+                                    : chapter.emotionalTone === 'exploratory'
+                                    ? 'linear-gradient(135deg, #f59e0b, #d97706)'
+                                    : chapter.emotionalTone === 'reflective'
+                                    ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)'
+                                    : 'linear-gradient(135deg, #ef4444, #dc2626)'
+                                }}
+                                whileHover={{ scale: 1.1 }}
+                              >
+                                <ChapterIcon className="w-4 h-4 text-white relative z-10" />
+                                <motion.div
+                                  className="absolute inset-0 bg-white/20"
+                                  animate={{ scale: [1, 1.2, 1] }}
+                                  transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+                                />
+                              </motion.div>
+                              
                               <div className="flex-1 min-w-0">
-                                <h3 className="font-medium text-sm">{chapter.title}</h3>
-                                <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                                <h3 className="font-medium text-sm mb-1">{chapter.title}</h3>
+                                <p className="text-xs text-muted-foreground line-clamp-2 mb-2 leading-relaxed italic">
                                   {chapter.description}
                                 </p>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                                
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge variant="outline" className="text-xs px-1.5 py-0.5 border-dashed">
                                     <LayerIcon className="w-3 h-3 mr-1" />
                                     {chapter.dominantLayer}
                                   </Badge>
                                   <span className="text-xs text-muted-foreground">
-                                    {chapter.interactionCount} touches
+                                    {chapter.interactionCount === 1 
+                                      ? "one gentle touch" 
+                                      : `${chapter.interactionCount} moments of presence`}
                                   </span>
                                 </div>
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  {formatTimeAgo(chapter.startDate)}
+                                
+                                <div className="flex items-center justify-between">
+                                  <div className="text-xs text-muted-foreground">
+                                    {formatTimeAgo(chapter.startDate)}
+                                  </div>
+                                  {reflections.length > 0 && (
+                                    <motion.div
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      className="flex items-center gap-1 text-xs text-primary"
+                                    >
+                                      <Heart className="w-3 h-3" />
+                                      <span>{reflections.length}</span>
+                                    </motion.div>
+                                  )}
                                 </div>
                               </div>
                             </div>
