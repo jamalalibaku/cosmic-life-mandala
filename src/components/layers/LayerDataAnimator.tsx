@@ -1,15 +1,22 @@
 /**
- * [Phase: ZIP9-Beta | Lap 2: Visual Confirmation]
- * Layer Data Animator - Mock data injection and visualization
+ * [Phase: ZIP9-Beta | Lap 3: Layer Interconnection]
+ * Layer Data Animator - Mock data injection with interconnected visual effects
  * 
- * Purpose: Populate layers with animated mock data
- * Features: Sleep waves, mood colors, weather arcs
- * Dependencies: TimeAxisContext, useUnifiedMotion
+ * Purpose: Populate layers with animated mock data and apply cross-layer effects
+ * Features: Sleep waves, mood colors, weather arcs, interconnection styling
+ * Dependencies: TimeAxisContext, LayerInterconnectionEngine
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTimeAxis } from '@/contexts/TimeAxisContext';
+import { LayerInterconnectionEngine } from '@/components/layers/LayerInterconnectionEngine';
+import { 
+  LayerInterconnectionState,
+  applyMoodToSleepEffect,
+  applyWeatherToMobilityEffect,
+  getLayerAggregateData
+} from '@/utils/layer-interconnection';
 
 // Mock data generators
 const generateSleepData = (timeSlices: any[]) => {
@@ -57,6 +64,12 @@ export const LayerDataAnimator: React.FC<LayerDataAnimatorProps> = ({
   isActive = true
 }) => {
   const { timeSlices, updateLayerData, zoomLevel } = useTimeAxis();
+  const [interconnectionEffects, setInterconnectionEffects] = useState<LayerInterconnectionState>({
+    moodToSleepDimming: 0,
+    weatherToMobilityCloudiness: 0,
+    sleepToBreathingAmplitude: 1,
+    systemGlowIntensity: 0
+  });
 
   // Generate and inject mock data
   useEffect(() => {
@@ -80,9 +93,21 @@ export const LayerDataAnimator: React.FC<LayerDataAnimatorProps> = ({
 
   }, [timeSlices, zoomLevel, isActive, updateLayerData]);
 
+  // Calculate mood-based effects for sleep layer styling
+  const moodData = getLayerAggregateData(timeSlices, 'mood');
+  const sleepEffects = moodData ? applyMoodToSleepEffect(moodData.averageValence) : { opacity: 1, saturation: 1, scale: 1 };
+
   return (
     <g>
-      {/* Sleep Layer - Only if data exists */}
+      {/* Layer Interconnection Engine */}
+      <LayerInterconnectionEngine
+        centerX={centerX}
+        centerY={centerY}
+        isActive={isActive}
+        onEffectsUpdate={setInterconnectionEffects}
+      />
+
+      {/* Sleep Layer - Only if data exists, with mood-based effects */}
       {timeSlices.filter(slice => slice.data.sleep).length > 0 && (
         <g>
           {timeSlices.map((slice, index) => {
@@ -100,17 +125,20 @@ export const LayerDataAnimator: React.FC<LayerDataAnimatorProps> = ({
                 cy={y}
                 r="3"
                 fill="hsl(240, 50%, 65%)"
-                opacity="0.8"
+                opacity={sleepEffects.opacity * 0.8} // Apply mood-based dimming
                 initial={{ scale: 0 }}
                 animate={{ 
-                  scale: [1, 1.1, 1],
-                  opacity: [0.6, 0.9, 0.6]
+                  scale: [sleepEffects.scale, sleepEffects.scale * 1.1, sleepEffects.scale], // Apply mood-based scaling
+                  opacity: [sleepEffects.opacity * 0.6, sleepEffects.opacity * 0.9, sleepEffects.opacity * 0.6]
                 }}
                 transition={{
                   duration: 4,
                   repeat: Infinity,
                   delay: index * 0.1,
                   ease: "easeInOut"
+                }}
+                style={{
+                  filter: `saturate(${sleepEffects.saturation})` // Apply mood-based saturation
                 }}
               />
             );
@@ -153,7 +181,7 @@ export const LayerDataAnimator: React.FC<LayerDataAnimatorProps> = ({
         </g>
       )}
 
-      {/* Weather Layer - Only if data exists */}
+      {/* Weather Layer - Only if data exists, with mobility interconnection indication */}
       {timeSlices.filter(slice => slice.data.weather).length > 0 && (
         <g>
           {timeSlices.map((slice, index) => {
@@ -172,22 +200,32 @@ export const LayerDataAnimator: React.FC<LayerDataAnimatorProps> = ({
             const x2 = centerX + weatherRadius * Math.cos(endRadian);
             const y2 = centerY + weatherRadius * Math.sin(endRadian);
             
+            // Apply weather-to-mobility visual effects
+            const weatherToMobilityEffect = applyWeatherToMobilityEffect(
+              slice.data.weather.condition, 
+              slice.data.weather.intensity
+            );
+            
             return (
               <motion.path
                 key={`weather-${slice.id}`}
                 d={`M ${x1} ${y1} A ${weatherRadius} ${weatherRadius} 0 0 1 ${x2} ${y2}`}
                 stroke={slice.data.weather.color}
                 strokeWidth="2"
+                strokeDasharray={weatherToMobilityEffect.strokeDashArray}
                 fill="none"
-                opacity="0.7"
+                opacity={weatherToMobilityEffect.opacity * 0.7}
                 initial={{ pathLength: 0 }}
                 animate={{ 
                   pathLength: 1,
-                  opacity: [0.5, 0.8, 0.5]
+                  opacity: [weatherToMobilityEffect.opacity * 0.5, weatherToMobilityEffect.opacity * 0.8, weatherToMobilityEffect.opacity * 0.5]
                 }}
                 transition={{
                   pathLength: { duration: 0.8, delay: index * 0.08 },
                   opacity: { duration: 3, repeat: Infinity }
+                }}
+                style={{
+                  filter: weatherToMobilityEffect.blur > 0 ? `blur(${weatherToMobilityEffect.blur}px)` : 'none'
                 }}
               />
             );
