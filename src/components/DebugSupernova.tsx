@@ -5,15 +5,20 @@ export const DebugSupernova = () => {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    // Trigger first burst immediately
-    setActive(true);
+    // Trigger first burst after a delay to avoid overwhelming startup
+    const initialTimeout = setTimeout(() => {
+      setActive(true);
+    }, 2000);
     
-    // Then trigger every 4 seconds
+    // Then trigger every 8 seconds (reduced frequency to prevent loops)
     const interval = setInterval(() => {
       setActive(true);
-    }, 4000);
+    }, 8000);
     
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
   }, []);
 
   return (

@@ -108,16 +108,16 @@ export const PoetryOverlay: React.FC<PoetryOverlayProps> = ({
     return () => clearInterval(interval);
   }, [isVisible, theme, timeScale]);
 
-  // Subtle drift animation
+  // Controlled drift animation - prevents excessive updates
   useEffect(() => {
     if (!isVisible) return;
 
     const driftInterval = setInterval(() => {
       setDriftOffset({
-        x: Math.sin(Date.now() * 0.0001) * 20,
-        y: Math.cos(Date.now() * 0.0001) * 15
+        x: Math.sin(Date.now() * 0.00005) * 15, // Reduced frequency and range
+        y: Math.cos(Date.now() * 0.00005) * 10
       });
-    }, 100);
+    }, 200); // Less frequent updates
 
     return () => clearInterval(driftInterval);
   }, [isVisible]);

@@ -65,6 +65,7 @@ const IndexContent = () => {
   const [showDebugMode, setShowDebugMode] = useState(false);
   const [showLayerDebug, setShowLayerDebug] = useState(false);
   const [persistentDebugMode, setPersistentDebugMode] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Handle keyboard shortcuts
   useEffect(() => {

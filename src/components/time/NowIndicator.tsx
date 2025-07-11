@@ -25,11 +25,11 @@ export const NowIndicator: React.FC<NowIndicatorProps> = ({
   theme = 'default',
   isStable = true
 }) => {
-  // NOW is ALWAYS at 0° (North) - Fixed position
+  // NOW is ALWAYS at 0° (North) - Fixed position, perfectly centered
   const lineLength = radius + 30;
-  const nowRadian = 0; // FIXED at 0° (North)
-  const lineEndX = centerX + lineLength * Math.cos(nowRadian - Math.PI/2); // -π/2 to make 0° point North
-  const lineEndY = centerY + lineLength * Math.sin(nowRadian - Math.PI/2);
+  const nowRadian = -Math.PI/2; // FIXED at -π/2 to point exactly North (0°)
+  const lineEndX = centerX + lineLength * Math.cos(nowRadian);
+  const lineEndY = centerY + lineLength * Math.sin(nowRadian);
   
   return (
     <g>

@@ -39,10 +39,12 @@ const getCurrentTimeAngle = (): number => {
   const hours = now.getHours();
   const minutes = now.getMinutes();
   const totalMinutes = hours * 60 + minutes;
+  // Fixed calculation to prevent jumping - only update time rotation based on minutes
   return -(totalMinutes / 1440) * 360;
 };
 
 export const VanGoghMandalaView = () => {
+  // Calculate rotation once to prevent constant recalculation causing loops
   const rotationAngle = getCurrentTimeAngle();
 
   return (
@@ -93,10 +95,10 @@ export const VanGoghMandalaView = () => {
           opacity={0.8}
         />
 
-        {/* Time-aligned rotation group - Van Gogh's celestial motion */}
+        {/* Time-aligned rotation group - Stable Van Gogh motion */}
         <motion.g
-          animate={{ rotate: rotationAngle }}
-          transition={{ type: "spring", stiffness: 30, damping: 20, duration: 4 }}
+          style={{ transform: `rotate(${rotationAngle}deg)` }}
+          transition={{ type: "tween", duration: 2, ease: "easeInOut" }}
         >
           {/* Sleep Rings - Inner peaceful orbits */}
           {sleepData.map((sleep, i) => (
