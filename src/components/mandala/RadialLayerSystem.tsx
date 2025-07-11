@@ -13,6 +13,7 @@ import { EmojiBurst } from "@/components/interactions/EmojiBurst";
 import { useMotionField } from "@/hooks/useMotionField";
 import { SupernovaBurst } from "@/components/SupernovaBurst";
 import { analyzeMoodForSupernovas, SupernovaTrigger } from "@/utils/supernova-engine";
+import { DebugSupernova } from "@/components/DebugSupernova";
 
 interface LayerData {
   name: string;
@@ -495,6 +496,9 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           onComplete={() => handleSupernovaComplete(supernova)}
         />
       ))}
+
+      {/* Debug supernova for testing - remove after fixing */}
+      <DebugSupernova />
     </>
   );
 };

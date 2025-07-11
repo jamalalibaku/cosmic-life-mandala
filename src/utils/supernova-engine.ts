@@ -33,6 +33,7 @@ const THRESHOLDS = {
 export const moodToEmotionalState = (moodData: DataBlob): EmotionalState => {
   // Map intensity (0-1) to emotional dimensions
   const intensity = moodData.intensity;
+  console.log('🧠 Processing mood data:', { hour: moodData.hour, intensity });
   
   // Create realistic valence/energy mapping
   // High intensity can be either very positive or very negative
@@ -136,6 +137,12 @@ export const analyzeMoodForSupernovas = (
     const trigger = checkSupernovaTrigger(emotionalState, { x, y });
     
     if (trigger.shouldTrigger) {
+      console.log('🌟 SUPERNOVA TRIGGERED!', { 
+        index, 
+        emotionalState, 
+        trigger,
+        position: { x, y }
+      });
       triggers.push({
         ...trigger,
         position: { x, y }

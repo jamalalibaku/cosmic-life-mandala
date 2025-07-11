@@ -36,6 +36,7 @@ export const SupernovaBurst: React.FC<SupernovaBurstProps> = ({
 
   useEffect(() => {
     if (isActive && !burstActive) {
+      console.log('💥 SupernovaBurst activated!', { centerX, centerY, intensity, emotionColor });
       setBurstActive(true);
       triggerBurst();
     }
