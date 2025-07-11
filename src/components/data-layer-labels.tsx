@@ -137,10 +137,11 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
               </g>
             )}
             
-            {/* Clickable group for interaction */}
+            {/* Enhanced clickable group for single-click interaction */}
             <g
-              className="cursor-pointer transition-all duration-200 hover:scale-105"
+              className="cursor-pointer transition-all duration-300 hover:scale-105"
               onClick={(e) => {
+                e.stopPropagation();
                 if (onLabelClick) {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const position = {
@@ -152,44 +153,82 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
                 }
               }}
             >
-              {/* Clean pill-shaped label background (like reference) */}
+              {/* Enhanced label background with glow effect */}
               <rect
-                x={label.x - 35}
-                y={label.y - 10}
-                width="70"
-                height="20"
-                rx="10"
-                fill="rgba(0, 0, 0, 0.4)"
-                stroke={themeStyles.accent}
-                strokeWidth="1"
-                opacity={opacity * 0.9}
-                className="transition-all duration-200 hover:fill-white/10 hover:stroke-white/40"
+                x={label.x - 38}
+                y={label.y - 12}
+                width="76"
+                height="24"
+                rx="12"
+                fill="rgba(0, 0, 0, 0.7)"
+                stroke={label.isActive ? themeStyles.accent : 'rgba(255,255,255,0.2)'}
+                strokeWidth={label.isActive ? "2" : "1"}
+                opacity={opacity}
+                className={`transition-all duration-300 ${
+                  label.isActive 
+                    ? 'shadow-lg' 
+                    : 'hover:fill-white/20 hover:stroke-white/40'
+                }`}
+                style={{
+                  filter: label.isActive ? `drop-shadow(0 0 8px ${themeStyles.accent})` : 'none'
+                }}
               />
               
-              {/* Enhanced label text with improved font weight */}
+              {/* Enhanced label text with better typography */}
               <text
                 x={label.x}
-                y={label.y + 3}
+                y={label.y + 4}
                 textAnchor="middle"
-                className={`text-sm font-normal ${themeStyles.font} transition-colors duration-200`}
-                fill={themeStyles.text}
-                opacity={opacity}
-                style={{ fontWeight: 400, pointerEvents: 'none' }}
+                className={`text-sm font-medium ${themeStyles.font} transition-all duration-300`}
+                fill={label.isActive ? 'white' : themeStyles.text}
+                opacity={label.isActive ? 1 : opacity}
+                style={{ 
+                  fontWeight: label.isActive ? 600 : 400, 
+                  pointerEvents: 'none',
+                  textShadow: label.isActive ? '0 0 6px rgba(255,255,255,0.3)' : 'none'
+                }}
               >
                 {label.text}
               </text>
-            </g>
-            
-            {/* Simple active indicator (clean dot) */}
-            {label.isActive && (
+
+              {/* Interactive hover ring */}
               <circle
-                cx={label.x + 40}
+                cx={label.x}
                 cy={label.y}
-                r="3"
-                fill={themeStyles.accent}
-                opacity={applyBreathingOpacity(0.8)}
+                r="42"
+                fill="none"
+                stroke="rgba(255,255,255,0.1)"
+                strokeWidth="1"
+                strokeDasharray="3,6"
+                opacity="0"
+                className="transition-opacity duration-300 hover:opacity-30"
                 style={{ pointerEvents: 'none' }}
               />
+            </g>
+            
+            {/* Enhanced active indicator with breathing animation */}
+            {label.isActive && (
+              <g>
+                <circle
+                  cx={label.x + 45}
+                  cy={label.y}
+                  r="4"
+                  fill={themeStyles.accent}
+                  opacity={applyBreathingOpacity(0.9)}
+                  style={{ pointerEvents: 'none' }}
+                  className="animate-pulse"
+                />
+                <circle
+                  cx={label.x + 45}
+                  cy={label.y}
+                  r="6"
+                  fill="none"
+                  stroke={themeStyles.accent}
+                  strokeWidth="1"
+                  opacity={applyBreathingOpacity(0.4)}
+                  style={{ pointerEvents: 'none' }}
+                />
+              </g>
             )}
           </g>
         );

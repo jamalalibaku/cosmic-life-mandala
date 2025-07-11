@@ -95,68 +95,108 @@ export const BehavioralTools: React.FC<BehavioralToolsProps> = ({
 
   return (
     <>
-      {/* Tool Palette */}
+      {/* Enhanced Tool Palette */}
       <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="fixed left-4 top-1/2 -translate-y-1/2 z-40 space-y-2"
+        initial={{ opacity: 0, x: -30, scale: 0.9 }}
+        animate={{ opacity: 1, x: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="fixed left-6 top-1/2 -translate-y-1/2 z-40"
       >
-        {tools.map((tool) => (
-          <motion.button
-            key={tool.id}
-            onClick={() => handleToolSelect(tool.id)}
-            className={`group relative w-12 h-12 rounded-xl backdrop-blur-sm border transition-all duration-200 ${
-              activeTool === tool.id
-                ? 'bg-white/20 border-white/40 shadow-lg'
-                : 'bg-black/40 border-white/20 hover:bg-white/10 hover:border-white/30'
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <tool.icon 
-              size={18} 
-              style={{ 
-                color: activeTool === tool.id ? tool.color : 'rgba(255,255,255,0.7)'
-              }}
-              className="mx-auto"
-            />
-            
-            {/* Tool tooltip */}
-            <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-              <div className="bg-black/90 backdrop-blur-sm border border-white/20 rounded-lg p-2 min-w-[160px]">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-white font-medium text-sm">{tool.name}</span>
-                  <span className="text-white/40 text-xs">Alt+{tool.hotkey}</span>
-                </div>
-                <p className="text-white/70 text-xs leading-relaxed">
-                  {tool.description}
-                </p>
-              </div>
-            </div>
-          </motion.button>
-        ))}
-
-        {/* Active tool indicator */}
-        <AnimatePresence>
-          {activeTool && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="bg-black/80 backdrop-blur-sm border border-white/20 rounded-lg p-2 text-center"
-            >
-              <div className="text-white/90 text-xs font-medium mb-1">
-                {tools.find(t => t.id === activeTool)?.name} Active
-              </div>
-              <button
-                onClick={() => handleToolSelect(null)}
-                className="text-white/40 hover:text-white/70 transition-colors"
+        {/* Tool Container with unified background */}
+        <div className="bg-black/70 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-2xl">
+          <div className="space-y-3">
+            {tools.map((tool, index) => (
+              <motion.button
+                key={tool.id}
+                onClick={() => handleToolSelect(tool.id)}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className={`group relative w-14 h-14 rounded-2xl backdrop-blur-sm border transition-all duration-300 ${
+                  activeTool === tool.id
+                    ? 'bg-white/25 border-white/50 shadow-xl transform scale-105'
+                    : 'bg-white/5 border-white/20 hover:bg-white/15 hover:border-white/35 hover:scale-105'
+                }`}
+                whileHover={{ scale: activeTool === tool.id ? 1.05 : 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <X size={12} />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <div className="flex flex-col items-center justify-center h-full">
+                  <tool.icon 
+                    size={20} 
+                    style={{ 
+                      color: activeTool === tool.id ? tool.color : 'rgba(255,255,255,0.8)'
+                    }}
+                    className={`transition-all duration-300 ${
+                      activeTool === tool.id ? 'drop-shadow-lg' : ''
+                    }`}
+                  />
+                  <span className="text-xs text-white/60 font-medium mt-1">
+                    {tool.name}
+                  </span>
+                </div>
+                
+                {/* Enhanced tooltip */}
+                <div className="absolute left-full ml-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50">
+                  <div className="bg-black/95 backdrop-blur-sm border border-white/20 rounded-xl p-3 min-w-[200px] shadow-2xl">
+                    <div className="flex items-center gap-3 mb-2">
+                      <tool.icon size={16} style={{ color: tool.color }} />
+                      <span className="text-white font-semibold text-sm">{tool.name}</span>
+                      <span className="text-white/40 text-xs font-mono bg-white/10 px-2 py-1 rounded-md">
+                        Alt+{tool.hotkey}
+                      </span>
+                    </div>
+                    <p className="text-white/80 text-xs leading-relaxed">
+                      {tool.description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Active glow effect */}
+                {activeTool === tool.id && (
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl"
+                    style={{
+                      background: `radial-gradient(circle at center, ${tool.color}20 0%, transparent 70%)`,
+                      filter: `drop-shadow(0 0 12px ${tool.color}40)`
+                    }}
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                )}
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Active tool status */}
+          <AnimatePresence>
+            {activeTool && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="mt-4 pt-3 border-t border-white/10"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-2 h-2 rounded-full animate-pulse"
+                      style={{ backgroundColor: tools.find(t => t.id === activeTool)?.color }}
+                    />
+                    <span className="text-white/90 text-xs font-medium">
+                      {tools.find(t => t.id === activeTool)?.name} Active
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleToolSelect(null)}
+                    className="text-white/40 hover:text-white/80 transition-colors p-1 rounded-md hover:bg-white/10"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </motion.div>
 
       {/* Active Tool Overlays */}

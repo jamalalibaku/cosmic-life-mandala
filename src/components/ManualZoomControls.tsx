@@ -107,123 +107,98 @@ export const ManualZoomControls: React.FC<ManualZoomControlsProps> = ({
   return (
     <motion.div
       className={`fixed z-30 ${positionClasses[position]} ${className}`}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, scale: 0.9, y: -10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      {/* Time Navigation Controls */}
-      <div className={`flex ${position === 'left' || position === 'right' ? 'flex-col' : 'flex-row'} items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl p-2 mb-2`}>
+      {/* Enhanced Navigation Container */}
+      <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
         
-        {/* Navigate to Past */}
-        <motion.button
-          onClick={navigatePast}
-          className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition-all duration-200"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          title={`Previous ${currentScale}`}
-        >
-          <ChevronLeft size={14} className={position === 'left' || position === 'right' ? 'rotate-90' : ''} />
-        </motion.button>
+        {/* Time Navigation Row */}
+        <div className="flex items-center gap-0 p-2 border-b border-white/10">
+          <motion.button
+            onClick={navigatePast}
+            className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition-all duration-200 group"
+            whileHover={{ scale: 1.05, x: -2 }}
+            whileTap={{ scale: 0.95 }}
+            title={`Previous ${currentScale}`}
+          >
+            <ChevronLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+          </motion.button>
 
-        {/* Current Period Display */}
-        <div className="text-center px-2 min-w-[120px]">
-          <div className="text-white/90 font-medium text-xs">
-            {formatCurrentPeriod()}
-          </div>
-        </div>
-
-        {/* Navigate to Future */}
-        <motion.button
-          onClick={navigateFuture}
-          className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition-all duration-200"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          title={`Next ${currentScale}`}
-        >
-          <ChevronRight size={14} className={position === 'left' || position === 'right' ? 'rotate-90' : ''} />
-        </motion.button>
-      </div>
-
-      {/* Scale Controls */}
-      <div className={`flex ${position === 'left' || position === 'right' ? 'flex-col' : 'flex-row'} items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl p-2`}>
-        
-        {/* Zoom In Button */}
-        <motion.button
-          onClick={zoomIn}
-          disabled={!canZoomIn}
-          className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 ${
-            canZoomIn 
-              ? 'bg-white/10 hover:bg-white/20 text-white/90 hover:text-white' 
-              : 'bg-white/5 text-white/30 cursor-not-allowed'
-          }`}
-          whileHover={canZoomIn ? { scale: 1.05 } : {}}
-          whileTap={canZoomIn ? { scale: 0.95 } : {}}
-          title={canZoomIn ? `Zoom to ${scaleConfig[scaleOrder[currentIndex - 1]].label}` : 'Maximum zoom level'}
-        >
-          <ChevronLeft size={18} className={position === 'left' || position === 'right' ? 'rotate-90' : ''} />
-        </motion.button>
-
-        {/* Current Scale Display */}
-        <div className="flex flex-col items-center gap-1 px-3">
-          <div className="flex items-center gap-2">
-            {React.createElement(scaleConfig[currentScale].icon, { 
-              size: 16, 
-              className: 'text-white/80' 
-            })}
-            <span className="text-white/90 font-medium text-sm">
-              {scaleConfig[currentScale].label}
-            </span>
-          </div>
-          <span className="text-white/60 text-xs">
-            {scaleConfig[currentScale].description}
-          </span>
-        </div>
-
-        {/* Zoom Out Button */}
-        <motion.button
-          onClick={zoomOut}
-          disabled={!canZoomOut}
-          className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 ${
-            canZoomOut 
-              ? 'bg-white/10 hover:bg-white/20 text-white/90 hover:text-white' 
-              : 'bg-white/5 text-white/30 cursor-not-allowed'
-          }`}
-          whileHover={canZoomOut ? { scale: 1.05 } : {}}
-          whileTap={canZoomOut ? { scale: 0.95 } : {}}
-          title={canZoomOut ? `Zoom to ${scaleConfig[scaleOrder[currentIndex + 1]].label}` : 'Maximum zoom level'}
-        >
-          <ChevronRight size={18} className={position === 'left' || position === 'right' ? 'rotate-90' : ''} />
-        </motion.button>
-      </div>
-
-      {/* Quick Scale Selector */}
-      <div className={`flex ${position === 'left' || position === 'right' ? 'flex-col' : 'flex-row'} gap-1 mt-2`}>
-        {scaleOrder.map((scale) => {
-          const config = scaleConfig[scale];
-          const isActive = scale === currentScale;
-          
-          return (
-            <motion.button
-              key={scale}
-              onClick={() => onScaleChange(scale)}
-              className={`flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200 ${
-                isActive 
-                  ? 'bg-white/20 text-white shadow-lg' 
-                  : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-white/80'
-              }`}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              title={`${config.label} View (${config.shortcut})`}
+          <div className="flex-1 text-center px-4 min-w-[140px]">
+            <motion.div 
+              key={formatCurrentPeriod()}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-white/95 font-medium text-sm tracking-wide"
             >
-              {React.createElement(config.icon, { size: 12 })}
-            </motion.button>
-          );
-        })}
-      </div>
+              {formatCurrentPeriod()}
+            </motion.div>
+          </div>
 
-      {/* Keyboard Shortcuts Hint */}
-      <div className="text-white/40 text-xs text-center mt-2 max-w-32">
-        Press D/W/M/Y for quick switching
+          <motion.button
+            onClick={navigateFuture}
+            className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition-all duration-200 group"
+            whileHover={{ scale: 1.05, x: 2 }}
+            whileTap={{ scale: 0.95 }}
+            title={`Next ${currentScale}`}
+          >
+            <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+          </motion.button>
+        </div>
+
+        {/* Scale Selection Grid */}
+        <div className="p-3">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              {React.createElement(scaleConfig[currentScale].icon, { 
+                size: 18, 
+                className: 'text-white/90' 
+              })}
+              <span className="text-white/95 font-semibold text-sm">
+                {scaleConfig[currentScale].label}
+              </span>
+            </div>
+            <div className="text-white/60 text-xs italic">
+              {scaleConfig[currentScale].description}
+            </div>
+          </div>
+          
+          {/* Unified Scale Buttons */}
+          <div className="grid grid-cols-2 gap-2">
+            {scaleOrder.map((scale) => {
+              const config = scaleConfig[scale];
+              const isActive = scale === currentScale;
+              
+              return (
+                <motion.button
+                  key={scale}
+                  onClick={() => onScaleChange(scale)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-white/20 text-white shadow-lg border border-white/30' 
+                      : 'bg-white/5 hover:bg-white/15 text-white/70 hover:text-white/90 border border-white/10 hover:border-white/20'
+                  }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  title={`Switch to ${config.label} view`}
+                >
+                  {React.createElement(config.icon, { 
+                    size: 14,
+                    className: isActive ? 'text-white' : 'text-white/60'
+                  })}
+                  <span className="text-xs font-medium">{config.label}</span>
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+        
+        {/* Subtle keyboard hint */}
+        <div className="text-white/30 text-xs text-center py-2 border-t border-white/5">
+          <span className="font-mono">D • W • M • Y</span>
+        </div>
       </div>
     </motion.div>
   );

@@ -62,6 +62,7 @@ import { getUserInsightProfile } from '@/utils/insight-memory';
 import { BehavioralTools } from '@/components/interactions/BehavioralTools';
 import { PlansLayerRing } from '@/components/plans-layer-ring';
 import { WalletCurrencyPanel } from '@/components/enhanced/WalletCurrencyPanel';
+import { EnhancedSettingsButton } from '@/components/enhanced/EnhancedSettingsButton';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -868,16 +869,16 @@ const IndexContent = () => {
         filter: isTransitioning ? 'blur(1px)' : 'none'
       }}
     >
-      <div className="absolute inset-0">
-        {Array.from({ length: 100 }).map((_, i) => (
+      <div className="absolute inset-0 opacity-20">
+        {Array.from({ length: 50 }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-yellow-200 rounded-full animate-pulse"
+            className="absolute w-0.5 h-0.5 bg-yellow-200/40 rounded-full animate-pulse"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              opacity: Math.random() * 0.6 + 0.2
+              animationDelay: `${Math.random() * 4}s`,
+              animationDuration: `${2 + Math.random() * 2}s`
             }}
           />
         ))}
@@ -992,6 +993,31 @@ const IndexContent = () => {
           currentTimeScale={timeScale}
           theme={currentTheme}
         />
+        {/* Enhanced Settings Button */}
+        <EnhancedSettingsButton
+          onClick={() => setShowSettings(!showSettings)}
+          isOpen={showSettings}
+        />
+
+        {/* Settings Panel */}
+        {showSettings && (
+          <SettingsPanel
+            reflectiveMode={reflectiveMode}
+            poetryMode={poetryMode}
+            showFriends={showFriends}
+            showInsights={showInsights}
+            showPlayback={showPlayback}
+            showTideRings={showTideRings}
+            showAIInsights={showAIInsights}
+            onReflectiveModeChange={setReflectiveMode}
+            onPoetryModeChange={setPoetryMode}
+            onShowFriendsChange={setShowFriends}
+            onShowInsightsChange={setShowInsights}
+            onShowPlaybackChange={setShowPlayback}
+            onShowTideRingsChange={setShowTideRings}
+            onShowAIInsightsChange={setShowAIInsights}
+          />
+        )}
       </div>
     </div>
   );
