@@ -958,14 +958,8 @@ const IndexContent = () => {
           )}
         </FractalTimeZoomManager>
 
-        {/* Consolidated Top-Right Navigation Stack - Fixed spacing */}
+        {/* Top-Right Navigation Stack - Zoom & Tools only */}
         <div className="fixed top-6 right-6 z-50 flex flex-col gap-4">
-          {/* Settings Button */}
-          <EnhancedSettingsButton
-            onClick={() => setShowSettings(!showSettings)}
-            isOpen={showSettings}
-          />
-          
           {/* Zoom Menu */}
           <ZoomMenuButton
             currentScale={timeScale}
@@ -978,6 +972,14 @@ const IndexContent = () => {
           <ToolsMenuButton
             activeTool={activeTool}
             onToolSelect={setActiveTool}
+          />
+        </div>
+
+        {/* Settings Button - Bottom Right */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <EnhancedSettingsButton
+            onClick={() => setShowSettings(!showSettings)}
+            isOpen={showSettings}
           />
         </div>
 
