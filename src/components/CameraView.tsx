@@ -8,6 +8,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { RadialLayerSystem } from "@/components/mandala/RadialLayerSystem";
+import { ViewSwitcher } from "@/components/ViewSwitcher";
+import { SettingsPanel } from "@/components/settings-panel";
 import { Button } from "@/components/ui/button";
 import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 
@@ -72,6 +74,14 @@ export const CameraView: React.FC<CameraViewProps> = ({
   zoomLevel: initialZoomLevel = "month" 
 }) => {
   const [currentZoomLevel, setCurrentZoomLevel] = useState(initialZoomLevel);
+  const [reflectiveMode, setReflectiveMode] = useState(false);
+  const [poetryMode, setPoetryMode] = useState(false);
+  const [showFriends, setShowFriends] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
+  const [showPlayback, setShowPlayback] = useState(false);
+  const [showTideRings, setShowTideRings] = useState(false);
+  const [showAIInsights, setShowAIInsights] = useState(true);
+  
   const layerData = createLayerData();
 
   // Zoom scaling behavior for camera-like experience
@@ -137,6 +147,12 @@ export const CameraView: React.FC<CameraViewProps> = ({
 
   return (
     <div className="w-full h-full min-h-screen flex items-center justify-center bg-background relative">
+      {/* View Switcher Navigation */}
+      <ViewSwitcher 
+        onTimeScaleChange={(scale) => setCurrentZoomLevel(scale)}
+        className="fixed top-4 left-4 z-50"
+      />
+
       {/* Zoom Controls */}
       <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 bg-background/80 backdrop-blur-sm rounded-lg p-3">
         <div className="text-sm font-medium text-center mb-2">
@@ -212,6 +228,24 @@ export const CameraView: React.FC<CameraViewProps> = ({
           />
         </motion.g>
       </motion.svg>
+
+      {/* Settings Panel */}
+      <SettingsPanel
+        reflectiveMode={reflectiveMode}
+        poetryMode={poetryMode}
+        showFriends={showFriends}
+        showInsights={showInsights}
+        showPlayback={showPlayback}
+        showTideRings={showTideRings}
+        showAIInsights={showAIInsights}
+        onReflectiveModeChange={setReflectiveMode}
+        onPoetryModeChange={setPoetryMode}
+        onShowFriendsChange={setShowFriends}
+        onShowInsightsChange={setShowInsights}
+        onShowPlaybackChange={setShowPlayback}
+        onShowTideRingsChange={setShowTideRings}
+        onShowAIInsightsChange={setShowAIInsights}
+      />
     </div>
   );
 };
