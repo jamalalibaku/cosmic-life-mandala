@@ -38,6 +38,7 @@ import { InsightOrbitRing } from '@/components/insight-orbit-ring';
 import { MoonPhaseMarker } from '@/components/moon-phase-marker';
 import { DataLayerLabels } from '@/components/data-layer-labels';
 import { LayerPopOutPanel } from '@/components/LayerPopOutPanel';
+import { LayerButtonMenu } from '@/components/LayerButtonMenu';
 import { ZoomMenuButton } from '@/components/navigation/ZoomMenuButton';
 import { ToolsMenuButton } from '@/components/navigation/ToolsMenuButton';
 import { SkinsMenuButton } from '@/components/navigation/SkinsMenuButton';
@@ -958,10 +959,31 @@ const IndexContent = () => {
           timeScale={timeScale}
         />
 
+        {/* Layer Button Menu - Right Side Vertical Portal System */}
+        <LayerButtonMenu
+          onLayerClick={(layerType, position, layerData) => {
+            openPopOut(layerType, position, layerData, `Last ${timeScale === 'day' ? '24 hours' : timeScale === 'week' ? '7 days' : timeScale === 'month' ? '30 days' : '365 days'}`);
+            setActiveLayer(layerType);
+            // Track consciousness interaction
+            consciousnessTracker.trackInteraction(layerType, position.x, position.y);
+            // Track wallet activity
+            mockWalletTracker.trackActivity(
+              layerType as 'mood' | 'mobility' | 'plans' | 'sleep', 
+              3, 
+              `Opened ${layerType} insight panel`
+            );
+          }}
+          activeLayer={activeLayer}
+          theme={currentTheme}
+        />
+
         {/* Layer Pop-Out Insight Panel */}
         <LayerPopOutPanel
           isOpen={popOutState.isOpen}
-          onClose={closePopOut}
+          onClose={() => {
+            closePopOut();
+            setActiveLayer(undefined);
+          }}
           layerType={popOutState.layerType}
           layerData={popOutState.layerData}
           position={popOutState.position}

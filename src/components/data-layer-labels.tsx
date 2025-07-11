@@ -31,221 +31,212 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
 }) => {
   const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
+  // Layer definitions with ring-specific radii and colors
   const layerData = [
     { 
       key: 'weather', 
       label: 'Weather', 
       icon: '☀️',
-      color: 'from-orange-400 to-red-500'
+      color: 'hsl(45, 70%, 70%)',
+      glowColor: '#f59e0b',
+      radius: 310, // Weather ring radius
+      labelOffset: 15
     },
     { 
       key: 'plans', 
       label: 'Plans', 
       icon: '📋',
-      color: 'from-blue-400 to-purple-500'
+      color: 'hsl(200, 60%, 70%)',
+      glowColor: '#3b82f6',
+      radius: 285, // Plans ring radius
+      labelOffset: 12
     },
     { 
       key: 'mobility', 
       label: 'Mobility', 
       icon: '🚶',
-      color: 'from-green-400 to-teal-500'
+      color: 'hsl(120, 50%, 70%)',
+      glowColor: '#10b981',
+      radius: 245, // Mobility ring radius
+      labelOffset: 10
+    },
+    { 
+      key: 'mood', 
+      label: 'Mood', 
+      icon: '💭',
+      color: 'hsl(320, 60%, 70%)',
+      glowColor: '#ec4899',
+      radius: 205, // Mood ring radius
+      labelOffset: 8
     },
     { 
       key: 'sleep', 
       label: 'Sleep', 
       icon: '😴',
-      color: 'from-purple-400 to-indigo-500'
-    },
-    { 
-      key: 'emotional', 
-      label: 'Emotional', 
-      icon: '💭',
-      color: 'from-pink-400 to-rose-500'
+      color: 'hsl(260, 50%, 70%)',
+      glowColor: '#8b5cf6',
+      radius: 165, // Sleep ring radius
+      labelOffset: 6
     },
   ];
 
-  // Fibonacci spiral positioning based on golden ratio
-  const fibonacci = [1, 1, 2, 3, 5, 8, 13, 21];
-  const goldenRatio = 1.618033988749;
-  const baseRadius = 420; // Distance from center
-  
-  // Calculate positions using Fibonacci spiral
-  const calculatePosition = (index: number) => {
-    const angle = (index / layerData.length) * 2 * Math.PI - Math.PI / 2; // Start from top
-    const spiralRadius = baseRadius + (fibonacci[index] || fibonacci[fibonacci.length - 1]) * 5;
+  // Calculate curved positions along the ring
+  const calculateRingPosition = (layer: typeof layerData[0], angleOffset: number = 0) => {
+    // Position label at the top-right of each ring for better visibility
+    const angle = (Math.PI / 4) + angleOffset; // 45 degrees + offset
+    const x = centerX + Math.cos(angle) * layer.radius;
+    const y = centerY + Math.sin(angle) * layer.radius;
     
     return {
-      x: centerX + Math.cos(angle) * spiralRadius,
-      y: centerY + Math.sin(angle) * spiralRadius,
-      angle: angle * (180 / Math.PI), // For rotation if needed
+      x,
+      y,
+      angle: angle * (180 / Math.PI), // Convert to degrees
+      tangentAngle: angle + Math.PI / 2 // Perpendicular to radius for tangential text
     };
   };
 
   return (
     <div className="absolute inset-0 pointer-events-none">
-      {layerData.map((layer, index) => {
-        const isActive = activeControls?.[layer.key] || false;
-        const isHovered = hoveredLabel === layer.key;
-        const position = calculatePosition(index);
+      {/* SVG overlay for curved text labels */}
+      <svg 
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ overflow: 'visible' }}
+      >
+        <defs>
+          {layerData.map((layer) => (
+            <path
+              key={`path-${layer.key}`}
+              id={`ring-path-${layer.key}`}
+              d={`M ${centerX - layer.radius} ${centerY} A ${layer.radius} ${layer.radius} 0 1 1 ${centerX + layer.radius} ${centerY} A ${layer.radius} ${layer.radius} 0 1 1 ${centerX - layer.radius} ${centerY}`}
+              fill="none"
+            />
+          ))}
+        </defs>
         
-        return (
-          <motion.div
-            key={layer.key}
-            className="absolute pointer-events-auto"
-            style={{
-              left: position.x - 24, // Center the 48px button
-              top: position.y - 24,
-            }}
-            initial={{ 
-              opacity: 0, 
-              scale: 0,
-              x: centerX - position.x,
-              y: centerY - position.y,
-            }}
-            animate={{ 
-              opacity: 1, 
-              scale: 1,
-              x: 0,
-              y: 0,
-            }}
-            transition={{ 
-              duration: 0.8, 
-              delay: index * 0.15,
-              ease: "easeOut",
-              type: "spring",
-              stiffness: 100,
-            }}
-            onMouseEnter={() => setHoveredLabel(layer.key)}
-            onMouseLeave={() => setHoveredLabel(null)}
-          >
-            <motion.button
-              onClick={() => onToggle(layer.key)}
-              className={`
-                relative overflow-hidden
-                w-12 h-12 rounded-full
-                flex items-center justify-center
-                text-lg font-bold
-                backdrop-blur-sm
-                transition-all duration-300
-                border-2
-                ${isActive 
-                  ? 'border-white/60 shadow-2xl' 
-                  : 'border-white/30 hover:border-white/50'
-                }
-              `}
-              style={{
-                background: isActive 
-                  ? `radial-gradient(circle, ${layer.color.split(' ')[1]}, ${layer.color.split(' ')[3]})`
-                  : `radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0.05))`,
-                filter: isActive 
-                  ? `drop-shadow(0 0 20px ${layer.color.includes('orange') ? '#f97316' : 
-                      layer.color.includes('blue') ? '#3b82f6' : 
-                      layer.color.includes('green') ? '#10b981' : 
-                      layer.color.includes('purple') ? '#8b5cf6' : '#ec4899'}50)` 
-                  : 'none',
-                transform: `rotate(${position.angle / 4}deg)`, // Subtle rotation based on position
-              }}
-              whileHover={{ 
-                scale: 1.15,
-                rotate: 0, // Reset rotation on hover
-                transition: { duration: 0.3 }
-              }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <span className="relative z-10 drop-shadow-lg" style={{ transform: `rotate(${-position.angle / 4}deg)` }}>
-                {layer.icon}
-              </span>
+        {layerData.map((layer, index) => {
+          const isActive = activeControls?.[layer.key] || false;
+          const isHovered = hoveredLabel === layer.key;
+          
+          return (
+            <g key={layer.key}>
+              {/* Curved text label */}
+              <text
+                className="pointer-events-auto cursor-pointer text-sm font-medium tracking-wide"
+                style={{
+                  fill: isActive ? 'white' : layer.color,
+                  filter: isActive 
+                    ? `drop-shadow(0 0 8px ${layer.glowColor}) drop-shadow(0 0 16px ${layer.glowColor}60)` 
+                    : `drop-shadow(0 1px 2px rgba(0,0,0,0.8))`,
+                  fontSize: '13px',
+                  letterSpacing: '1px',
+                  fontWeight: isActive ? '600' : '500'
+                }}
+                onClick={() => onToggle(layer.key)}
+                onMouseEnter={() => setHoveredLabel(layer.key)}
+                onMouseLeave={() => setHoveredLabel(null)}
+              >
+                <textPath
+                  href={`#ring-path-${layer.key}`}
+                  startOffset="25%" // Position along the path
+                  textAnchor="middle"
+                >
+                  <motion.tspan
+                    animate={isActive ? {
+                      opacity: [1, 0.8, 1],
+                    } : {}}
+                    transition={isActive ? {
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    } : {}}
+                  >
+                    {layer.icon} {layer.label}
+                  </motion.tspan>
+                </textPath>
+              </text>
               
-              {/* Fibonacci spiral glow effect */}
+              {/* Harmonic vibration ring for active layers */}
               {isActive && (
-                <motion.div
-                  className="absolute inset-0 rounded-full opacity-50"
-                  style={{
-                    background: `conic-gradient(from ${position.angle}deg, ${layer.color.split(' ')[1]}, ${layer.color.split(' ')[3]}, ${layer.color.split(' ')[1]})`,
-                    filter: `blur(8px) brightness(1.3)`
-                  }}
+                <motion.circle
+                  cx={centerX}
+                  cy={centerY}
+                  r={layer.radius}
+                  fill="none"
+                  stroke={layer.glowColor}
+                  strokeWidth="1"
+                  opacity="0.4"
+                  strokeDasharray="2,8"
                   animate={{
-                    scale: [1, 1.3, 1],
-                    opacity: [0.5, 0.8, 0.5],
-                    rotate: [0, 360],
+                    strokeDashoffset: [0, -10],
+                    opacity: [0.4, 0.7, 0.4],
                   }}
                   transition={{
-                    scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                    opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                    rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+                    strokeDashoffset: {
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "linear"
+                    },
+                    opacity: {
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: index * 0.3
+                    }
                   }}
                 />
               )}
               
-              {/* Fibonacci connection lines */}
-              {isActive && index > 0 && (
-                <motion.div
-                  className="absolute inset-0 pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.3 }}
-                  transition={{ delay: index * 0.15 + 0.5 }}
-                >
-                  <svg 
-                    className="absolute inset-0 w-full h-full"
-                    style={{ 
-                      width: baseRadius * 2, 
-                      height: baseRadius * 2,
-                      left: -baseRadius + 24,
-                      top: -baseRadius + 24,
-                    }}
-                  >
-                    <path
-                      d={`M ${baseRadius} ${baseRadius} Q ${position.x - centerX + baseRadius} ${position.y - centerY + baseRadius} ${calculatePosition(index - 1).x - centerX + baseRadius} ${calculatePosition(index - 1).y - centerY + baseRadius}`}
-                      stroke={layer.color.includes('orange') ? '#f97316' : 
-                              layer.color.includes('blue') ? '#3b82f6' : 
-                              layer.color.includes('green') ? '#10b981' : 
-                              layer.color.includes('purple') ? '#8b5cf6' : '#ec4899'}
-                      strokeWidth="1"
-                      fill="none"
-                      opacity="0.3"
-                      strokeDasharray="4,8"
-                    />
-                  </svg>
-                </motion.div>
-              )}
-            </motion.button>
-
-            {/* Enhanced label tooltip with golden ratio positioning */}
-            <AnimatePresence>
+              {/* Portal activation ripple */}
               {isHovered && (
-                <motion.div
-                  className="absolute pointer-events-none z-50"
-                  style={{
-                    left: position.x > centerX ? -120 : 60, // Position based on side of circle
-                    top: "50%",
-                    transform: "translateY(-50%)",
+                <motion.circle
+                  cx={centerX}
+                  cy={centerY}
+                  r={layer.radius}
+                  fill="none"
+                  stroke={layer.glowColor}
+                  strokeWidth="2"
+                  opacity="0.6"
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ 
+                    scale: [0.95, 1.02, 1],
+                    opacity: [0, 0.6, 0.3]
                   }}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="bg-black/90 text-white px-4 py-2 rounded-xl text-sm
-                                 backdrop-blur-md border border-white/20 whitespace-nowrap
-                                 shadow-2xl">
-                    {layer.label}
-                    <div 
-                      className="absolute top-1/2 transform -translate-y-1/2"
-                      style={{
-                        [position.x > centerX ? 'right' : 'left']: -4,
-                      }}
-                    >
-                      <div 
-                        className="border-4 border-transparent"
-                        style={{
-                          [position.x > centerX ? 'borderLeftColor' : 'borderRightColor']: 'rgba(0,0,0,0.9)',
-                        }}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeOut"
+                  }}
+                />
               )}
-            </AnimatePresence>
+            </g>
+          );
+        })}
+      </svg>
+      
+      {/* Interactive click zones for better UX */}
+      {layerData.map((layer, index) => {
+        const position = calculateRingPosition(layer);
+        const isActive = activeControls?.[layer.key] || false;
+        
+        return (
+          <motion.div
+            key={`click-zone-${layer.key}`}
+            className="absolute pointer-events-auto cursor-pointer"
+            style={{
+              left: position.x - 40,
+              top: position.y - 15,
+              width: 80,
+              height: 30,
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: index * 0.1 + 0.5 }}
+            onClick={() => onToggle(layer.key)}
+            onMouseEnter={() => setHoveredLabel(layer.key)}
+            onMouseLeave={() => setHoveredLabel(null)}
+          >
+            {/* Invisible but functional click area */}
+            <div className="w-full h-full" />
           </motion.div>
         );
       })}
