@@ -47,10 +47,18 @@ export interface ThemeConfig {
   haiku: string[];
 }
 
+// Zoom scale compensation per view
+export const zoomCompensation = {
+  day: 0,     // Full zoom-in on center
+  week: 25,   // Close zoom
+  month: 50,  // Moderate zoom in
+  year: 100   // Full radial display
+};
+
 export const themeConfigs: Record<Theme, ThemeConfig> = {
   cosmic: {
     name: 'Cosmic Default',
-    description: 'Golden cosmic poetry in motion',
+    description: 'Data-driven cosmic beauty with soft motion',
     colors: {
       primary: 'hsl(45 80% 60%)',
       secondary: 'hsl(240 60% 50%)',
@@ -79,7 +87,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     },
     background: {
       pattern: 'stars',
-      intensity: 0.6
+      intensity: 0.1 // Reduced background intensity
     },
     haiku: [
       'Time flows like starlight / Through the cosmic mandala / Now is all we need',
@@ -89,7 +97,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
 
   interface: {
     name: 'Digital Interface',
-    description: 'Cyberpunk HUD aesthetics',
+    description: 'Minimalist HUD with crisp neon aesthetics',
     colors: {
       primary: 'hsl(180 100% 50%)',
       secondary: 'hsl(120 100% 40%)',
@@ -118,7 +126,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     },
     background: {
       pattern: 'grid',
-      intensity: 0.8
+      intensity: 0.05 // Reduced for cleaner HUD look
     },
     haiku: [
       'Data streams like rain / Through circuits of consciousness / We are the machine',
@@ -167,7 +175,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
 
   vangogh: {
     name: 'Van Gogh: Starry Night',
-    description: 'A living painting of time - swirling, luminous, and deeply expressive',
+    description: 'Slow painterly motion with multi-directional swirls',
     colors: {
       primary: 'hsl(45 90% 65%)',      // Van Gogh's golden yellow
       secondary: 'hsl(220 80% 40%)',   // Deep cobalt blue
@@ -186,7 +194,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
       segments: 'flowing'
     },
     animations: {
-      speed: 'medium',
+      speed: 'slow', // Dramatically slowed down
       style: 'organic'
     },
     icons: {
@@ -196,7 +204,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     },
     background: {
       pattern: 'stars',
-      intensity: 0.7
+      intensity: 0.2 // Reduced to minimize background distraction
     },
     haiku: [
       'Starlight swirls like paint / Across the canvas of night / Time becomes a dream',
@@ -206,14 +214,14 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
 
   horizons: {
     name: 'Soft Horizons',
-    description: 'Dreamy pastel minimalism',
+    description: 'Light background with dark data elements for clarity',
     colors: {
-      primary: 'hsl(330 50% 80%)',
-      secondary: 'hsl(200 60% 75%)',
-      accent: 'hsl(280 40% 85%)',
-      background: 'hsl(320 20% 95%)',
-      text: 'hsl(320 30% 30%)',
-      glow: 'hsl(330 60% 70%)'
+      primary: 'hsl(320 60% 25%)',      // Dark for contrast
+      secondary: 'hsl(200 70% 30%)',    // Dark blue
+      accent: 'hsl(280 50% 35%)',       // Dark purple
+      background: 'hsl(320 20% 95%)',   // Light background
+      text: 'hsl(320 30% 20%)',         // Dark text for legibility
+      glow: 'hsl(330 60% 40%)'          // Darker glow
     },
     typography: {
       primary: 'sans-serif',
@@ -235,7 +243,7 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     },
     background: {
       pattern: 'pastel',
-      intensity: 0.3
+      intensity: 0.1 // Minimal background pattern
     },
     haiku: [
       'Soft clouds drift like thoughts / Through the pastel afternoon / Gentle time unfolds',

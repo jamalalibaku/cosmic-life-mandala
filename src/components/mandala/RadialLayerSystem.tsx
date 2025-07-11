@@ -25,6 +25,9 @@ import { analyzeMoodForSupernovas, SupernovaTrigger } from "@/utils/supernova-en
 import { DebugSupernova } from "@/components/DebugSupernova";
 import { useVisualSkin } from "@/components/visual-skin-provider";
 import { getThemeGeometry } from "@/utils/day4-dynamics";
+import { BreathingWeatherRing } from "@/components/enhanced/BreathingWeatherRing";
+import { KandinskyDataMarbles } from "@/components/enhanced/KandinskyDataMarbles";
+import { useZoomCompensation } from "@/hooks/useZoomCompensation";
 
 interface LayerData {
   name: string;
@@ -350,12 +353,23 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
     currentZoom,
     timestamp: new Date().toLocaleTimeString()
   });
-  // Unified motion system for living physics
-  const { getMotionTransform, addImpulse } = useUnifiedMotion({
+
+  // Visual skin and theme integration
+  const { currentTheme, themeConfig } = useVisualSkin();
+
+  // Zoom compensation for consistent scale across views
+  const { getZoomTransform, isTransitioning: zoomTransitioning } = useZoomCompensation({
+    currentView: currentZoom as any
+  });
+
+  // Unified motion system for living physics with theme integration
+  const { getMotionTransform, addImpulse, timeAccumulator } = useUnifiedMotion({
     heartbeatInterval: 6000, // 6-second heartbeat
     heartbeatIntensity: 0.12, // Gentle pulse
     windStrength: 0.3, // Subtle ambient drift
-    friction: 0.985 // Natural movement decay
+    friction: 0.985, // Natural movement decay
+    theme: currentTheme,
+    enableDay4Dynamics: true
   });
 
   // Time axis integration
@@ -496,71 +510,125 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
     }
   };
   
+  // Generate Kandinsky data marbles from all layers
+  const generateDataMarbles = () => {
+    const marbles: any[] = [];
+    layers.forEach((layer, layerIndex) => {
+      layer.data.forEach((item, itemIndex) => {
+        const angle = (itemIndex / layer.data.length) * 2 * Math.PI - Math.PI / 2;
+        const x = Math.cos(angle) * layer.radius;
+        const y = Math.sin(angle) * layer.radius;
+        
+        marbles.push({
+          id: `${layer.name}-${itemIndex}`,
+          x,
+          y,
+          type: layer.layerType || 'mood',
+          value: item.value || Math.random(),
+          energy: item.energy || Math.random(),
+          timestamp: item.date || new Date()
+        });
+      });
+    });
+    return marbles;
+  };
+
+  const dataMarbles = generateDataMarbles();
+
   return (
     <>
-      <motion.g
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        style={{ transformOrigin: "center" }}
+      <motion.div
+        style={getZoomTransform()}
+        className="w-full h-full"
       >
-        {/* Render layers from outside to inside with clickable interaction */}
-        {layers.slice().reverse().map((layer, index) => (
-          <ClickableLayer
-            key={layer.name}
-            radius={layer.radius}
-            color={layer.color}
-            name={layer.name}
-            layerType={layer.layerType}
-            onClick={handleLayerClick}
-          >
-            <Layer
-              name={layer.name}
-              data={layer.data}
+        <motion.g
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          style={{ transformOrigin: "center" }}
+        >
+          {/* Enhanced Weather Ring with breathing pulse */}
+          {layers.find(l => l.layerType === 'weather') && (
+            <BreathingWeatherRing
+              radius={layers.find(l => l.layerType === 'weather')?.radius || 150}
+              center={{ x: 0, y: 0 }}
+              weatherData={layers.find(l => l.layerType === 'weather')?.data || []}
+              className="weather-enhancement"
+            />
+          )}
+
+          {/* Render layers from outside to inside with clickable interaction */}
+          {layers.slice().reverse().map((layer, index) => (
+            <ClickableLayer
+              key={layer.name}
               radius={layer.radius}
               color={layer.color}
-              zoomLevel={currentZoom}
-              layerIndex={index}
-              totalLayers={layers.length}
+              name={layer.name}
               layerType={layer.layerType}
-              onTooltipShow={handleTooltipShow}
-              onTooltipHide={handleTooltipHide}
-              onDataPointClick={handleDataPointClick}
-              layer={layer}
-            />
-          </ClickableLayer>
-        ))}
+              onClick={handleLayerClick}
+            >
+              <Layer
+                name={layer.name}
+                data={layer.data}
+                radius={layer.radius}
+                color={layer.color}
+                zoomLevel={currentZoom}
+                layerIndex={index}
+                totalLayers={layers.length}
+                layerType={layer.layerType}
+                onTooltipShow={handleTooltipShow}
+                onTooltipHide={handleTooltipHide}
+                onDataPointClick={handleDataPointClick}
+                layer={layer}
+              />
+            </ClickableLayer>
+          ))}
 
-        {/* Glowing center with living heartbeat */}
-        <GlowingCore 
-          radius={centerRadius} 
-          motionTransform={getMotionTransform()}
-        />
-        
-        {/* NOW Indicator - Minimal time marker */}
-        <NowIndicator
-          centerX={0}
-          centerY={0}
-          radius={layers[0]?.radius || 200}
-          theme="mandalaExpressive"
-        />
-        
-        {/* Layer Data Animator - Only data-driven visuals */}
-        <LayerDataAnimator
-          centerX={0}
-          centerY={0}
-          isActive={true}
-        />
-        
-        {/* Theme Haiku - Background only, minimal */}
-        <ThemeHaikuDisplay
-          theme="mandalaExpressive"
-          centerX={0}
-          centerY={0}
-          maxRadius={layers[0]?.radius || 200}
-          isVisible={false}
-        />
-      </motion.g>
+          {/* Kandinsky-style data marbles overlay */}
+          <KandinskyDataMarbles
+            marbles={dataMarbles}
+            className="data-marbles-overlay"
+          />
+
+          {/* Glowing center with living heartbeat */}
+          <GlowingCore 
+            radius={centerRadius} 
+            motionTransform={getMotionTransform()}
+          />
+          
+          {/* NOW Indicator - Minimal time marker */}
+          <NowIndicator
+            centerX={0}
+            centerY={0}
+            radius={layers[0]?.radius || 200}
+            theme="mandalaExpressive"
+          />
+          
+          {/* Layer Data Animator - Only data-driven visuals */}
+          <LayerDataAnimator
+            centerX={0}
+            centerY={0}
+            isActive={true}
+          />
+          
+          {/* Theme Haiku - Background only, minimal */}
+          <ThemeHaikuDisplay
+            theme="mandalaExpressive"
+            centerX={0}
+            centerY={0}
+            maxRadius={layers[0]?.radius || 200}
+            isVisible={false}
+          />
+        </motion.g>
+      </motion.div>
+
+      {/* Theme Sunburst - Dynamic theme-specific effects */}
+      <ThemeSunburst 
+        theme={currentTheme}
+        centerX={0}
+        centerY={0}
+        timeAccumulator={timeAccumulator}
+      />
 
       {/* Global tooltip system */}
       <RadialTooltip 
