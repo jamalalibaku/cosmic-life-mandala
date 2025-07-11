@@ -75,7 +75,7 @@ export const VanGoghEmotionalStroke = ({
   const strokes = createBrushStroke();
 
   return (
-    <g transform={`rotate(${startAngle})`}>
+    <g transform={`rotate(${startAngle})`} style={{ cursor: 'pointer', pointerEvents: 'all' }}>
       <defs>
         <filter id={`vanGoghBrush-${emotion}`} x="-50%" y="-50%" width="200%" height="200%">
           <feTurbulence 
@@ -111,6 +111,8 @@ export const VanGoghEmotionalStroke = ({
           filter={`url(#vanGoghBrush-${emotion})`}
           strokeLinecap="round"
           strokeLinejoin="round"
+          style={{ cursor: 'pointer', pointerEvents: 'all' }}
+          onClick={() => console.log(`Van Gogh ${emotion} stroke clicked!`)}
           animate={{
             opacity: [stroke.opacity * 0.7, stroke.opacity, stroke.opacity * 0.7],
             strokeWidth: [stroke.strokeWidth * 0.8, stroke.strokeWidth, stroke.strokeWidth * 0.8]

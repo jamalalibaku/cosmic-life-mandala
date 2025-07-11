@@ -9,6 +9,7 @@ import WeatherSunburst from '@/components/weather-sunburst';
 import { AtmosphericWeatherRing } from '@/components/atmospheric-weather-ring';
 import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
 import { MandalaView } from '@/components/mandala/MandalaView';
+import { VanGoghMandalaView } from '@/components/mandala/VanGoghMandalaView';
 import { DataBlobRing } from '@/components/data-blob-ring';
 import { UserCore } from '@/components/user-core';
 import { FriendOrbitRing } from '@/components/friend-orbit-ring';
@@ -609,6 +610,42 @@ const IndexContent = () => {
       </g>
     );
   };
+
+  // Render Van Gogh Mandala View for Van Gogh theme  
+  if (currentTheme === 'vanGogh') {
+    return (
+      <div className="relative w-full h-screen overflow-hidden" style={{
+        fontFamily: themeConfig.typography.primary,
+        backgroundColor: themeConfig.colors.background,
+        color: themeConfig.colors.text
+      }}>
+        <VanGoghMandalaView />
+        
+        {/* Settings panel still available */}
+        <SettingsPanel
+          reflectiveMode={reflectiveMode}
+          poetryMode={poetryMode}
+          showFriends={showFriends}
+          showInsights={showInsights}
+          showPlayback={showPlayback}
+          showTideRings={showTideRings}
+          showAIInsights={showAIInsights}
+          onReflectiveModeChange={setReflectiveMode}
+          onPoetryModeChange={setPoetryMode}
+          onShowFriendsChange={setShowFriends}
+          onShowInsightsChange={setShowInsights}
+          onShowPlaybackChange={setShowPlayback}
+          onShowTideRingsChange={setShowTideRings}
+          onShowAIInsightsChange={setShowAIInsights}
+        />
+        
+        {/* Theme Haiku Display */}
+        <ThemeHaikuDisplay 
+          onComplete={() => setPoetryMode(false)}
+        />
+      </div>
+    );
+  }
 
   // Render Mandala View for mandala theme
   if (currentTheme === 'mandalaExpressive') {

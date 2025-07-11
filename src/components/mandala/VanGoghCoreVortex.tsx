@@ -60,6 +60,8 @@ export const VanGoghCoreVortex = () => {
         cx={0} cy={0} r={45}
         fill="url(#vanGoghVortex)"
         filter="url(#vortexGlow)"
+        style={{ cursor: 'pointer', pointerEvents: 'all' }}
+        onClick={() => console.log('Van Gogh core clicked!')}
         animate={{
           scale: [1, 1.1, 1],
           opacity: [0.9, 1, 0.9]

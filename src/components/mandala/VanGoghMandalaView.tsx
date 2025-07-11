@@ -56,10 +56,11 @@ export const VanGoghMandalaView = () => {
         viewBox="-400 -400 800 800"
         width="90%"
         height="90%"
-        className="max-w-5xl max-h-screen relative z-10"
+        className="max-w-5xl max-h-screen relative z-10 cursor-pointer"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2, ease: "easeOut" }}
+        style={{ pointerEvents: 'auto' }}
       >
         {/* Van Gogh brushwork filters */}
         <defs>
