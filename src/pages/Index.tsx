@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import WeatherSunburst from '@/components/weather-sunburst';
-import { WeatherSunburstRing } from '@/components/weather-sunburst-ring';
+import { AtmosphericWeatherRing } from '@/components/atmospheric-weather-ring';
 import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
 import { DataBlobRing } from '@/components/data-blob-ring';
 import { UserCore } from '@/components/user-core';
@@ -248,16 +248,16 @@ const IndexContent = () => {
               opacity="0.3"
             />
             
-            {/* 1. Weather - Outermost data ring */}
-            <WeatherSunburstRing
+            {/* 1. Weather - Atmospheric Outermost Ring */}
+            <AtmosphericWeatherRing
               weatherData={mockWeatherToday}
               centerX={centerX}
               centerY={centerY}
               innerRadius={295}
               outerRadius={325}
-              theme="cosmic"
-              showIcons={true}
-              showSkyGradient={true}
+              theme={currentTheme as any}
+              showDebug={false}
+              className="atmospheric-weather-layer"
             />
           </>
         )}
