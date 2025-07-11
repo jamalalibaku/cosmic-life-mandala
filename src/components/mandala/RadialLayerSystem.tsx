@@ -10,6 +10,7 @@ import { RadialTooltip } from "@/components/interactions/RadialTooltip";
 import { InteractiveDataPoint } from "@/components/interactions/InteractiveDataPoint";
 import { ExpandedCard } from "@/components/interactions/ExpandedCard";
 import { EmojiBurst } from "@/components/interactions/EmojiBurst";
+import { useMotionField } from "@/hooks/useMotionField";
 
 interface LayerData {
   name: string;
@@ -206,9 +207,16 @@ const Layer: React.FC<{
   );
 };
 
-const GlowingCore: React.FC<{ radius: number }> = ({ radius }) => {
+const GlowingCore: React.FC<{ radius: number; motionTransform: any }> = ({ radius, motionTransform }) => {
   return (
-    <motion.g>
+    <motion.g
+      animate={motionTransform}
+      transition={{ 
+        type: "spring",
+        stiffness: 50,
+        damping: 15
+      }}
+    >
       <defs>
         <filter id="coreGlow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
@@ -229,7 +237,7 @@ const GlowingCore: React.FC<{ radius: number }> = ({ radius }) => {
         </radialGradient>
       </defs>
       
-      {/* Outer glow ring */}
+      {/* Outer glow ring with heartbeat */}
       <motion.circle
         cx={0}
         cy={0}
@@ -237,17 +245,17 @@ const GlowingCore: React.FC<{ radius: number }> = ({ radius }) => {
         fill="url(#coreInnerGlow)"
         opacity={0.3}
         animate={{ 
-          scale: [1, 1.05, 1],
-          opacity: [0.3, 0.5, 0.3]
+          scale: [1, 1.12, 1],
+          opacity: [0.3, 0.7, 0.3]
         }}
         transition={{ 
-          duration: 5,
+          duration: 6,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
       
-      {/* Core self - breathing center */}
+      {/* Core self - enhanced breathing center */}
       <motion.circle
         cx={0}
         cy={0}
@@ -255,17 +263,17 @@ const GlowingCore: React.FC<{ radius: number }> = ({ radius }) => {
         fill="url(#coreGradient)"
         filter="url(#coreGlow)"
         animate={{ 
-          scale: [1, 1.06, 1],
-          opacity: [0.95, 0.8, 0.95]
+          scale: [1, 1.08, 1],
+          opacity: [0.95, 1, 0.95]
         }}
         transition={{ 
-          duration: 4.5,
+          duration: 6,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
 
-      {/* Inner pulse ring */}
+      {/* Inner pulse ring with synchronized heartbeat */}
       <motion.circle
         cx={0}
         cy={0}
@@ -278,17 +286,18 @@ const GlowingCore: React.FC<{ radius: number }> = ({ radius }) => {
           filter: "drop-shadow(0 0 4px hsl(45, 80%, 85%))"
         }}
         animate={{ 
-          scale: [1, 1.08, 1],
-          opacity: [0.6, 0.9, 0.6]
+          scale: [1, 1.15, 1],
+          opacity: [0.6, 1, 0.6],
+          strokeWidth: [0.8, 1.5, 0.8]
         }}
         transition={{ 
-          duration: 3.5,
+          duration: 6,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
 
-      {/* Center label */}
+      {/* Center label with living breath */}
       <motion.text
         x={0}
         y={4}
@@ -300,10 +309,11 @@ const GlowingCore: React.FC<{ radius: number }> = ({ radius }) => {
         letterSpacing="0.1em"
         opacity={0.9}
         animate={{
-          opacity: [0.9, 1, 0.9]
+          opacity: [0.9, 1, 0.9],
+          scale: [1, 1.02, 1]
         }}
         transition={{
-          duration: 4,
+          duration: 6,
           repeat: Infinity,
           ease: "easeInOut"
         }}
@@ -320,6 +330,14 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   centerRadius = 40,
   layerSpacing = 50
 }) => {
+  // Motion field for living system physics
+  const { getMotionTransform, addImpulse } = useMotionField({
+    heartbeatInterval: 6000, // 6-second heartbeat
+    heartbeatIntensity: 0.12, // Gentle pulse
+    windStrength: 0.3, // Subtle ambient drift
+    gravity: 0.985 // Natural movement decay
+  });
+
   const [tooltipData, setTooltipData] = useState<any>(null);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [expandedCardData, setExpandedCardData] = useState<any>(null);
@@ -340,6 +358,13 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   const handleDataPointClick = (expandedData: any, burstData: any) => {
     // Hide tooltip first
     setTooltipVisible(false);
+    
+    // Add motion impulse on interaction
+    const impulseStrength = 2;
+    addImpulse(
+      (Math.random() - 0.5) * impulseStrength,
+      (Math.random() - 0.5) * impulseStrength
+    );
     
     // Show expanded card
     setExpandedCardData(expandedData);
@@ -366,8 +391,9 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
+        style={{ transformOrigin: "center" }}
       >
-        {/* Render layers from outside to inside */}
+        {/* Render layers from outside to inside with motion field */}
         {layers.slice().reverse().map((layer, index) => (
           <Layer
             key={layer.name}
@@ -386,8 +412,11 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           />
         ))}
 
-        {/* Glowing center - Self */}
-        <GlowingCore radius={centerRadius} />
+        {/* Glowing center with living heartbeat */}
+        <GlowingCore 
+          radius={centerRadius} 
+          motionTransform={getMotionTransform()}
+        />
       </motion.g>
 
       {/* Global tooltip system */}
