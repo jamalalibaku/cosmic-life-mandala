@@ -9,6 +9,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { RadialLayerSystem } from "@/components/mandala/RadialLayerSystem";
 import { DateNavigationProvider, useDateNavigation } from "@/contexts/DateNavigationContext";
+import { useTimeAxis } from "@/contexts/TimeAxisContext";
 import { generateRealDateData, getWeekData, getDayData, type DateBasedData } from "@/utils/real-date-data";
 import { format, startOfWeek, eachWeekOfInterval, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
 import mandalaExpressiveTheme from "@/themes/mandala-expressive";
@@ -154,6 +155,7 @@ const getCurrentTimeAngle = (): number => {
 
 const MandalaViewContent = () => {
   const { currentDate, zoomLevel, getDisplayTitle } = useDateNavigation();
+  const { timeSlices, nowAngle } = useTimeAxis();
   const rotationAngle = getCurrentTimeAngle();
   
   // Generate real date data (in production, this would come from API)
@@ -162,6 +164,14 @@ const MandalaViewContent = () => {
     createDateBasedLayerData(dateData, zoomLevel, currentDate), 
     [dateData, zoomLevel, currentDate]
   );
+
+  console.log('⏰ MandalaView rendering with:', {
+    zoomLevel,
+    layerCount: layerData.length,
+    timeSliceCount: timeSlices.length,
+    nowAngle,
+    timestamp: new Date().toLocaleTimeString()
+  });
 
   return (
     <div className="w-full h-full min-h-screen flex flex-col relative overflow-hidden">

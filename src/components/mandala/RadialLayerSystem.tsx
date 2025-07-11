@@ -13,6 +13,9 @@ import { EmojiBurst } from "@/components/interactions/EmojiBurst";
 import { useUnifiedMotion } from "@/hooks/useUnifiedMotion";
 import { useTimeAxis } from "@/contexts/TimeAxisContext";
 import { ThemeOverlayManager } from "@/components/themes/ThemeOverlaySystem";
+import { NowIndicator } from "@/components/time/NowIndicator";
+import { ThemeHaikuDisplay } from "@/components/themes/ThemeHaikuDisplay";
+import { LayerDataAnimator } from "@/components/layers/LayerDataAnimator";
 import { SupernovaBurst } from "@/components/SupernovaBurst";
 import { analyzeMoodForSupernovas, SupernovaTrigger } from "@/utils/supernova-engine";
 import { DebugSupernova } from "@/components/DebugSupernova";
@@ -480,6 +483,30 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
         <GlowingCore 
           radius={centerRadius} 
           motionTransform={getMotionTransform()}
+        />
+        
+        {/* NOW Indicator - Time flow visualization */}
+        <NowIndicator
+          centerX={0}
+          centerY={0}
+          radius={layers[0]?.radius || 200}
+          theme="mandalaExpressive"
+        />
+        
+        {/* Layer Data Animator - Mock data visualization */}
+        <LayerDataAnimator
+          centerX={0}
+          centerY={0}
+          isActive={true}
+        />
+        
+        {/* Theme Haiku Display */}
+        <ThemeHaikuDisplay
+          theme="mandalaExpressive"
+          centerX={0}
+          centerY={0}
+          maxRadius={layers[0]?.radius || 200}
+          isVisible={true}
         />
       </motion.g>
 
