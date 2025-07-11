@@ -1,6 +1,7 @@
 /**
- * Reactive Living Frequency Tilt System
- * Connects tilt effects to heartbeat, earth orbit, real-time data, and all living frequencies
+ * Gentle Organic Wind & Gravity Tilt System
+ * Ultra-slow, gentle motion affected by light wind touch and gravity's drag
+ * All frequencies slowed 10x for meditative, organic feel
  */
 
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -41,58 +42,75 @@ interface ReactiveTiltOptions {
   layerType: 'core' | 'weather' | 'plans' | 'mobility' | 'mood' | 'sleep' | 'ui';
   sensitivity?: number; // 0-1, how much data affects tilt
   dampening?: number; // 0-1, smoothing factor
-  baseAmplitude?: number; // base tilt amount in degrees
+  baseAmplitude?: number; // base tilt amount in degrees (much smaller now)
+  windStrength?: number; // 0-1, how much wind affects the motion
+  gravityStrength?: number; // 0-1, how much gravity drag affects motion
 }
 
-// Living frequency mappings
+// Organic wind and gravity constants
+const MOTION_SLOWDOWN = 10; // 10x slower than before
+const WIND_RANDOMNESS = 0.3; // Random wind variation
+const GRAVITY_PULL = 0.8; // Gravity drag coefficient
+const ORGANIC_NOISE_SCALE = 0.05; // Subtle organic noise
+const PENDULUM_DAMPENING = 0.95; // Natural pendulum decay
+
+// Living frequency mappings - all slowed down 10x for gentle organic motion
 const FrequencyMappings = {
-  // Biological rhythms (in Hz)
+  // Biological rhythms (in Hz) - ultra slow for meditative feel
   heartbeat: {
-    resting: 1.0, // 60 BPM
-    active: 2.0,  // 120 BPM
-    stressed: 2.5 // 150 BPM
+    resting: 0.1,   // Was 1.0, now 60 BPM over 10 seconds
+    active: 0.2,    // Was 2.0, now 120 BPM over 10 seconds  
+    stressed: 0.25  // Was 2.5, now 150 BPM over 10 seconds
   },
   breathing: {
-    calm: 0.25,    // 15 breaths/min
-    normal: 0.33,  // 20 breaths/min
-    anxious: 0.5   // 30 breaths/min
+    calm: 0.025,    // Was 0.25, now 15 breaths over 10 minutes
+    normal: 0.033,  // Was 0.33, now 20 breaths over 10 minutes
+    anxious: 0.05   // Was 0.5, now 30 breaths over 10 minutes
   },
   
-  // Astronomical cycles (in Hz - very slow)
-  earthRotation: 1 / (24 * 60 * 60), // 24 hours
-  moonCycle: 1 / (29.5 * 24 * 60 * 60), // 29.5 days
-  seasonalCycle: 1 / (365 * 24 * 60 * 60), // 365 days
+  // Astronomical cycles (ultra slow for cosmic feel)
+  earthRotation: 1 / (240 * 60 * 60), // 240 hours (10x slower)
+  moonCycle: 1 / (295 * 24 * 60 * 60), // 295 days (10x slower)
+  seasonalCycle: 1 / (3650 * 24 * 60 * 60), // 3650 days (10x slower)
   
-  // Real-time rhythms
-  second: 1.0,
-  minute: 1 / 60,
-  hour: 1 / (60 * 60),
+  // Real-time rhythms - gentle and slow
+  second: 0.1,        // Was 1.0, now 10 seconds per cycle
+  minute: 1 / 600,    // Was 1/60, now 600 seconds per cycle
+  hour: 1 / (36000),  // Was 1/3600, now 36000 seconds per cycle
   
-  // Flow state frequencies
-  deepFocus: 0.1,   // Very slow, meditative
-  creative: 0.8,    // Faster, more dynamic
-  stressed: 3.0,    // Rapid, agitated
+  // Flow state frequencies - meditative slow
+  deepFocus: 0.01,    // Was 0.1, very slow meditative
+  creative: 0.08,     // Was 0.8, slower creative flow
+  stressed: 0.3,      // Was 3.0, much calmer even when stressed
   
-  // Environmental rhythms
-  soundWaves: 0.5,  // Ambient sound response
-  temperature: 0.02, // Slow thermal changes
-  weather: 0.05     // Weather pattern changes
+  // Environmental rhythms - gentle breeze-like
+  windBreezePattern: 0.02,  // New: gentle wind simulation
+  gravityPendulum: 0.015,   // New: pendulum-like gravity sway
+  organicNoise: 0.008,      // New: subtle organic variation
+  soundWaves: 0.05,         // Was 0.5, much gentler
+  temperature: 0.002,       // Was 0.02, barely perceptible
+  weather: 0.005            // Was 0.05, very gentle
 };
 
 export const useReactiveTilt = ({
   layerType,
-  sensitivity = 0.7,
-  dampening = 0.8,
-  baseAmplitude = 2.0
+  sensitivity = 0.3,      // Much lower sensitivity for gentleness
+  dampening = 0.95,       // Higher dampening for smoother motion
+  baseAmplitude = 0.8,    // Much smaller amplitude for subtle movement
+  windStrength = 0.6,     // Wind effect strength
+  gravityStrength = 0.7   // Gravity drag strength
 }: ReactiveTiltOptions) => {
   const [tiltAngle, setTiltAngle] = useState(0);
+  const [windOffset, setWindOffset] = useState(0);
+  const [gravityMomentum, setGravityMomentum] = useState(0);
+  const [organicNoise, setOrganicNoise] = useState(0);
   const [frequencyData, setFrequencyData] = useState<FrequencyData>({
     timeOfDay: 0,
     dayOfYear: 0,
     moonPhase: 0,
-    stressLevel: 0.3,
-    flowState: 0.6,
-    activityIntensity: 0.5,
+    stressLevel: 0.1,      // Much lower baseline stress
+    flowState: 0.8,        // Higher baseline flow state
+    activityIntensity: 0.2, // Lower baseline activity
     mouseVelocity: 0,
     scrollVelocity: 0,
     interactionFrequency: 0,
@@ -129,7 +147,7 @@ export const useReactiveTilt = ({
     }));
   }, []);
 
-  // Mouse tracking for velocity
+  // Gentle mouse tracking with heavy dampening
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const now = Date.now();
     const deltaTime = (now - mousePos.current.lastTime) / 1000;
@@ -139,9 +157,10 @@ export const useReactiveTilt = ({
     
     mousePos.current = { x: e.clientX, y: e.clientY, lastTime: now };
     
+    // Much gentler velocity response
     setFrequencyData(prev => ({
       ...prev,
-      mouseVelocity: Math.min(velocity / 1000, 1) // Normalize to 0-1
+      mouseVelocity: Math.min(velocity / 5000, 0.3) // 5x less sensitive, max 0.3
     }));
     
     // Track interaction frequency
@@ -149,7 +168,7 @@ export const useReactiveTilt = ({
     lastInteractionTime.current = now;
   }, []);
 
-  // Scroll tracking
+  // Gentle scroll tracking
   const handleScroll = useCallback((e: Event) => {
     const now = Date.now();
     const deltaTime = (now - scrollPos.current.lastTime) / 1000;
@@ -158,9 +177,10 @@ export const useReactiveTilt = ({
     
     scrollPos.current = { y: window.scrollY, lastTime: now };
     
+    // Much gentler scroll response
     setFrequencyData(prev => ({
       ...prev,
-      scrollVelocity: Math.min(velocity / 1000, 1)
+      scrollVelocity: Math.min(velocity / 3000, 0.2) // 3x less sensitive, max 0.2
     }));
   }, []);
 
@@ -181,9 +201,10 @@ export const useReactiveTilt = ({
         analyser.getByteFrequencyData(dataArray);
         const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
         
+        // Much gentler audio response
         setFrequencyData(prev => ({
           ...prev,
-          soundLevel: average / 255
+          soundLevel: (average / 255) * 0.4 // Cap at 40% for gentleness
         }));
         
         requestAnimationFrame(updateAudioLevel);
@@ -195,153 +216,185 @@ export const useReactiveTilt = ({
     }
   }, []);
 
-  // Simulate biological data (in real app, this would come from sensors)
+  // Gentle biological simulation - much calmer baseline
   const simulateBiologicalData = useCallback(() => {
-    const baseHeart = 70; // resting heart rate
-    const stressMultiplier = 1 + (frequencyData.stressLevel * 0.5);
-    const activityMultiplier = 1 + (frequencyData.activityIntensity * 0.3);
+    const baseHeart = 65; // Lower resting heart rate
+    const stressMultiplier = 1 + (frequencyData.stressLevel * 0.2); // Much less stress impact
+    const activityMultiplier = 1 + (frequencyData.activityIntensity * 0.1); // Minimal activity impact
     
     setFrequencyData(prev => ({
       ...prev,
       heartRate: baseHeart * stressMultiplier * activityMultiplier,
-      breathingRate: 16 * (1 + prev.stressLevel * 0.4),
-      // Simulate stress based on interaction patterns
-      stressLevel: Math.max(0, Math.min(1, prev.stressLevel + 
-        (prev.mouseVelocity * 0.1) + 
-        (prev.scrollVelocity * 0.05) - 0.01)), // Natural decay
-      // Flow state inversely related to stress and mouse movement
-      flowState: Math.max(0, Math.min(1, 0.8 - prev.stressLevel * 0.6 - prev.mouseVelocity * 0.3))
+      breathingRate: 14 * (1 + prev.stressLevel * 0.2), // Calmer breathing
+      // Gentle stress simulation with natural decay
+      stressLevel: Math.max(0, Math.min(0.3, prev.stressLevel + 
+        (prev.mouseVelocity * 0.02) + 
+        (prev.scrollVelocity * 0.01) - 0.005)), // Faster natural decay
+      // Higher baseline flow state, less disruption
+      flowState: Math.max(0.5, Math.min(1, 0.9 - prev.stressLevel * 0.3 - prev.mouseVelocity * 0.1))
     }));
   }, [frequencyData.stressLevel, frequencyData.activityIntensity]);
 
-  // Calculate tilt based on all frequencies
+  // Generate organic wind and gravity effects
+  const updateOrganicMotion = useCallback(() => {
+    const now = Date.now() / 1000;
+    
+    // Simulate gentle wind with random variations
+    const windBase = Math.sin(now * FrequencyMappings.windBreezePattern * 2 * Math.PI);
+    const windGust = Math.sin(now * FrequencyMappings.windBreezePattern * 3.7 * Math.PI) * 0.3;
+    const windRandomness = (Math.random() - 0.5) * WIND_RANDOMNESS;
+    setWindOffset((windBase + windGust + windRandomness) * windStrength);
+    
+    // Simulate gravity pendulum effect with natural decay
+    setGravityMomentum(prev => {
+      const gravityPull = Math.sin(now * FrequencyMappings.gravityPendulum * 2 * Math.PI);
+      const newMomentum = (prev * PENDULUM_DAMPENING) + (gravityPull * gravityStrength * 0.1);
+      return newMomentum;
+    });
+    
+    // Generate subtle organic noise for natural feel
+    const noiseValue = (Math.sin(now * FrequencyMappings.organicNoise * 2 * Math.PI) + 
+                       Math.sin(now * FrequencyMappings.organicNoise * 1.7 * Math.PI)) * 0.5;
+    setOrganicNoise(noiseValue * ORGANIC_NOISE_SCALE);
+  }, [windStrength, gravityStrength]);
+
+  // Calculate gentle, organic tilt based on all frequencies
   const calculateReactiveTilt = useCallback(() => {
     const now = Date.now() / 1000;
     let combinedTilt = 0;
     
-    // Layer-specific frequency preferences with flexible typing
+    // Layer-specific frequency preferences with much gentler amplitudes
     const layerFrequencies: Record<string, Record<string, number>> = {
       core: {
-        heartbeat: 0.8,
-        breathing: 0.6,
-        earthRotation: 1.0,
-        timeOfDay: 0.4
+        heartbeat: 0.3,      // Was 0.8, much gentler
+        breathing: 0.4,      // Was 0.6, slightly gentler
+        earthRotation: 0.6,  // Was 1.0, gentler
+        timeOfDay: 0.2       // Was 0.4, much gentler
       },
       weather: {
-        temperature: 0.9,
-        atmosphericPressure: 0.7,
-        soundLevel: 0.5,
-        seasonalCycle: 0.8
+        temperature: 0.4,         // Was 0.9, much gentler
+        atmosphericPressure: 0.3, // Was 0.7, gentler
+        soundLevel: 0.2,          // Was 0.5, much gentler
+        seasonalCycle: 0.3        // Was 0.8, gentler
       },
       plans: {
-        flowState: 0.9,
-        timeOfDay: 0.7,
-        minute: 0.6,
-        hour: 0.8
+        flowState: 0.4,    // Was 0.9, much gentler
+        timeOfDay: 0.3,    // Was 0.7, gentler
+        minute: 0.2,       // Was 0.6, much gentler
+        hour: 0.3          // Was 0.8, gentler
       },
       mobility: {
-        mouseVelocity: 0.9,
-        scrollVelocity: 0.8,
-        activityIntensity: 1.0,
-        heartbeat: 0.6
+        mouseVelocity: 0.3,      // Was 0.9, much gentler
+        scrollVelocity: 0.2,     // Was 0.8, much gentler
+        activityIntensity: 0.4,  // Was 1.0, gentler
+        heartbeat: 0.2           // Was 0.6, much gentler
       },
       mood: {
-        stressLevel: 1.0,
-        flowState: 0.8,
-        moonPhase: 0.6,
-        soundLevel: 0.7
+        stressLevel: 0.4,   // Was 1.0, much gentler
+        flowState: 0.3,     // Was 0.8, gentler
+        moonPhase: 0.3,     // Was 0.6, gentler
+        soundLevel: 0.2     // Was 0.7, much gentler
       },
       sleep: {
-        breathing: 1.0,
-        moonPhase: 0.8,
-        timeOfDay: 0.9,
-        stressLevel: -0.5 // inverse relationship
+        breathing: 0.5,       // Was 1.0, gentler
+        moonPhase: 0.3,       // Was 0.8, gentler
+        timeOfDay: 0.4,       // Was 0.9, gentler
+        stressLevel: -0.2     // Was -0.5, gentler inverse
       },
       ui: {
-        mouseVelocity: 0.7,
-        interactionFrequency: 0.8,
-        second: 0.3
+        mouseVelocity: 0.2,         // Was 0.7, much gentler
+        interactionFrequency: 0.3,  // Was 0.8, gentler
+        second: 0.1                 // Was 0.3, much gentler
       }
     };
     
     const preferences = layerFrequencies[layerType] || layerFrequencies.core;
     
-    // Biological rhythms
+    // Ultra-gentle biological rhythms (10x slower)
     if (frequencyData.heartRate && preferences.heartbeat) {
-      const heartFreq = frequencyData.heartRate / 60; // Convert BPM to Hz
+      const heartFreq = (frequencyData.heartRate / 60) / MOTION_SLOWDOWN;
       combinedTilt += Math.sin(now * heartFreq * 2 * Math.PI) * 
-                     baseAmplitude * 0.3 * preferences.heartbeat;
+                     baseAmplitude * 0.15 * preferences.heartbeat; // Was 0.3, now 0.15
     }
     
     if (frequencyData.breathingRate && preferences.breathing) {
-      const breathFreq = frequencyData.breathingRate / 60;
+      const breathFreq = (frequencyData.breathingRate / 60) / MOTION_SLOWDOWN;
       combinedTilt += Math.sin(now * breathFreq * 2 * Math.PI) * 
-                     baseAmplitude * 0.5 * preferences.breathing;
+                     baseAmplitude * 0.25 * preferences.breathing; // Was 0.5, now 0.25
     }
     
-    // Astronomical cycles
+    // Ultra-slow astronomical cycles
     if (preferences.earthRotation) {
       combinedTilt += Math.sin(frequencyData.timeOfDay * 2 * Math.PI) * 
-                     baseAmplitude * 0.2 * preferences.earthRotation;
+                     baseAmplitude * 0.1 * preferences.earthRotation; // Was 0.2, now 0.1
     }
     
     if (preferences.moonPhase) {
       combinedTilt += Math.sin(frequencyData.moonPhase * 2 * Math.PI) * 
-                     baseAmplitude * 0.15 * preferences.moonPhase;
+                     baseAmplitude * 0.08 * preferences.moonPhase; // Was 0.15, now 0.08
     }
     
-    // Real-time rhythms
+    // Gentle real-time rhythms
     if (preferences.second) {
-      combinedTilt += Math.sin((frequencyData.currentSecond / 60) * 2 * Math.PI) * 
-                     baseAmplitude * 0.1 * preferences.second;
+      combinedTilt += Math.sin((frequencyData.currentSecond / 60) * 2 * Math.PI / MOTION_SLOWDOWN) * 
+                     baseAmplitude * 0.05 * preferences.second; // Was 0.1, now 0.05
     }
     
     if (preferences.minute) {
-      combinedTilt += Math.sin((frequencyData.currentMinute / 60) * 2 * Math.PI) * 
-                     baseAmplitude * 0.2 * preferences.minute;
+      combinedTilt += Math.sin((frequencyData.currentMinute / 60) * 2 * Math.PI / MOTION_SLOWDOWN) * 
+                     baseAmplitude * 0.1 * preferences.minute; // Was 0.2, now 0.1
     }
     
-    // Environmental and interaction data
+    // Ultra-gentle environmental and interaction data
     if (frequencyData.mouseVelocity && preferences.mouseVelocity) {
-      combinedTilt += frequencyData.mouseVelocity * baseAmplitude * 0.4 * preferences.mouseVelocity;
+      combinedTilt += frequencyData.mouseVelocity * baseAmplitude * 0.2 * preferences.mouseVelocity; // Was 0.4, now 0.2
     }
     
     if (frequencyData.stressLevel && preferences.stressLevel) {
-      const stressComponent = Math.sin(now * 3 * 2 * Math.PI) * 
-                             frequencyData.stressLevel * baseAmplitude * 0.3;
+      const stressComponent = Math.sin(now * 0.3 * 2 * Math.PI) * // Was 3, now 0.3
+                             frequencyData.stressLevel * baseAmplitude * 0.15; // Was 0.3, now 0.15
       combinedTilt += stressComponent * preferences.stressLevel;
     }
     
     if (frequencyData.flowState && preferences.flowState) {
-      // Flow state creates slower, more harmonious movement
-      const flowComponent = Math.sin(now * 0.1 * 2 * Math.PI) * 
-                           frequencyData.flowState * baseAmplitude * 0.4;
+      // Flow state creates ultra-slow, harmonious movement
+      const flowComponent = Math.sin(now * 0.01 * 2 * Math.PI) * // Was 0.1, now 0.01
+                           frequencyData.flowState * baseAmplitude * 0.2; // Was 0.4, now 0.2
       combinedTilt += flowComponent * preferences.flowState;
     }
     
     if (frequencyData.soundLevel && preferences.soundLevel) {
-      combinedTilt += Math.sin(now * 0.5 * 2 * Math.PI) * 
-                     frequencyData.soundLevel * baseAmplitude * 0.25 * preferences.soundLevel;
+      combinedTilt += Math.sin(now * 0.05 * 2 * Math.PI) * // Was 0.5, now 0.05
+                     frequencyData.soundLevel * baseAmplitude * 0.12 * preferences.soundLevel; // Was 0.25, now 0.12
     }
     
-    // Apply sensitivity and dampening
+    // Add organic wind and gravity effects
+    combinedTilt += windOffset * baseAmplitude * 0.3;
+    combinedTilt += gravityMomentum * baseAmplitude * 0.4;
+    combinedTilt += organicNoise * baseAmplitude * 0.5;
+    
+    // Apply sensitivity and much higher dampening for ultra-smooth motion
     const finalTilt = combinedTilt * sensitivity * dampening;
     
     setTiltAngle(finalTilt);
-  }, [frequencyData, layerType, sensitivity, dampening, baseAmplitude]);
+  }, [frequencyData, layerType, sensitivity, dampening, baseAmplitude, windOffset, gravityMomentum, organicNoise]);
 
   // Setup event listeners and intervals
   useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('scroll', handleScroll);
     
-    // Update time data every second
-    const timeInterval = setInterval(updateTimeData, 1000);
+    // Update time data every 2 seconds (slower updates)
+    const timeInterval = setInterval(updateTimeData, 2000);
     
-    // Update biological simulation every 5 seconds
-    const bioInterval = setInterval(simulateBiologicalData, 5000);
+    // Update biological simulation every 10 seconds (much slower)
+    const bioInterval = setInterval(simulateBiologicalData, 10000);
     
-    // Calculate interaction frequency every minute
+    // Update organic motion every 100ms for smooth wind/gravity
+    const organicInterval = setInterval(updateOrganicMotion, 100);
+    
+    
+    // Calculate interaction frequency every 2 minutes (slower tracking)
     const interactionInterval = setInterval(() => {
       const now = Date.now();
       const minutesSinceLastInteraction = (now - lastInteractionTime.current) / (60 * 1000);
@@ -349,11 +402,11 @@ export const useReactiveTilt = ({
       
       setFrequencyData(prev => ({
         ...prev,
-        interactionFrequency: Math.min(interactionsPerMinute / 60, 1) // Normalize
+        interactionFrequency: Math.min(interactionsPerMinute / 120, 0.5) // Much gentler normalization
       }));
       
       interactionCount.current = 0;
-    }, 60000);
+    }, 120000); // Every 2 minutes instead of 1
     
     // Initialize audio monitoring
     initAudioMonitoring();
@@ -364,8 +417,9 @@ export const useReactiveTilt = ({
       clearInterval(timeInterval);
       clearInterval(bioInterval);
       clearInterval(interactionInterval);
+      clearInterval(organicInterval);
     };
-  }, [handleMouseMove, handleScroll, updateTimeData, simulateBiologicalData, initAudioMonitoring]);
+  }, [handleMouseMove, handleScroll, updateTimeData, simulateBiologicalData, updateOrganicMotion, initAudioMonitoring]);
 
   // Calculate tilt in animation frame
   useEffect(() => {
@@ -401,12 +455,15 @@ export const useReactiveTilt = ({
     frequencyData,
     getTiltTransform,
     getSVGTiltTransform,
-    // Expose individual frequency components for debugging/visualization
-    heartbeatComponent: frequencyData.heartRate ? Math.sin(Date.now() / 1000 * (frequencyData.heartRate / 60) * 2 * Math.PI) : 0,
-    breathingComponent: frequencyData.breathingRate ? Math.sin(Date.now() / 1000 * (frequencyData.breathingRate / 60) * 2 * Math.PI) : 0,
-    stressComponent: frequencyData.stressLevel,
+    // Expose gentle frequency components for visualization
+    windComponent: windOffset,
+    gravityComponent: gravityMomentum,
+    organicNoiseComponent: organicNoise,
+    heartbeatComponent: frequencyData.heartRate ? Math.sin(Date.now() / 1000 * (frequencyData.heartRate / 60) / MOTION_SLOWDOWN * 2 * Math.PI) : 0,
+    breathingComponent: frequencyData.breathingRate ? Math.sin(Date.now() / 1000 * (frequencyData.breathingRate / 60) / MOTION_SLOWDOWN * 2 * Math.PI) : 0,
+    stressComponent: frequencyData.stressLevel * 0.5, // Gentler visualization
     flowComponent: frequencyData.flowState,
-    mouseComponent: frequencyData.mouseVelocity,
-    timeComponent: Math.sin(frequencyData.timeOfDay * 2 * Math.PI)
+    mouseComponent: frequencyData.mouseVelocity * 0.5, // Gentler visualization
+    timeComponent: Math.sin(frequencyData.timeOfDay * 2 * Math.PI) * 0.3 // Gentler visualization
   };
 };

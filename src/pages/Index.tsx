@@ -143,14 +143,14 @@ const IndexContent = () => {
   // Layer pop-out panel system
   const { popOutState, openPopOut, closePopOut, togglePopOut } = useLayerPopOut();
 
-  // Reactive living frequency tilt effects - connected to all possible data sources
-  const mainTilt = useReactiveTilt({ layerType: 'core', sensitivity: 0.8, baseAmplitude: 1.5 });
-  const weatherTilt = useReactiveTilt({ layerType: 'weather', sensitivity: 0.9, baseAmplitude: 2.5 });
-  const plansTilt = useReactiveTilt({ layerType: 'plans', sensitivity: 0.7, baseAmplitude: 1.8 });
-  const mobilityTilt = useReactiveTilt({ layerType: 'mobility', sensitivity: 1.0, baseAmplitude: 2.2 });
-  const moodTilt = useReactiveTilt({ layerType: 'mood', sensitivity: 0.9, baseAmplitude: 3.0 });
-  const sleepTilt = useReactiveTilt({ layerType: 'sleep', sensitivity: 0.6, baseAmplitude: 1.2 });
-  const uiTilt = useReactiveTilt({ layerType: 'ui', sensitivity: 0.5, baseAmplitude: 1.0 });
+  // Ultra-gentle reactive tilt effects - organic wind & gravity simulation
+  const mainTilt = useReactiveTilt({ layerType: 'core', sensitivity: 0.4, baseAmplitude: 0.6 });
+  const weatherTilt = useReactiveTilt({ layerType: 'weather', sensitivity: 0.5, baseAmplitude: 0.8 });
+  const plansTilt = useReactiveTilt({ layerType: 'plans', sensitivity: 0.3, baseAmplitude: 0.5 });
+  const mobilityTilt = useReactiveTilt({ layerType: 'mobility', sensitivity: 0.6, baseAmplitude: 0.7 });
+  const moodTilt = useReactiveTilt({ layerType: 'mood', sensitivity: 0.5, baseAmplitude: 1.0 });
+  const sleepTilt = useReactiveTilt({ layerType: 'sleep', sensitivity: 0.2, baseAmplitude: 0.4 });
+  const uiTilt = useReactiveTilt({ layerType: 'ui', sensitivity: 0.3, baseAmplitude: 0.3 });
 
   // Handle keyboard shortcuts for zoom and settings
   useEffect(() => {
