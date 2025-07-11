@@ -1,3 +1,12 @@
+/**
+ * [Phase: ZIP9-Alpha | Digest Phase]
+ * Theme Overlay System - Modular theme architecture
+ * 
+ * Purpose: Separate core structure from visual styling
+ * Breaking Changes: Themes now overlay core instead of separate renders
+ * Dependencies: All themed components, CSS variables
+ */
+
 import React from 'react';
 import { motion } from 'framer-motion';
 

@@ -1,3 +1,12 @@
+/**
+ * [Phase: ZIP9-Alpha | Digest Phase]
+ * Unified Motion Engine - Consolidated physics system
+ * 
+ * Purpose: Replace scattered motion hooks with single system
+ * Breaking Changes: Replaces useMotionField, individual motion hooks
+ * Dependencies: All animated components, RadialLayerSystem
+ */
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface MotionConfig {

@@ -1,3 +1,12 @@
+/**
+ * [Phase: ZIP9-Alpha | Digest Phase]
+ * Central Temporal Data Store - Unified time model for all layers
+ * 
+ * Purpose: Replace scattered time logic with single source of truth
+ * Breaking Changes: Replaces individual component time handling
+ * Dependencies: All layer components, RadialLayerSystem
+ */
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { format, startOfWeek, startOfMonth, startOfYear, addDays, addWeeks, addMonths, addYears } from 'date-fns';
 
