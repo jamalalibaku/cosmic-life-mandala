@@ -52,6 +52,9 @@ import { detectLifePhase } from '@/utils/life-phase-detection';
 import { usePhaseTheme } from '@/hooks/usePhaseTheme';
 import { useAwarenessRhythm } from '@/hooks/useAwarenessRhythm';
 import { AwarenessNotification } from '@/components/AwarenessNotification';
+import { RitualCompanion } from '@/components/RitualCompanion';
+import { RippleVisualization } from '@/components/RippleVisualization';
+import { useConsciousnessTracker } from '@/hooks/useConsciousnessTracker';
 import { getUserInsightProfile } from '@/utils/insight-memory';
 
 const IndexContent = () => {
@@ -73,6 +76,7 @@ const IndexContent = () => {
   const [persistentDebugMode, setPersistentDebugMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showInsightPanel, setShowInsightPanel] = useState(false);
+  const [showRitualCompanion, setShowRitualCompanion] = useState(false);
 
   // Life phase detection and awareness rhythm
   const userProfile = getUserInsightProfile();
@@ -91,6 +95,14 @@ const IndexContent = () => {
     onInsightOpportunity: () => {
       // Glow the Intelligence button or show notification
     }
+  });
+
+  // Consciousness tracking system
+  const consciousnessTracker = useConsciousnessTracker({
+    currentPhase: currentLifePhase.currentPhase,
+    centerX: 350,
+    centerY: 350,
+    enabled: true
   });
 
   // Handle keyboard shortcuts
@@ -365,9 +377,18 @@ const IndexContent = () => {
             centerX={centerX}
             centerY={centerY}
             radius={reflectiveMode ? 30 : 40}
-            onClick={() => setShowInsights(!showInsights)}
+            onClick={() => {
+              setShowRitualCompanion(true);
+              consciousnessTracker.trackInteraction('user-core', centerX, centerY);
+            }}
           />
         )}
+
+        {/* Ripple Consciousness Visualization */}
+        <RippleVisualization
+          centerX={centerX}
+          centerY={centerY}
+        />
 
         {/* Friend Orbit Ring - Social connections */}
         {scale === 'day' && (
@@ -779,6 +800,15 @@ const IndexContent = () => {
             setShowInsightPanel(true);
             clearAwarenessMessage();
           }}
+        />
+
+        {/* Ritual Companion Dialog */}
+        <RitualCompanion
+          currentPhase={currentLifePhase.currentPhase}
+          isOpen={showRitualCompanion}
+          onClose={() => setShowRitualCompanion(false)}
+          centerX={350}
+          centerY={350}
         />
         
         {/* Fractal Time Zoom Manager */}
