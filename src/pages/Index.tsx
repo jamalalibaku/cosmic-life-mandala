@@ -581,8 +581,10 @@ const IndexContent = () => {
           />
         )}
 
-        {/* Data Layer Labels - now aligned with navigation buttons */}
+        {/* Data Layer Labels - beautiful Fibonacci spiral arrangement */}
         <DataLayerLabels
+          centerX={centerX}
+          centerY={centerY}
           activeControls={{
             weather: true,
             plans: false,

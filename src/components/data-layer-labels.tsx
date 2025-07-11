@@ -18,12 +18,16 @@ interface DataLayerLabelsProps {
   activeControls?: Record<string, boolean>;
   theme: string;
   onToggle: (layerKey: string) => void;
+  centerX: number;
+  centerY: number;
 }
 
 export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
   activeControls = {},
   theme,
   onToggle,
+  centerX,
+  centerY,
 }) => {
   const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
@@ -60,22 +64,56 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
     },
   ];
 
+  // Fibonacci spiral positioning based on golden ratio
+  const fibonacci = [1, 1, 2, 3, 5, 8, 13, 21];
+  const goldenRatio = 1.618033988749;
+  const baseRadius = 420; // Distance from center
+  
+  // Calculate positions using Fibonacci spiral
+  const calculatePosition = (index: number) => {
+    const angle = (index / layerData.length) * 2 * Math.PI - Math.PI / 2; // Start from top
+    const spiralRadius = baseRadius + (fibonacci[index] || fibonacci[fibonacci.length - 1]) * 5;
+    
+    return {
+      x: centerX + Math.cos(angle) * spiralRadius,
+      y: centerY + Math.sin(angle) * spiralRadius,
+      angle: angle * (180 / Math.PI), // For rotation if needed
+    };
+  };
+
   return (
-    <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+    <div className="absolute inset-0 pointer-events-none">
       {layerData.map((layer, index) => {
         const isActive = activeControls?.[layer.key] || false;
         const isHovered = hoveredLabel === layer.key;
+        const position = calculatePosition(index);
         
         return (
           <motion.div
             key={layer.key}
-            className="relative group"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
+            className="absolute pointer-events-auto"
+            style={{
+              left: position.x - 24, // Center the 48px button
+              top: position.y - 24,
+            }}
+            initial={{ 
+              opacity: 0, 
+              scale: 0,
+              x: centerX - position.x,
+              y: centerY - position.y,
+            }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1,
+              x: 0,
+              y: 0,
+            }}
             transition={{ 
-              duration: 0.5, 
-              delay: index * 0.1,
-              ease: "easeOut" 
+              duration: 0.8, 
+              delay: index * 0.15,
+              ease: "easeOut",
+              type: "spring",
+              stiffness: 100,
             }}
             onMouseEnter={() => setHoveredLabel(layer.key)}
             onMouseLeave={() => setHoveredLabel(null)}
@@ -84,76 +122,126 @@ export const DataLayerLabels: React.FC<DataLayerLabelsProps> = ({
               onClick={() => onToggle(layer.key)}
               className={`
                 relative overflow-hidden
-                w-12 h-12 rounded-lg
+                w-12 h-12 rounded-full
                 flex items-center justify-center
                 text-lg font-bold
                 backdrop-blur-sm
                 transition-all duration-300
-                border
+                border-2
                 ${isActive 
-                  ? 'border-white/40 shadow-xl' 
-                  : 'border-white/20 hover:border-white/30'
+                  ? 'border-white/60 shadow-2xl' 
+                  : 'border-white/30 hover:border-white/50'
                 }
               `}
               style={{
                 background: isActive 
-                  ? `linear-gradient(135deg, ${layer.color.split(' ')[1]}, ${layer.color.split(' ')[3]})`
-                  : `linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))`,
+                  ? `radial-gradient(circle, ${layer.color.split(' ')[1]}, ${layer.color.split(' ')[3]})`
+                  : `radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0.05))`,
                 filter: isActive 
-                  ? `drop-shadow(0 0 15px ${layer.color.includes('orange') ? '#f97316' : 
+                  ? `drop-shadow(0 0 20px ${layer.color.includes('orange') ? '#f97316' : 
                       layer.color.includes('blue') ? '#3b82f6' : 
                       layer.color.includes('green') ? '#10b981' : 
-                      layer.color.includes('purple') ? '#8b5cf6' : '#ec4899'}60)` 
-                  : 'none'
+                      layer.color.includes('purple') ? '#8b5cf6' : '#ec4899'}50)` 
+                  : 'none',
+                transform: `rotate(${position.angle / 4}deg)`, // Subtle rotation based on position
               }}
               whileHover={{ 
-                scale: 1.05,
-                y: -2,
-                transition: { duration: 0.2 }
+                scale: 1.15,
+                rotate: 0, // Reset rotation on hover
+                transition: { duration: 0.3 }
               }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.9 }}
             >
-              <span className="relative z-10 drop-shadow-sm">
+              <span className="relative z-10 drop-shadow-lg" style={{ transform: `rotate(${-position.angle / 4}deg)` }}>
                 {layer.icon}
               </span>
               
-              {/* Enhanced glow effect */}
+              {/* Fibonacci spiral glow effect */}
               {isActive && (
                 <motion.div
-                  className="absolute inset-0 rounded-lg opacity-40"
+                  className="absolute inset-0 rounded-full opacity-50"
                   style={{
-                    background: `linear-gradient(135deg, ${layer.color.split(' ')[1]}, ${layer.color.split(' ')[3]})`,
-                    filter: `blur(6px) brightness(1.5)`
+                    background: `conic-gradient(from ${position.angle}deg, ${layer.color.split(' ')[1]}, ${layer.color.split(' ')[3]}, ${layer.color.split(' ')[1]})`,
+                    filter: `blur(8px) brightness(1.3)`
                   }}
                   animate={{
-                    scale: [1, 1.1, 1],
-                    opacity: [0.4, 0.6, 0.4]
+                    scale: [1, 1.3, 1],
+                    opacity: [0.5, 0.8, 0.5],
+                    rotate: [0, 360],
                   }}
                   transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
+                    scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                    opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                    rotate: { duration: 8, repeat: Infinity, ease: "linear" },
                   }}
                 />
               )}
+              
+              {/* Fibonacci connection lines */}
+              {isActive && index > 0 && (
+                <motion.div
+                  className="absolute inset-0 pointer-events-none"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.3 }}
+                  transition={{ delay: index * 0.15 + 0.5 }}
+                >
+                  <svg 
+                    className="absolute inset-0 w-full h-full"
+                    style={{ 
+                      width: baseRadius * 2, 
+                      height: baseRadius * 2,
+                      left: -baseRadius + 24,
+                      top: -baseRadius + 24,
+                    }}
+                  >
+                    <path
+                      d={`M ${baseRadius} ${baseRadius} Q ${position.x - centerX + baseRadius} ${position.y - centerY + baseRadius} ${calculatePosition(index - 1).x - centerX + baseRadius} ${calculatePosition(index - 1).y - centerY + baseRadius}`}
+                      stroke={layer.color.includes('orange') ? '#f97316' : 
+                              layer.color.includes('blue') ? '#3b82f6' : 
+                              layer.color.includes('green') ? '#10b981' : 
+                              layer.color.includes('purple') ? '#8b5cf6' : '#ec4899'}
+                      strokeWidth="1"
+                      fill="none"
+                      opacity="0.3"
+                      strokeDasharray="4,8"
+                    />
+                  </svg>
+                </motion.div>
+              )}
             </motion.button>
 
-            {/* Label tooltip */}
+            {/* Enhanced label tooltip with golden ratio positioning */}
             <AnimatePresence>
               {isHovered && (
                 <motion.div
-                  className="absolute top-14 left-1/2 transform -translate-x-1/2
-                             bg-black/80 text-white px-3 py-1 rounded-lg text-sm
-                             backdrop-blur-sm border border-white/20 whitespace-nowrap"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute pointer-events-none z-50"
+                  style={{
+                    left: position.x > centerX ? -120 : 60, // Position based on side of circle
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                  }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {layer.label}
-                  {/* Arrow pointer */}
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2">
-                    <div className="border-4 border-transparent border-b-black/80"></div>
+                  <div className="bg-black/90 text-white px-4 py-2 rounded-xl text-sm
+                                 backdrop-blur-md border border-white/20 whitespace-nowrap
+                                 shadow-2xl">
+                    {layer.label}
+                    <div 
+                      className="absolute top-1/2 transform -translate-y-1/2"
+                      style={{
+                        [position.x > centerX ? 'right' : 'left']: -4,
+                      }}
+                    >
+                      <div 
+                        className="border-4 border-transparent"
+                        style={{
+                          [position.x > centerX ? 'borderLeftColor' : 'borderRightColor']: 'rgba(0,0,0,0.9)',
+                        }}
+                      />
+                    </div>
                   </div>
                 </motion.div>
               )}
