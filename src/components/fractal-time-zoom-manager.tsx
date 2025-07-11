@@ -132,21 +132,56 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
   }, [currentScale, isTransitioning, animateTransition]);
   */
 
-  // Handle keyboard navigation
+  // Handle keyboard navigation with Z shortcuts and DWMY scale switching
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (isTransitioning) return;
       
       const currentIndex = scaleHierarchy.indexOf(currentScale);
       
-      switch (e.key) {
-        case 'ArrowUp':
+      switch (e.key.toLowerCase()) {
+        // Z shortcuts for zoom
+        case 'z':
+          if (e.shiftKey) {
+            // Shift + Z: zoom out
+            if (currentIndex < scaleHierarchy.length - 1) {
+              animateTransition(scaleHierarchy[currentIndex + 1]);
+            }
+          } else {
+            // Z: zoom in
+            if (currentIndex > 0) {
+              animateTransition(scaleHierarchy[currentIndex - 1]);
+            }
+          }
+          e.preventDefault();
+          break;
+        
+        // Direct scale switching
+        case 'd':
+          animateTransition('day');
+          e.preventDefault();
+          break;
+        case 'w':
+          animateTransition('week');
+          e.preventDefault();
+          break;
+        case 'm':
+          animateTransition('month');
+          e.preventDefault();
+          break;
+        case 'y':
+          animateTransition('year');
+          e.preventDefault();
+          break;
+        
+        // Legacy arrow/plus/minus support
+        case 'arrowup':
         case '+':
           if (currentIndex > 0) {
             animateTransition(scaleHierarchy[currentIndex - 1]);
           }
           break;
-        case 'ArrowDown':
+        case 'arrowdown':
         case '-':
           if (currentIndex < scaleHierarchy.length - 1) {
             animateTransition(scaleHierarchy[currentIndex + 1]);

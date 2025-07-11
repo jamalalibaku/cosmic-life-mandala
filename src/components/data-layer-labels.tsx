@@ -10,7 +10,7 @@ import { useBreathingPulse } from '@/hooks/use-breathing-pulse';
 interface DataLayerLabel {
   id: string;
   text: string;
-  layer: 'weather' | 'mood' | 'mobility' | 'sleep' | 'plans' | 'self';
+  layer: 'weather' | 'mood' | 'mobility' | 'sleep' | 'plans' | 'wallet';
   radius: number;
   isActive: boolean;
   theme: string;

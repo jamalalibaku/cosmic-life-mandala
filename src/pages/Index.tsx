@@ -41,6 +41,7 @@ import { ManualZoomControls } from '@/components/ManualZoomControls';
 import { useLayerPopOut } from '@/hooks/useLayerPopOut';
 import { mockWeatherData, mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
+import { mockPlansData } from '@/data/mock-plans-data';
 import { mockWeekData, mockMonthData, mockYearData } from '@/data/mock-temporal-data';
 import { mockFriends } from '@/data/mock-friend-data';
 import { mockInsightData } from '@/data/mock-insight-data';
@@ -586,9 +587,9 @@ const IndexContent = () => {
                 theme: currentTheme 
               },
               { 
-                id: 'self-label', 
-                text: 'Self', 
-                layer: 'self' as const, 
+                id: 'wallet-label', 
+                text: 'Wallet', 
+                layer: 'wallet' as const, 
                 radius: 40, 
                 isActive: true, 
                 theme: currentTheme 
@@ -606,11 +607,11 @@ const IndexContent = () => {
             }}
             layerDataMap={{
               weather: mockWeatherData,
-              plans: [], // Will be populated with actual plan data
+              plans: mockPlansData,
               mobility: mockMobilityData,
               mood: mockMoodData,
               sleep: mockSleepData,
-              self: [] // Core self-reflection data
+              wallet: [] // Wallet currency tracking
             }}
           />
         )}

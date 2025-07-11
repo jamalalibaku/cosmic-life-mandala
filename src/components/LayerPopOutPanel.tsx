@@ -30,7 +30,7 @@ const getLayerIcon = (layerType: string) => {
     mobility: Footprints,
     mood: Heart,
     sleep: Moon,
-    self: User
+    wallet: User
   };
   return icons[layerType] || Heart;
 };
@@ -42,7 +42,7 @@ const getLayerColor = (layerType: string, theme: string) => {
     mobility: 'hsl(120, 50%, 70%)',
     mood: 'hsl(320, 60%, 70%)',
     sleep: 'hsl(260, 50%, 70%)',
-    self: 'hsl(45, 80%, 75%)'
+    wallet: 'hsl(45, 80%, 75%)'
   };
   return colors[layerType] || colors.mood;
 };
@@ -98,9 +98,9 @@ const generateLayerInsight = (layerType: string, data: any) => {
       avgValue,
       trend
     },
-    self: {
-      summary: "Core reflection",
-      insight: "You are the center from which all awareness radiates",
+    wallet: {
+      summary: "Energetic currency",
+      insight: "Every interaction builds your consciousness wealth",
       avgValue,
       trend
     }
