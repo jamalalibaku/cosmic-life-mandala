@@ -214,6 +214,7 @@ const MandalaViewContent = () => {
               currentZoom={zoomLevel}
               centerRadius={45}
               layerSpacing={60}
+              showConstellations={false}
             />
           </motion.g>
         </motion.svg>

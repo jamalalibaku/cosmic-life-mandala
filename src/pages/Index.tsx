@@ -47,6 +47,7 @@ import { MoodInfluence } from '@/utils/mood-engine';
 import { Theme, themeConfigs } from '@/utils/theme-configs';
 import { generateInsights } from '@/utils/insight-engine';
 import { SettingsPanel } from '@/components/settings-panel';
+import { ConstellationToggle } from '@/components/interactions/ConstellationToggle';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();

@@ -32,6 +32,8 @@ import { CosmicBackgroundPulse } from "@/components/cosmic/CosmicBackgroundPulse
 import { CosmicRadialTicks } from "@/components/cosmic/CosmicRadialTicks";
 import { useZoomCompensation } from "@/hooks/useZoomCompensation";
 import { useInteractionTracking } from "@/hooks/useInteractionTracking";
+import { findRecurringSlices, getConstellationColors } from "@/utils/constellation-engine";
+import { ConstellationArcs } from "@/components/interactions/ConstellationArcs";
 
 interface LayerData {
   name: string;
@@ -48,6 +50,7 @@ interface RadialLayerSystemProps {
   currentZoom?: "year" | "month" | "week" | "day" | "hour";
   centerRadius?: number;
   layerSpacing?: number;
+  showConstellations?: boolean;
 }
 
 const RingLabel: React.FC<{ name: string; radius: number; color: string }> = ({ 
@@ -349,7 +352,8 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   layers,
   currentZoom = "month",
   centerRadius = 40,
-  layerSpacing = 50
+  layerSpacing = 50,
+  showConstellations = false
 }) => {
   // IMMEDIATE DEBUG: Log component mount and basic props
   console.log('🚀 RadialLayerSystem component mounted!', {
@@ -406,6 +410,9 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   const [activeSupernovas, setActiveSupernovas] = useState<SupernovaTrigger[]>([]);
   const [supernovaCounter, setSupernovaCounter] = useState(0);
   
+  // Constellation states
+  const [constellations, setConstellations] = useState<any[]>([]);
+  
   // Analyze mood data for emotional peaks on mount and data changes
   useEffect(() => {
     console.log('🔍 RadialLayerSystem checking for mood data...', { 
@@ -436,6 +443,30 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
       setSupernovaCounter(prev => prev + triggers.length);
     }
   }, [layers, supernovaCounter]);
+
+  // Generate constellations when enabled
+  useEffect(() => {
+    if (showConstellations && layers.length > 0) {
+      const allSlices = layers.flatMap(layer => 
+        (layer.data || []).map((item, index) => ({
+          ...item,
+          id: `${layer.name}-${index}`,
+          timestamp: item.timestamp || item.date || new Date().toISOString(),
+          layerName: layer.name,
+          angle: (index / layer.data.length) * 360
+        }))
+      );
+      
+      const matches = findRecurringSlices(allSlices, {
+        matchThreshold: 0.7,
+        compareAcross: 'months'
+      });
+      
+      setConstellations(matches);
+    } else {
+      setConstellations([]);
+    }
+  }, [showConstellations, layers]);
 
   const handleTooltipShow = (data: any) => {
     setTooltipData(data);
@@ -623,6 +654,16 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
               />
             </ClickableLayer>
           ))}
+
+          {/* Constellation Arcs */}
+          {showConstellations && constellations.length > 0 && (
+            <ConstellationArcs
+              constellations={constellations}
+              layers={layers}
+              centerRadius={centerRadius}
+              layerSpacing={layerSpacing}
+            />
+          )}
 
           {/* Cosmic background elements (z-depth 0) */}
           <CosmicBackgroundPulse
