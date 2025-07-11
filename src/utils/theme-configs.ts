@@ -11,7 +11,8 @@ export type Theme =
   | 'techHUD'
   | 'vinyl'
   | 'noir'
-  | 'pastelParadise';
+  | 'pastelParadise'
+  | 'mandalaExpressive';
 
 export interface ThemeConfig {
   name: string;
@@ -320,6 +321,45 @@ export const themeConfigs: Record<Theme, ThemeConfig> = {
     haiku: [
       'Soft clouds drift like thoughts / Through the pastel afternoon / Gentle time unfolds',
       'Colors blur to dreams / In the hazy summer light / Peace flows like water'
+    ]
+  },
+
+  mandalaExpressive: {
+    name: 'Mandala Expressive',
+    description: 'Living, breathing visualization of emotion, sleep, and mobility',
+    colors: {
+      primary: 'hsl(280 70% 60%)',
+      secondary: 'hsl(200 50% 40%)',
+      accent: 'hsl(45 80% 70%)',
+      background: 'hsl(240 20% 5%)',
+      text: 'hsl(280 40% 85%)',
+      glow: 'hsl(280 80% 70%)'
+    },
+    typography: {
+      primary: 'serif',
+      secondary: 'system-ui',
+      size: 'medium'
+    },
+    shapes: {
+      rings: 'organic',
+      segments: 'flowing'
+    },
+    animations: {
+      speed: 'slow',
+      style: 'organic'
+    },
+    icons: {
+      weather: { sunny: '🌸', rainy: '🌊', cloudy: '🌙' },
+      mood: { calm: '🧘', creative: '🎨', energetic: '⚡' },
+      time: '🌀'
+    },
+    background: {
+      pattern: 'stars',
+      intensity: 0.4
+    },
+    haiku: [
+      'Emotions flow like rivers / Through the mandala of time / Each breath a new world',
+      'Sleep ripples outward / While spirit trails dance in light / Being becomes form'
     ]
   }
 };

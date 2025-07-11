@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import WeatherSunburst from '@/components/weather-sunburst';
 import { AtmosphericWeatherRing } from '@/components/atmospheric-weather-ring';
 import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
+import { MandalaView } from '@/components/mandala/MandalaView';
 import { DataBlobRing } from '@/components/data-blob-ring';
 import { UserCore } from '@/components/user-core';
 import { FriendOrbitRing } from '@/components/friend-orbit-ring';
@@ -608,6 +609,37 @@ const IndexContent = () => {
       </g>
     );
   };
+
+  // Render Mandala View for mandala theme
+  if (currentTheme === 'mandalaExpressive') {
+    return (
+      <div className="relative w-full h-screen overflow-hidden" style={{
+        fontFamily: themeConfig.typography.primary,
+        backgroundColor: themeConfig.colors.background,
+        color: themeConfig.colors.text
+      }}>
+        <MandalaView />
+        
+        {/* Settings panel still available */}
+        <SettingsPanel
+          reflectiveMode={reflectiveMode}
+          poetryMode={poetryMode}
+          showFriends={showFriends}
+          showInsights={showInsights}
+          showPlayback={showPlayback}
+          showTideRings={showTideRings}
+          showAIInsights={showAIInsights}
+          onReflectiveModeChange={setReflectiveMode}
+          onPoetryModeChange={setPoetryMode}
+          onShowFriendsChange={setShowFriends}
+          onShowInsightsChange={setShowInsights}
+          onShowPlaybackChange={setShowPlayback}
+          onShowTideRingsChange={setShowTideRings}
+          onShowAIInsightsChange={setShowAIInsights}
+        />
+      </div>
+    );
+  }
 
   return (
     <div 
