@@ -648,8 +648,15 @@ const IndexContent = () => {
     );
   }
 
+  console.log('🎨 Current theme check:', { 
+    currentTheme, 
+    isMandalaExpressive: currentTheme === 'mandalaExpressive',
+    timestamp: new Date().toLocaleTimeString()
+  });
+
   // Render Mandala View for mandala theme
   if (currentTheme === 'mandalaExpressive') {
+    console.log('🌀 Rendering MandalaView...');
     return (
       <div className="relative w-full h-screen overflow-hidden" style={{
         fontFamily: themeConfig.typography.primary,
