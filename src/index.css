@@ -62,7 +62,9 @@
 
   body {
     @apply bg-background text-foreground font-inter antialiased;
-    background: radial-gradient(ellipse at center, hsl(var(--background-subtle)), hsl(var(--background-vignette)));
+    background: 
+      radial-gradient(ellipse 800px 800px at center, hsl(var(--background-subtle)) 0%, transparent 70%),
+      radial-gradient(ellipse 1200px 1200px at center, hsl(var(--background)) 0%, hsl(var(--background-vignette)) 100%);
     min-height: 100vh;
   }
 
@@ -96,6 +98,16 @@
   }
 
   .core-glow {
-    filter: drop-shadow(0 0 12px hsl(var(--core-glow) / 0.5));
+    filter: drop-shadow(0 0 20px hsl(var(--core-glow) / 0.3)) drop-shadow(0 0 40px hsl(var(--core-glow) / 0.1));
+  }
+
+  /* Smooth transition zones */
+  .transition-zone {
+    background: radial-gradient(circle at center, 
+      transparent 0%, 
+      hsl(var(--background) / 0.1) 30%, 
+      hsl(var(--background) / 0.3) 60%, 
+      hsl(var(--background) / 0.6) 85%, 
+      hsl(var(--background)) 100%);
   }
 }
