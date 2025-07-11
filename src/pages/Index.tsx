@@ -392,21 +392,18 @@ const IndexContent = () => {
           />
         )}
 
-        {/* Insight Overlay Engine */}
-        <InsightOverlayEngine
-          insights={mockInsightData}
-          currentView={scale}
-          centerX={centerX}
-          centerY={centerY}
-          maxRadius={360}
-          activeLayer={activeLayer}
-          hoveredElement={hoveredLayer}
-          isVisible={showInsights || hoveredLayer !== undefined}
-          onInsightClick={(insight) => {
-            console.log('Insight clicked:', insight);
-            setActiveLayer(insight.sourceLayer);
-          }}
-        />
+        {/* Legacy Insight System - Will be replaced by new InsightOverlayEngine in LayerDataAnimator */}
+        {showInsights && (
+          <text
+            x={centerX}
+            y={centerY - 200}
+            textAnchor="middle"
+            fill="hsl(var(--muted-foreground))"
+            fontSize="12"
+          >
+            Interactive insights active - click on data points
+          </text>
+        )}
 
         {/* Legacy Insights Overlay */}
         <RadialInsightsOverlay

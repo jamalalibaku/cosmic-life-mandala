@@ -4,7 +4,7 @@
  * Built by ChatGPT & Lovable · MIT Licensed
  */
 
-import { Insight } from '../components/insight-overlay-engine';
+import { Insight } from '@/utils/insight-engine';
 
 export const mockInsightData: Insight[] = [
   // Day view insights
