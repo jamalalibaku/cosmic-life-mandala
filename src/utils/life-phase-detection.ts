@@ -191,14 +191,12 @@ function calculateTransitionReadiness(patterns: any, metrics: any): number {
 }
 
 function generatePhaseHistory(userProfile: any, currentPhase: LifePhase) {
-  // Simplified phase history - in real implementation, this would be stored
-  return [
-    {
-      phase: currentPhase,
-      startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-      intensity: 0.8
-    }
-  ];
+  // Import from phase history manager for persistence
+  const { updatePhaseHistory } = require('./phase-history-manager');
+  const phaseStability = 0.8; // This would be calculated from actual patterns
+  
+  const result = updatePhaseHistory(currentPhase, phaseStability);
+  return result.history;
 }
 
 function determineEmotionalTone(phase: LifePhase, metrics: any, sophisticationLevel: number): LifePhaseProfile['emotionalTone'] {

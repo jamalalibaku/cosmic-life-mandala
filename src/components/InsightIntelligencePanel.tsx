@@ -28,6 +28,8 @@ import { getUserInsightProfile, getSophisticationLevel, exportUserProfile } from
 import { analyzeLayerCorrelations, detectTemporalPatterns, generateReflectionPrompts } from '@/utils/insight-engine';
 import { detectLifePhase, LifePhaseProfile, LifePhaseThemeMap } from '@/utils/life-phase-detection';
 import { generatePhaseAwareInsight } from '@/utils/phase-aware-insights';
+import { addPhaseReflection, exportPhaseHistory } from '@/utils/phase-history-manager';
+import { PhaseTimelineTracker } from './PhaseTimelineTracker';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -174,6 +176,27 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  const phaseData = exportPhaseHistory();
+                  const dataBlob = new Blob([phaseData], { type: 'application/json' });
+                  const url = URL.createObjectURL(dataBlob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = `phase-insights-${new Date().toISOString().split('T')[0]}.json`;
+                  link.click();
+                  URL.revokeObjectURL(url);
+                  
+                  toast({
+                    title: "Phase Insights Exported",
+                    description: "Your phase journey has been downloaded",
+                  });
+                }}
+              >
+                Export Phases
+              </Button>
               <Button variant="outline" size="sm" onClick={handleExportProfile}>
                 Export Profile
               </Button>
@@ -534,9 +557,22 @@ export const InsightIntelligencePanel: React.FC<InsightIntelligencePanelProps> =
                           Insufficient data for pattern analysis. Continue tracking to see temporal patterns emerge.
                         </p>
                       )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                     </CardContent>
+                   </Card>
+                   
+                   {/* Phase Timeline */}
+                   {lifePhase && (
+                     <PhaseTimelineTracker 
+                       history={lifePhase.phaseHistory} 
+                       onReflectionAdd={(phaseIndex, reflection) => {
+                         addPhaseReflection(phaseIndex, reflection);
+                         // Refresh the life phase data
+                         const updatedPhase = detectLifePhase(profile, recentInteractions);
+                         setLifePhase(updatedPhase);
+                       }}
+                     />
+                   )}
+                 </TabsContent>
 
                 <TabsContent value="insights" className="mt-0 space-y-4">
                   <Card>

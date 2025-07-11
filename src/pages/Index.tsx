@@ -48,6 +48,10 @@ import { Theme, themeConfigs } from '@/utils/theme-configs';
 import { generateInsights } from '@/utils/insight-engine';
 import { SettingsPanel } from '@/components/settings-panel';
 import { ConstellationToggle } from '@/components/interactions/ConstellationToggle';
+import { PhaseTransitionManager } from '@/components/PhaseTransitionManager';
+import { detectLifePhase } from '@/utils/life-phase-detection';
+import { usePhaseTheme } from '@/hooks/usePhaseTheme';
+import { getUserInsightProfile } from '@/utils/insight-memory';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -67,6 +71,16 @@ const IndexContent = () => {
   const [showLayerDebug, setShowLayerDebug] = useState(false);
   const [persistentDebugMode, setPersistentDebugMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+
+  // Life phase detection
+  const userProfile = getUserInsightProfile();
+  const mockInteractions = [
+    { layerType: 'mood', timestamp: new Date().toISOString(), dataValue: 0.7 },
+    { layerType: 'sleep', timestamp: new Date().toISOString(), dataValue: 0.8 },
+    { layerType: 'mobility', timestamp: new Date().toISOString(), dataValue: 0.6 }
+  ];
+  const currentLifePhase = detectLifePhase(userProfile, mockInteractions);
+  const phaseTheme = usePhaseTheme(currentLifePhase.currentPhase);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -771,7 +785,15 @@ const Index = () => {
   return (
     <VisualSkinProvider defaultTheme="cosmic">
       <TimeAxisProvider>
-        <IndexContent />
+        <PhaseTransitionManager 
+          userProfile={{ totalInteractions: 0, discoveredCorrelations: [], layerPreferences: {}, behaviorPatterns: { explorationStyle: 'gentle' }, lastActiveDate: new Date().toISOString() }}
+          recentInteractions={[
+            { layerType: 'mood', timestamp: new Date().toISOString(), dataValue: 0.7 },
+            { layerType: 'sleep', timestamp: new Date().toISOString(), dataValue: 0.8 }
+          ]}
+        >
+          <IndexContent />
+        </PhaseTransitionManager>
         <ThemeHaikuDisplay />
       </TimeAxisProvider>
     </VisualSkinProvider>
