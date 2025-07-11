@@ -92,11 +92,11 @@ export const SunAuraRing: React.FC<SunAuraRingProps> = ({
 
   // Enhanced smooth breathing with optimized easing for Phase 19
   const breathingScale = useMemo(() => {
-    const cycle = 5000; // Enhanced 5 second breathing cycle for better harmony
+    const cycle = 6000; // Slower 6 second breathing for deeper meditation
     const phase = (time * 1000) % cycle / cycle;
-    // Use enhanced cubic easing for smoother breathing (no flicker/overpowering)
+    // Gentler cubic easing for smooth, non-distracting breathing
     const eased = 0.5 * (1 + Math.sin((phase * 2 - 0.5) * Math.PI));
-    return 0.96 + (eased * 0.08); // Reduced range: 0.96 to 1.04 for subtle effect
+    return 0.98 + (eased * 0.04); // Very subtle range: 0.98 to 1.02
   }, [time]);
 
   // Calculate structural anchor radius (outermost active layer)
@@ -123,48 +123,49 @@ export const SunAuraRing: React.FC<SunAuraRingProps> = ({
     const layers = [];
     const baseRadius = structuralRadius * breathingScale;
     
-    for (let i = 0; i < 3; i++) {
-      const layerRadius = baseRadius * Math.pow(goldenRatio.larger(1), i * 0.3);
-      const opacity = (auraConfig.intensity * timeIntensity * (0.8 - i * 0.2));
-      const blur = 4 + i * 3;
+    // Reduce to 2 subtle layers for cleaner appearance
+    for (let i = 0; i < 2; i++) {
+      const layerRadius = baseRadius * Math.pow(goldenRatio.larger(1), i * 0.2);
+      const opacity = (auraConfig.intensity * timeIntensity * (0.4 - i * 0.15));
+      const blur = 3 + i * 2;
       
       layers.push({
         id: i,
         radius: layerRadius,
-        opacity: Math.max(0.1, opacity),
+        opacity: Math.max(0.05, opacity),
         blur,
-        strokeWidth: 2 - i * 0.5
+        strokeWidth: 1 - i * 0.3
       });
     }
     
     return layers;
   }, [structuralRadius, breathingScale, auraConfig.intensity, timeIntensity]);
 
-  // Smooth orbital patterns - no flickering
+  // Simplified orbital patterns - fewer, gentler
   const orbitalPatterns = useMemo(() => {
-    const patternCount = 8;
+    const patternCount = 4; // Reduced from 8
     const patterns = [];
     
     for (let i = 0; i < patternCount; i++) {
       const baseAngle = (i / patternCount) * 360;
-      const driftAngle = time * 3; // Slow drift
+      const driftAngle = time * 1.5; // Slower drift
       const angle = baseAngle + driftAngle;
       
-      const orbitRadius = structuralRadius * (0.7 + i * 0.05);
+      const orbitRadius = structuralRadius * (0.8 + i * 0.05);
       const x = centerX + Math.cos(goldenRatio.toRadians(angle)) * orbitRadius;
       const y = centerY + Math.sin(goldenRatio.toRadians(angle)) * orbitRadius;
       
-      // Smooth pulsing without harsh Math.sin transitions
-      const pulsePhase = (time + i * 0.5) % 3; // 3 second pulse cycle
-      const smoothPulse = 0.5 + 0.5 * Math.cos(pulsePhase * 2 * Math.PI / 3);
+      // Very gentle pulsing
+      const pulsePhase = (time + i * 0.8) % 4; // Slower 4 second pulse
+      const smoothPulse = 0.5 + 0.3 * Math.cos(pulsePhase * 2 * Math.PI / 4);
       
       patterns.push({
         id: i,
         x,
         y,
         angle,
-        size: 6 + smoothPulse * 4,
-        opacity: auraConfig.intensity * timeIntensity * (0.4 + smoothPulse * 0.3)
+        size: 3 + smoothPulse * 2, // Smaller sizes
+        opacity: auraConfig.intensity * timeIntensity * (0.2 + smoothPulse * 0.15)
       });
     }
     
@@ -307,15 +308,15 @@ export const SunAuraRing: React.FC<SunAuraRingProps> = ({
         </g>
       )}
 
-      {/* Pulse rings */}
+      {/* Subtle pulse rings - reduced intensity */}
       <circle
         cx={centerX}
         cy={centerY}
-        r={radius * (1.2 + Math.sin(time * 1.5) * 0.1)}
+        r={radius * (1.1 + Math.sin(time * 1.2) * 0.05)}
         fill="none"
         stroke={auraConfig.baseColor}
-        strokeWidth="1"
-        opacity={0.2 + Math.sin(time * 2) * 0.1}
+        strokeWidth="0.5"
+        opacity={0.1 + Math.sin(time * 1.5) * 0.05}
         filter="url(#aura-glow)"
         className="pointer-events-none"
       />

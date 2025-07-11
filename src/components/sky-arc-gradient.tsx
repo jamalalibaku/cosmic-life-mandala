@@ -226,11 +226,11 @@ export const SkyArcGradient: React.FC<SkyArcGradientProps> = ({
           y2="0%"
           gradientTransform={`rotate(${timeData.timeAngle} ${centerX} ${centerY})`}
         >
-          <stop offset="0%" stopColor={themeColors.primary} stopOpacity="0.3" />
-          <stop offset="25%" stopColor={themeColors.secondary} stopOpacity="0.2" />
-          <stop offset="50%" stopColor={themeColors.accent} stopOpacity="0.4" />
-          <stop offset="75%" stopColor={themeColors.secondary} stopOpacity="0.2" />
-          <stop offset="100%" stopColor={themeColors.primary} stopOpacity="0.3" />
+          <stop offset="0%" stopColor={themeColors.primary} stopOpacity="0.15" />
+          <stop offset="25%" stopColor={themeColors.secondary} stopOpacity="0.1" />
+          <stop offset="50%" stopColor={themeColors.accent} stopOpacity="0.2" />
+          <stop offset="75%" stopColor={themeColors.secondary} stopOpacity="0.1" />
+          <stop offset="100%" stopColor={themeColors.primary} stopOpacity="0.15" />
         </linearGradient>
         
         {/* Sun/Moon glow */}
@@ -269,8 +269,8 @@ export const SkyArcGradient: React.FC<SkyArcGradientProps> = ({
         x2={centerX + Math.cos(goldenRatio.toRadians(timeData.timeAngle - 90)) * outerRadius}
         y2={centerY + Math.sin(goldenRatio.toRadians(timeData.timeAngle - 90)) * outerRadius}
         stroke={themeColors.accent}
-        strokeWidth="2"
-        opacity="0.5"
+        strokeWidth="1"
+        opacity="0.25"
         filter="url(#sky-glow)"
         className="pointer-events-none"
       />

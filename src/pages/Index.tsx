@@ -329,17 +329,19 @@ const IndexContent = () => {
               {...currentMetrics}
             />
             
-            {/* 2. Plans (placeholder ring for future implementation) */}
-            <circle
-              cx={centerX}
-              cy={centerY}
-              r={285}
-              fill="none"
-              stroke={currentTheme === 'horizons' ? 'hsl(280 30% 70%)' : 'hsl(240 20% 60%)'}
-              strokeWidth="1"
-              strokeDasharray="2,4"
-              opacity="0.3"
-            />
+            {/* 2. Plans - Data-driven ring when active */}
+            {mockPlansData.length > 0 && (
+              <circle
+                cx={centerX}
+                cy={centerY}
+                r={285}
+                fill="none"
+                stroke={currentTheme === 'horizons' ? 'hsl(280 30% 70%)' : 'hsl(240 20% 60%)'}
+                strokeWidth="0.5"
+                strokeDasharray="4,12"
+                opacity="0.2"
+              />
+            )}
             
             {/* 1. Weather - Atmospheric Outermost Ring */}
             <AtmosphericWeatherRing

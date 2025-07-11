@@ -166,41 +166,41 @@ export const CosmicSunburstLayer: React.FC<CosmicSunburstLayerProps> = ({
         </filter>
       </defs>
       
-      {/* Central breathing aura */}
+      {/* Gentle central breathing aura - reduced intensity */}
       <circle
         cx={centerX}
         cy={centerY}
         r={innerRadius * breathingScale}
         fill={`url(#cosmic-aura-${theme})`}
         filter="url(#cosmic-glow)"
-        opacity="0.4"
+        opacity="0.2"
         className="pointer-events-none"
       />
       
-      {/* Golden ribbon trails */}
-      {ribbonTrails.map(trail => (
+      {/* Simplified ribbon trails - reduced count and opacity */}
+      {ribbonTrails.slice(0, 4).map(trail => (
         <path
           key={`ribbon-${trail.id}`}
           d={`M ${trail.points.map(p => `${p.x},${p.y}`).join(' L ')}`}
           fill="none"
           stroke={colors.ribbon}
-          strokeWidth="1"
-          opacity={trail.opacity}
+          strokeWidth="0.5"
+          opacity={trail.opacity * 0.5}
           filter="url(#cosmic-glow)"
           className="pointer-events-none"
         />
       ))}
       
-      {/* Spiral flame shapes */}
-      {flameShapes.map(flame => (
+      {/* Subtle flame shapes - reduced count and size */}
+      {flameShapes.slice(0, 6).map(flame => (
         <g key={`flame-${flame.id}`} className="pointer-events-none">
           <ellipse
             cx={flame.x}
             cy={flame.y}
-            rx={flame.width}
-            ry={flame.height}
+            rx={flame.width * 0.7}
+            ry={flame.height * 0.7}
             fill={`url(#flame-gradient-${theme})`}
-            opacity={flame.opacity}
+            opacity={flame.opacity * 0.6}
             filter="url(#cosmic-glow)"
             transform={`rotate(${flame.angle} ${flame.x} ${flame.y})`}
           />
@@ -224,15 +224,15 @@ export const CosmicSunburstLayer: React.FC<CosmicSunburstLayerProps> = ({
         </g>
       )}
       
-      {/* Breathing pulse ring */}
+      {/* Gentle breathing pulse ring - reduced opacity */}
       <circle
         cx={centerX}
         cy={centerY}
         r={innerRadius + 20}
         fill="none"
         stroke={colors.glow}
-        strokeWidth="1"
-        opacity={0.3 + Math.sin(time * 2) * 0.2}
+        strokeWidth="0.5"
+        opacity={0.15 + Math.sin(time * 1.5) * 0.1}
         filter="url(#cosmic-glow)"
         className="pointer-events-none"
       />
