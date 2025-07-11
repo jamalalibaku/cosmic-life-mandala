@@ -309,10 +309,127 @@ export const analyzeLayerCorrelations = (timeSlices: any[], focusLayer: string) 
 };
 
 /**
- * Generate reflection questions based on interaction patterns
- * Future: Personalized based on user behavior and data trends
+ * Detect patterns across different time scales
+ * Analyzes trends, cycles, and anomalies in user data
  */
-export const generateReflectionPrompts = (interactionHistory: SliceInsightData[]) => {
+export const detectTemporalPatterns = (timeSlices: any[], layerType: string, timeScale: 'hour' | 'day' | 'week' = 'day') => {
+  if (!timeSlices || timeSlices.length < 3) return null;
+
+  // Extract values for pattern analysis
+  const extractValues = (layer: string): { time: number; value: number }[] => {
+    return timeSlices.map((slice, index) => ({
+      time: index,
+      value: (() => {
+        const data = slice.data?.[layer];
+        if (!data) return 0;
+        switch (layer) {
+          case 'mood': return data.valence || data.intensity || 0;
+          case 'sleep': return data.quality || data.intensity || 0;
+          case 'mobility': return data.intensity || 0;
+          case 'weather': return data.intensity || 0.5;
+          default: return data.intensity || data.value || 0;
+        }
+      })()
+    }));
+  };
+
+  const values = extractValues(layerType);
+  
+  // Calculate trend (linear regression slope)
+  const calculateTrend = (data: { time: number; value: number }[]): number => {
+    const n = data.length;
+    const sumX = data.reduce((sum, d) => sum + d.time, 0);
+    const sumY = data.reduce((sum, d) => sum + d.value, 0);
+    const sumXY = data.reduce((sum, d) => sum + d.time * d.value, 0);
+    const sumX2 = data.reduce((sum, d) => sum + d.time * d.time, 0);
+    
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    return isNaN(slope) ? 0 : slope;
+  };
+
+  // Detect cycles (simple peak detection)
+  const detectCycles = (data: { time: number; value: number }[]): { period: number; strength: number } | null => {
+    if (data.length < 6) return null;
+    
+    const findPeaks = (values: number[]): number[] => {
+      const peaks: number[] = [];
+      for (let i = 1; i < values.length - 1; i++) {
+        if (values[i] > values[i-1] && values[i] > values[i+1]) {
+          peaks.push(i);
+        }
+      }
+      return peaks;
+    };
+
+    const valueArray = data.map(d => d.value);
+    const peaks = findPeaks(valueArray);
+    
+    if (peaks.length < 2) return null;
+    
+    // Calculate most common interval between peaks
+    const intervals = peaks.slice(1).map((peak, i) => peak - peaks[i]);
+    const avgInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
+    
+    return {
+      period: Math.round(avgInterval),
+      strength: 1 - (Math.std(intervals) / avgInterval || 0)
+    };
+  };
+
+  // Detect anomalies (values beyond 2 standard deviations)
+  const detectAnomalies = (data: { time: number; value: number }[]): number[] => {
+    const values = data.map(d => d.value);
+    const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+    const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+    const stdDev = Math.sqrt(variance);
+    
+    return data
+      .map((d, i) => Math.abs(d.value - mean) > 2 * stdDev ? i : -1)
+      .filter(i => i !== -1);
+  };
+
+  const trend = calculateTrend(values);
+  const cycles = detectCycles(values);
+  const anomalies = detectAnomalies(values);
+
+  return {
+    trend: {
+      direction: trend > 0.05 ? 'increasing' : trend < -0.05 ? 'decreasing' : 'stable',
+      strength: Math.abs(trend),
+      slope: trend
+    },
+    cycles: cycles || { period: 0, strength: 0 },
+    anomalies: {
+      count: anomalies.length,
+      indices: anomalies,
+      percentage: (anomalies.length / values.length) * 100
+    },
+    timeScale,
+    sampleSize: values.length
+  };
+};
+
+// Add Math.std helper if not available
+declare global {
+  interface Math {
+    std(values: number[]): number;
+  }
+}
+
+Math.std = function(values: number[]): number {
+  const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+  const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+  return Math.sqrt(variance);
+};
+
+/**
+ * Generate reflection questions based on interaction patterns and detected patterns
+ * Personalized based on user behavior and data trends
+ */
+export const generateReflectionPrompts = (
+  interactionHistory: SliceInsightData[], 
+  patterns?: ReturnType<typeof detectTemporalPatterns>
+): string => {
   const prompts = [
     "What patterns do you notice in your sleep and mood?",
     "How does weather influence your daily activities?",
