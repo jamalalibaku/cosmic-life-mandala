@@ -18,55 +18,85 @@ const sleepData = [
   { angle: 225, depth: 0.2, phase: "light", type: "spiral", duration: 60, time: "06:15" }
 ];
 
-// Generate mosaic-like brushstrokes to fill the entire canvas like Starry Night
-const generateStarryNightMosaic = (density: number) => {
-  const brushstrokes = [];
-  const gridSize = 25; // Size of each mosaic cell
+// Generate diverse fractal brushstrokes with organic variation
+const generateDiverseFractals = (density: number) => {
+  const fractals = [];
+  const gridSize = 18 + Math.random() * 14; // Varied grid size
   
   for (let x = -400; x <= 400; x += gridSize) {
     for (let y = -400; y <= 400; y += gridSize) {
       const distance = Math.sqrt(x * x + y * y);
       const angle = Math.atan2(y, x);
       
-      // Create swirling pattern like Van Gogh's sky
-      const swirl = Math.sin(distance * 0.02 + angle * 3) * 0.5;
-      const offsetX = x + Math.random() * 12 - 6 + swirl * 15;
-      const offsetY = y + Math.random() * 12 - 6 + Math.cos(distance * 0.015) * 10;
+      // Multi-layered swirl patterns for organic fractals
+      const primarySwirl = Math.sin(distance * 0.018 + angle * 2.5 + Math.random() * 0.5) * 0.6;
+      const secondarySwirl = Math.cos(distance * 0.025 + angle * 1.8) * 0.4;
+      const tertiarySwirl = Math.sin(distance * 0.012 + angle * 3.2) * 0.3;
       
-      // Van Gogh Starry Night color palette
-      const colors = [
-        'hsl(220, 70%, 25%)', // Deep night blue
-        'hsl(230, 80%, 30%)', // Midnight blue
-        'hsl(240, 60%, 35%)', // Darker blue
-        'hsl(210, 90%, 20%)', // Very deep blue
-        'hsl(45, 90%, 70%)',  // Starry yellow
-        'hsl(42, 85%, 75%)',  // Light yellow
-        'hsl(200, 40%, 40%)', // Muted blue-gray
+      // Randomized organic offset with fractal noise
+      const noiseX = Math.random() * 16 - 8;
+      const noiseY = Math.random() * 16 - 8;
+      const offsetX = x + noiseX + (primarySwirl + secondarySwirl) * 18;
+      const offsetY = y + noiseY + (tertiarySwirl + Math.cos(distance * 0.02)) * 12;
+      
+      // Expanded artistic color palette with smooth transitions
+      const distanceNorm = Math.min(distance / 350, 1);
+      const angleNorm = (angle + Math.PI) / (2 * Math.PI);
+      
+      const colorVariations = [
+        // Deep night blues with variations
+        `hsl(${215 + Math.random() * 20}, ${65 + Math.random() * 15}%, ${20 + Math.random() * 10}%)`,
+        `hsl(${225 + Math.random() * 25}, ${70 + Math.random() * 20}%, ${25 + Math.random() * 15}%)`,
+        `hsl(${235 + Math.random() * 15}, ${55 + Math.random() * 25}%, ${30 + Math.random() * 12}%)`,
+        // Golden and amber stars
+        `hsl(${40 + Math.random() * 20}, ${80 + Math.random() * 15}%, ${65 + Math.random() * 20}%)`,
+        `hsl(${45 + Math.random() * 15}, ${85 + Math.random() * 10}%, ${70 + Math.random() * 15}%)`,
+        // Atmospheric purples and violets
+        `hsl(${260 + Math.random() * 30}, ${45 + Math.random() * 25}%, ${35 + Math.random() * 15}%)`,
+        // Subtle greens for depth
+        `hsl(${180 + Math.random() * 40}, ${35 + Math.random() * 20}%, ${30 + Math.random() * 10}%)`,
+        // Rich earth tones
+        `hsl(${25 + Math.random() * 25}, ${50 + Math.random() * 30}%, ${40 + Math.random() * 15}%)`
       ];
       
-      const colorIndex = Math.floor(Math.random() * colors.length);
-      const isYellow = colorIndex >= 4; // Yellow stars scattered
+      const colorIndex = Math.floor(Math.random() * colorVariations.length);
+      const isLuminous = colorIndex >= 3 && colorIndex <= 4; // Golden stars
+      const isPurple = colorIndex === 5;
       
-      if (Math.random() < density || (isYellow && Math.random() < 0.15)) {
-        brushstrokes.push({
+      // Varied density based on distance and color
+      const baseDensity = isLuminous ? 0.12 : density;
+      const distanceDensity = baseDensity * (1 - distanceNorm * 0.6);
+      
+      if (Math.random() < distanceDensity) {
+        // Diversified brush shapes and sizes
+        const baseSize = 2.5 + Math.random() * 6;
+        const sizeMultiplier = isLuminous ? 1.4 + Math.random() * 0.8 : 1 + Math.random() * 0.5;
+        
+        fractals.push({
           x: offsetX,
           y: offsetY,
-          size: 3 + Math.random() * 5,
-          color: colors[colorIndex],
-          rotation: angle * 180 / Math.PI + Math.random() * 30 - 15,
+          size: baseSize * sizeMultiplier,
+          width: baseSize * sizeMultiplier * (0.8 + Math.random() * 0.7),
+          height: baseSize * sizeMultiplier * (0.6 + Math.random() * 0.5),
+          color: colorVariations[colorIndex],
+          rotation: angle * 180 / Math.PI + Math.random() * 45 - 22.5,
           intensity: Math.random(),
-          swirl: swirl,
-          isYellow: isYellow
+          swirl: primarySwirl + secondarySwirl * 0.5,
+          isLuminous: isLuminous,
+          isPurple: isPurple,
+          phase: Math.random() * Math.PI * 2, // Random animation phase
+          speed: 0.8 + Math.random() * 0.6, // Varied animation speed
+          shape: Math.random() > 0.7 ? 'rect' : 'ellipse' // Shape diversity
         });
       }
     }
   }
-  return brushstrokes;
+  return fractals;
 };
 
 export const VanGoghView = () => {
-  // Generate Van Gogh Starry Night mosaic background
-  const starryNightMosaic = generateStarryNightMosaic(0.4); // 40% density
+  // Generate diverse Van Gogh fractals
+  const diverseFractals = generateDiverseFractals(0.35); // 35% density for better performance
   
   return (
     <motion.svg
@@ -241,33 +271,71 @@ export const VanGoghView = () => {
         }}
       />
 
-      {/* Van Gogh Starry Night Mosaic Background */}
-      {starryNightMosaic.map((brush, i) => (
-        <motion.ellipse
-          key={`starry-mosaic-${i}`}
-          cx={brush.x}
-          cy={brush.y}
-          rx={brush.size * 1.8}
-          ry={brush.size * 0.8}
-          fill={brush.color}
-          opacity={brush.isYellow ? 0.4 + brush.intensity * 0.3 : 0.15 + brush.intensity * 0.2}
-          filter={brush.isYellow ? "url(#starTwinkle)" : "url(#brushTexture)"}
-          transform={`rotate(${brush.rotation} ${brush.x} ${brush.y})`}
-          animate={{
-            scale: brush.isYellow ? [0.8, 1.2, 0.8] : [0.98, 1.02, 0.98],
-            opacity: brush.isYellow ? 
-              [0.3, 0.7, 0.3] : 
-              [0.1 + brush.intensity * 0.15, 0.25 + brush.intensity * 0.2, 0.1 + brush.intensity * 0.15],
-            rotate: [brush.rotation, brush.rotation + (brush.swirl * 5), brush.rotation]
-          }}
-          transition={{
-            duration: brush.isYellow ? 4 + i * 0.1 : 45 + i * 0.3, // Stars twinkle faster
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 0.05
-          }}
-        />
-      ))}
+      {/* Diverse Van Gogh Fractal Brushstrokes */}
+      {diverseFractals.map((fractal, i) => {
+        const animationPhase = fractal.phase;
+        const animationSpeed = fractal.speed;
+        
+        if (fractal.shape === 'rect') {
+          return (
+            <motion.rect
+              key={`fractal-rect-${i}`}
+              x={fractal.x - fractal.width / 2}
+              y={fractal.y - fractal.height / 2}
+              width={fractal.width}
+              height={fractal.height}
+              fill={fractal.color}
+              opacity={fractal.isLuminous ? 0.45 + fractal.intensity * 0.35 : 0.18 + fractal.intensity * 0.25}
+              filter={fractal.isLuminous ? "url(#starTwinkle)" : fractal.isPurple ? "url(#emotionalGlow)" : "url(#brushTexture)"}
+              transform={`rotate(${fractal.rotation} ${fractal.x} ${fractal.y})`}
+              animate={{
+                scale: fractal.isLuminous ? 
+                  [0.7 + Math.sin(animationPhase) * 0.1, 1.3 + Math.sin(animationPhase + Math.PI) * 0.2, 0.7 + Math.sin(animationPhase) * 0.1] : 
+                  [0.95 + Math.sin(animationPhase) * 0.05, 1.08 + Math.sin(animationPhase + Math.PI) * 0.05, 0.95 + Math.sin(animationPhase) * 0.05],
+                opacity: fractal.isLuminous ? 
+                  [0.3 + Math.cos(animationPhase) * 0.1, 0.8 + Math.cos(animationPhase + Math.PI) * 0.1, 0.3 + Math.cos(animationPhase) * 0.1] : 
+                  [0.12 + fractal.intensity * 0.18, 0.32 + fractal.intensity * 0.25, 0.12 + fractal.intensity * 0.18],
+                rotate: [fractal.rotation, fractal.rotation + (fractal.swirl * 8 * animationSpeed), fractal.rotation]
+              }}
+              transition={{
+                duration: fractal.isLuminous ? (3.5 + i * 0.08) * animationSpeed : (38 + i * 0.25) * animationSpeed,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: (i * 0.04) + animationPhase
+              }}
+            />
+          );
+        } else {
+          return (
+            <motion.ellipse
+              key={`fractal-ellipse-${i}`}
+              cx={fractal.x}
+              cy={fractal.y}
+              rx={fractal.width}
+              ry={fractal.height}
+              fill={fractal.color}
+              opacity={fractal.isLuminous ? 0.45 + fractal.intensity * 0.35 : 0.18 + fractal.intensity * 0.25}
+              filter={fractal.isLuminous ? "url(#starTwinkle)" : fractal.isPurple ? "url(#emotionalGlow)" : "url(#brushTexture)"}
+              transform={`rotate(${fractal.rotation} ${fractal.x} ${fractal.y})`}
+              animate={{
+                scale: fractal.isLuminous ? 
+                  [0.7 + Math.sin(animationPhase) * 0.1, 1.3 + Math.sin(animationPhase + Math.PI) * 0.2, 0.7 + Math.sin(animationPhase) * 0.1] : 
+                  [0.95 + Math.sin(animationPhase) * 0.05, 1.08 + Math.sin(animationPhase + Math.PI) * 0.05, 0.95 + Math.sin(animationPhase) * 0.05],
+                opacity: fractal.isLuminous ? 
+                  [0.3 + Math.cos(animationPhase) * 0.1, 0.8 + Math.cos(animationPhase + Math.PI) * 0.1, 0.3 + Math.cos(animationPhase) * 0.1] : 
+                  [0.12 + fractal.intensity * 0.18, 0.32 + fractal.intensity * 0.25, 0.12 + fractal.intensity * 0.18],
+                rotate: [fractal.rotation, fractal.rotation + (fractal.swirl * 8 * animationSpeed), fractal.rotation]
+              }}
+              transition={{
+                duration: fractal.isLuminous ? (3.5 + i * 0.08) * animationSpeed : (38 + i * 0.25) * animationSpeed,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: (i * 0.04) + animationPhase
+              }}
+            />
+          );
+        }
+      })}
 
       {/* Data Foundation Circles - Layered brushstroke rings */}
       {[120, 160, 200, 240, 280].map((radius, i) => (
