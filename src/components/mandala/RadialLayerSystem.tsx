@@ -8,6 +8,8 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { RadialTooltip } from "@/components/interactions/RadialTooltip";
 import { InteractiveDataPoint } from "@/components/interactions/InteractiveDataPoint";
+import { ExpandedCard } from "@/components/interactions/ExpandedCard";
+import { EmojiBurst } from "@/components/interactions/EmojiBurst";
 
 interface LayerData {
   name: string;
@@ -61,7 +63,8 @@ const Layer: React.FC<{
   layerType?: "mood" | "places" | "mobility" | "plans" | "weather" | "moon";
   onTooltipShow: (tooltipData: any) => void;
   onTooltipHide: () => void;
-}> = ({ name, data, radius, color, zoomLevel, layerIndex, totalLayers, layerType, onTooltipShow, onTooltipHide }) => {
+  onDataPointClick: (expandedData: any, burstData: any) => void;
+}> = ({ name, data, radius, color, zoomLevel, layerIndex, totalLayers, layerType, onTooltipShow, onTooltipHide, onDataPointClick }) => {
   const getDetailLevel = () => {
     switch (zoomLevel) {
       case "year": return "outline";
@@ -134,6 +137,7 @@ const Layer: React.FC<{
                 layerType={layerType || "mood"}
                 onHover={onTooltipShow}
                 onLeave={onTooltipHide}
+                onClick={onDataPointClick}
               />
             )}
             
@@ -183,6 +187,7 @@ const Layer: React.FC<{
                 layerType={layerType || "mood"}
                 onHover={onTooltipShow}
                 onLeave={onTooltipHide}
+                onClick={onDataPointClick}
               />
             )}
           </motion.g>
@@ -311,6 +316,10 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
 }) => {
   const [tooltipData, setTooltipData] = useState<any>(null);
   const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [expandedCardData, setExpandedCardData] = useState<any>(null);
+  const [expandedCardVisible, setExpandedCardVisible] = useState(false);
+  const [emojiBurstData, setEmojiBurstData] = useState<any>(null);
+  const [emojiBurstActive, setEmojiBurstActive] = useState(false);
 
   const handleTooltipShow = (data: any) => {
     setTooltipData(data);
@@ -320,6 +329,29 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   const handleTooltipHide = () => {
     setTooltipVisible(false);
     setTimeout(() => setTooltipData(null), 200);
+  };
+
+  const handleDataPointClick = (expandedData: any, burstData: any) => {
+    // Hide tooltip first
+    setTooltipVisible(false);
+    
+    // Show expanded card
+    setExpandedCardData(expandedData);
+    setExpandedCardVisible(true);
+    
+    // Trigger emoji burst
+    setEmojiBurstData(burstData);
+    setEmojiBurstActive(true);
+  };
+
+  const handleExpandedCardClose = () => {
+    setExpandedCardVisible(false);
+    setTimeout(() => setExpandedCardData(null), 300);
+  };
+
+  const handleEmojiBurstComplete = () => {
+    setEmojiBurstActive(false);
+    setTimeout(() => setEmojiBurstData(null), 100);
   };
   
   return (
@@ -343,6 +375,7 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
             layerType={layer.layerType}
             onTooltipShow={handleTooltipShow}
             onTooltipHide={handleTooltipHide}
+            onDataPointClick={handleDataPointClick}
           />
         ))}
 
@@ -355,6 +388,24 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
         data={tooltipData} 
         isVisible={tooltipVisible} 
       />
+
+      {/* Expanded card system */}
+      <ExpandedCard
+        data={expandedCardData}
+        isVisible={expandedCardVisible}
+        onClose={handleExpandedCardClose}
+      />
+
+      {/* Emoji burst effects */}
+      {emojiBurstData && (
+        <EmojiBurst
+          emojis={emojiBurstData.emojis}
+          isActive={emojiBurstActive}
+          centerX={emojiBurstData.position.x}
+          centerY={emojiBurstData.position.y}
+          onComplete={handleEmojiBurstComplete}
+        />
+      )}
     </>
   );
 };

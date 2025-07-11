@@ -15,6 +15,7 @@ interface InteractiveDataPointProps {
   layerType: "mood" | "places" | "mobility" | "plans" | "weather" | "moon";
   onHover: (tooltipData: any) => void;
   onLeave: () => void;
+  onClick: (expandedData: any, burstData: any) => void;
 }
 
 export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
@@ -26,8 +27,99 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
   layerType,
   onHover,
   onLeave,
+  onClick,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+
+  const getEmojiBurst = () => {
+    switch (layerType) {
+      case "mood":
+        if (data.emotion === "joy") return ["🎉", "😊", "☀️", "✨", "🌟"];
+        if (data.emotion === "calm") return ["😌", "🌙", "💙", "🕊️", "🌸"];
+        if (data.emotion === "focus") return ["🎯", "⚡", "🔥", "💪", "🧠"];
+        return ["💫", "🌈", "✨"];
+      
+      case "places":
+        if (data.location === "home") return ["🏠", "❤️", "🛋️", "☕", "🌿"];
+        if (data.location === "work") return ["💼", "🏢", "📊", "💡", "⚡"];
+        if (data.location === "cafe") return ["☕", "📚", "🍰", "☀️", "🌱"];
+        return ["📍", "🗺️", "✨"];
+      
+      case "mobility":
+        if (data.activity === "walk") return ["🚶", "🌿", "🌞", "🍃", "💚"];
+        if (data.activity === "run") return ["🏃", "💨", "🔥", "💪", "⚡"];
+        if (data.activity === "bike") return ["🚴", "🌬️", "🗺️", "🌟", "🚀"];
+        return ["🏃", "💨", "✨"];
+      
+      case "plans":
+        if (data.event === "meeting") return ["🤝", "💼", "📝", "🎯", "💡"];
+        if (data.event === "workout") return ["💪", "🔥", "🏋️", "⚡", "💦"];
+        if (data.event === "dinner") return ["🍽️", "👥", "🥂", "🌟", "❤️"];
+        return ["📅", "⭐", "✨"];
+      
+      case "weather":
+        return ["🌤️", "☀️", "🌈", "💨", "🌿"];
+      
+      case "moon":
+        return ["🌙", "✨", "🌟", "💫", "🌌"];
+      
+      default:
+        return ["✨", "💫", "🌟"];
+    }
+  };
+
+  const getExpandedData = () => {
+    return {
+      id: `${layerType}-${Date.now()}`,
+      layerType,
+      title: layerType.toUpperCase(),
+      subtitle: getSubtitle(),
+      emoji: getMainEmoji(),
+      data,
+      timestamp: new Date().toLocaleTimeString(),
+      position: { x, y },
+    };
+  };
+
+  const getSubtitle = () => {
+    switch (layerType) {
+      case "mood": return data.emotion?.charAt(0).toUpperCase() + data.emotion?.slice(1);
+      case "places": return data.location?.charAt(0).toUpperCase() + data.location?.slice(1);
+      case "mobility": return data.activity?.charAt(0).toUpperCase() + data.activity?.slice(1);
+      case "plans": return data.event?.charAt(0).toUpperCase() + data.event?.slice(1);
+      case "weather": return "Current Conditions";
+      case "moon": return data.phase?.charAt(0).toUpperCase() + data.phase?.slice(1);
+      default: return "";
+    }
+  };
+
+  const getMainEmoji = () => {
+    switch (layerType) {
+      case "mood":
+        if (data.emotion === "joy") return "😊";
+        if (data.emotion === "calm") return "😌";
+        if (data.emotion === "focus") return "🎯";
+        return "💫";
+      case "places":
+        if (data.location === "home") return "🏠";
+        if (data.location === "work") return "🏢";
+        if (data.location === "cafe") return "☕";
+        return "📍";
+      case "mobility":
+        if (data.activity === "walk") return "🚶";
+        if (data.activity === "run") return "🏃";
+        if (data.activity === "bike") return "🚴";
+        return "🏃";
+      case "plans":
+        if (data.event === "meeting") return "🤝";
+        if (data.event === "workout") return "💪";
+        if (data.event === "dinner") return "🍽️";
+        return "📅";
+      case "weather": return "🌤️";
+      case "moon": return "🌙";
+      default: return "✨";
+    }
+  };
 
   const getTooltipData = () => {
     switch (layerType) {
@@ -108,6 +200,22 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
     }
   };
 
+  const handleClick = (event: React.MouseEvent) => {
+    const rect = (event.target as SVGElement).getBoundingClientRect();
+    const screenX = rect.left + window.scrollX + rect.width / 2;
+    const screenY = rect.top + window.scrollY + rect.height / 2;
+    
+    const expandedData = getExpandedData();
+    expandedData.position = { x: screenX, y: screenY };
+    
+    const burstData = {
+      emojis: getEmojiBurst(),
+      position: { x: screenX, y: screenY },
+    };
+    
+    onClick(expandedData, burstData);
+  };
+
   const handleMouseLeave = () => {
     setIsHovered(false);
     onLeave();
@@ -135,11 +243,12 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
       whileHover={{
         scale: 1.2,
       }}
       whileTap={{
-        scale: 0.95,
+        scale: 0.9,
       }}
     />
   );
