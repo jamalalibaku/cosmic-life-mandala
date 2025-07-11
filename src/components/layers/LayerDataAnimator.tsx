@@ -82,128 +82,118 @@ export const LayerDataAnimator: React.FC<LayerDataAnimatorProps> = ({
 
   return (
     <g>
-      {/* Sleep Layer Visualization - Inner waves */}
-      {timeSlices.map((slice, index) => {
-        if (!slice.data.sleep) return null;
-        
-        const sleepRadius = 80 + slice.data.sleep.intensity * 20;
-        const radian = (slice.angle * Math.PI) / 180;
-        const x = centerX + sleepRadius * Math.cos(radian);
-        const y = centerY + sleepRadius * Math.sin(radian);
-        
-        return (
-          <motion.circle
-            key={`sleep-${slice.id}`}
-            cx={x}
-            cy={y}
-            r="4"
-            fill="hsl(240, 60%, 70%)"
-            opacity="0.7"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.5, 0.8, 0.5]
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              delay: index * 0.1,
-              ease: "easeInOut"
-            }}
-          />
-        );
-      })}
-
-      {/* Mood Layer Visualization - Color pulses */}
-      {timeSlices.map((slice, index) => {
-        if (!slice.data.mood) return null;
-        
-        const moodRadius = 120;
-        const radian = (slice.angle * Math.PI) / 180;
-        const x = centerX + moodRadius * Math.cos(radian);
-        const y = centerY + moodRadius * Math.sin(radian);
-        
-        return (
-          <motion.g key={`mood-${slice.id}`}>
-            <motion.circle
-              cx={x}
-              cy={y}
-              r="6"
-              fill={slice.data.mood.color}
-              initial={{ scale: 0 }}
-              animate={{ 
-                scale: [1, 1.5, 1],
-                opacity: [0.8, 0.4, 0.8]
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                delay: index * 0.2
-              }}
-            />
+      {/* Sleep Layer - Only if data exists */}
+      {timeSlices.filter(slice => slice.data.sleep).length > 0 && (
+        <g>
+          {timeSlices.map((slice, index) => {
+            if (!slice.data.sleep) return null;
             
-            {/* Mood ripple */}
-            <motion.circle
-              cx={x}
-              cy={y}
-              r="10"
-              fill="none"
-              stroke={slice.data.mood.color}
-              strokeWidth="1"
-              opacity="0.3"
-              animate={{
-                r: [8, 16, 8],
-                opacity: [0.3, 0, 0.3]
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                delay: index * 0.3
-              }}
-            />
-          </motion.g>
-        );
-      })}
+            const sleepRadius = 80 + slice.data.sleep.intensity * 20;
+            const radian = (slice.angle * Math.PI) / 180;
+            const x = centerX + sleepRadius * Math.cos(radian);
+            const y = centerY + sleepRadius * Math.sin(radian);
+            
+            return (
+              <motion.circle
+                key={`sleep-${slice.id}`}
+                cx={x}
+                cy={y}
+                r="3"
+                fill="hsl(240, 50%, 65%)"
+                opacity="0.8"
+                initial={{ scale: 0 }}
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  opacity: [0.6, 0.9, 0.6]
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  delay: index * 0.1,
+                  ease: "easeInOut"
+                }}
+              />
+            );
+          })}
+        </g>
+      )}
 
-      {/* Weather Layer Visualization - Outer arcs */}
-      {timeSlices.map((slice, index) => {
-        if (!slice.data.weather) return null;
-        
-        const weatherRadius = 160;
-        const arcLength = 20;
-        const startAngle = slice.angle - arcLength / 2;
-        const endAngle = slice.angle + arcLength / 2;
-        
-        const startRadian = (startAngle * Math.PI) / 180;
-        const endRadian = (endAngle * Math.PI) / 180;
-        
-        const x1 = centerX + weatherRadius * Math.cos(startRadian);
-        const y1 = centerY + weatherRadius * Math.sin(startRadian);
-        const x2 = centerX + weatherRadius * Math.cos(endRadian);
-        const y2 = centerY + weatherRadius * Math.sin(endRadian);
-        
-        return (
-          <motion.path
-            key={`weather-${slice.id}`}
-            d={`M ${x1} ${y1} A ${weatherRadius} ${weatherRadius} 0 0 1 ${x2} ${y2}`}
-            stroke={slice.data.weather.color}
-            strokeWidth="3"
-            fill="none"
-            opacity="0.6"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ 
-              pathLength: 1,
-              opacity: [0.4, 0.8, 0.4],
-              strokeWidth: [2, 4, 2]
-            }}
-            transition={{
-              pathLength: { duration: 1, delay: index * 0.1 },
-              opacity: { duration: 3, repeat: Infinity },
-              strokeWidth: { duration: 3, repeat: Infinity }
-            }}
-          />
-        );
-      })}
+      {/* Mood Layer - Only if data exists */}
+      {timeSlices.filter(slice => slice.data.mood).length > 0 && (
+        <g>
+          {timeSlices.map((slice, index) => {
+            if (!slice.data.mood) return null;
+            
+            const moodRadius = 120;
+            const radian = (slice.angle * Math.PI) / 180;
+            const x = centerX + moodRadius * Math.cos(radian);
+            const y = centerY + moodRadius * Math.sin(radian);
+            
+            return (
+              <motion.circle
+                key={`mood-${slice.id}`}
+                cx={x}
+                cy={y}
+                r="4"
+                fill={slice.data.mood.color}
+                opacity="0.7"
+                initial={{ scale: 0 }}
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.6, 0.8, 0.6]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  delay: index * 0.15
+                }}
+              />
+            );
+          })}
+        </g>
+      )}
+
+      {/* Weather Layer - Only if data exists */}
+      {timeSlices.filter(slice => slice.data.weather).length > 0 && (
+        <g>
+          {timeSlices.map((slice, index) => {
+            if (!slice.data.weather) return null;
+            
+            const weatherRadius = 160;
+            const arcLength = 15;
+            const startAngle = slice.angle - arcLength / 2;
+            const endAngle = slice.angle + arcLength / 2;
+            
+            const startRadian = (startAngle * Math.PI) / 180;
+            const endRadian = (endAngle * Math.PI) / 180;
+            
+            const x1 = centerX + weatherRadius * Math.cos(startRadian);
+            const y1 = centerY + weatherRadius * Math.sin(startRadian);
+            const x2 = centerX + weatherRadius * Math.cos(endRadian);
+            const y2 = centerY + weatherRadius * Math.sin(endRadian);
+            
+            return (
+              <motion.path
+                key={`weather-${slice.id}`}
+                d={`M ${x1} ${y1} A ${weatherRadius} ${weatherRadius} 0 0 1 ${x2} ${y2}`}
+                stroke={slice.data.weather.color}
+                strokeWidth="2"
+                fill="none"
+                opacity="0.7"
+                initial={{ pathLength: 0 }}
+                animate={{ 
+                  pathLength: 1,
+                  opacity: [0.5, 0.8, 0.5]
+                }}
+                transition={{
+                  pathLength: { duration: 0.8, delay: index * 0.08 },
+                  opacity: { duration: 3, repeat: Infinity }
+                }}
+              />
+            );
+          })}
+        </g>
+      )}
     </g>
   );
 };

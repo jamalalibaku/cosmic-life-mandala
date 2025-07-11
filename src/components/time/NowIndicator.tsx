@@ -34,88 +34,49 @@ export const NowIndicator: React.FC<NowIndicatorProps> = ({
   
   return (
     <g>
-      {/* Glowing NOW line */}
+      {/* Minimal NOW line - data-focused, not decorative */}
       <motion.line
         x1={centerX}
         y1={centerY}
         x2={lineEndX}
         y2={lineEndY}
-        stroke="hsl(45, 100%, 70%)"
-        strokeWidth="3"
-        opacity="0.9"
-        initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ 
-          pathLength: 1, 
-          opacity: [0.6, 1, 0.6],
-          strokeWidth: [2, 4, 2]
-        }}
-        transition={{ 
-          pathLength: { duration: 1, ease: "easeOut" },
-          opacity: { duration: 2, repeat: Infinity },
-          strokeWidth: { duration: 2, repeat: Infinity }
-        }}
+        stroke="hsl(45, 80%, 60%)"
+        strokeWidth="2"
+        opacity="0.8"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       />
       
-      {/* Radial glow at NOW position */}
+      {/* Data point at NOW position - subtle presence */}
       <motion.circle
         cx={lineEndX}
         cy={lineEndY}
-        r="8"
-        fill="hsl(45, 100%, 70%)"
-        opacity="0.8"
+        r="4"
+        fill="hsl(45, 80%, 60%)"
+        opacity="0.9"
         animate={{
-          r: [6, 12, 6],
-          opacity: [0.8, 0.4, 0.8]
+          opacity: [0.7, 1, 0.7]
         }}
         transition={{
-          duration: 3,
+          duration: 2,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
       
-      {/* NOW text label */}
-      <motion.text
-        x={lineEndX + 15}
-        y={lineEndY + 5}
-        fill="hsl(45, 100%, 80%)"
-        fontSize="12"
-        fontWeight="600"
+      {/* NOW text - minimal, data-label only */}
+      <text
+        x={lineEndX + 10}
+        y={lineEndY + 4}
+        fill="hsl(45, 80%, 70%)"
+        fontSize="10"
+        fontWeight="400"
         fontFamily="Inter, system-ui, sans-serif"
-        letterSpacing="0.1em"
-        initial={{ opacity: 0, x: lineEndX, y: lineEndY }}
-        animate={{ 
-          opacity: [0.7, 1, 0.7],
-          x: lineEndX + 15,
-          y: lineEndY + 5
-        }}
-        transition={{
-          opacity: { duration: 2, repeat: Infinity },
-          duration: 0.5
-        }}
+        opacity="0.8"
       >
         NOW
-      </motion.text>
-      
-      {/* Time pulse rings */}
-      <motion.circle
-        cx={centerX}
-        cy={centerY}
-        r="20"
-        fill="none"
-        stroke="hsl(45, 80%, 60%)"
-        strokeWidth="1"
-        opacity="0.3"
-        animate={{
-          r: [20, 40, 60],
-          opacity: [0.3, 0.1, 0]
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeOut"
-        }}
-      />
+      </text>
     </g>
   );
 };

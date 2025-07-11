@@ -80,76 +80,38 @@ export const ThemeHaikuDisplay: React.FC<ThemeHaikuDisplayProps> = ({
     <AnimatePresence>
       {isVisible && (
         <motion.g
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ duration: 1, ease: "easeOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.3 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 2, ease: "easeOut" }}
         >
-          {/* Background glow */}
-          <motion.rect
-            x={x - 10}
-            y={y - 10}
-            width="140"
-            height="80"
-            rx="8"
+          {/* Subtle background - minimal presence */}
+          <rect
+            x={x - 5}
+            y={y - 5}
+            width="120"
+            height="60"
+            rx="4"
             fill="hsl(0, 0%, 0%)"
-            opacity="0.7"
-            animate={{
-              opacity: [0.5, 0.8, 0.5]
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
+            opacity="0.1"
           />
           
-          {/* Haiku lines */}
+          {/* Haiku lines - background text only */}
           {haiku.lines.map((line, index) => (
-            <motion.text
+            <text
               key={index}
               x={x}
-              y={y + (index * 20) + 20}
+              y={y + (index * 16) + 16}
               fill={haiku.color}
-              fontSize="11"
-              fontWeight="300"
+              fontSize="9"
+              fontWeight="200"
               fontFamily="serif"
               fontStyle="italic"
-              letterSpacing="0.05em"
-              initial={{ opacity: 0, x: x - 20 }}
-              animate={{ 
-                opacity: [0.8, 1, 0.8],
-                x: x
-              }}
-              transition={{
-                opacity: { 
-                  duration: 3, 
-                  repeat: Infinity,
-                  delay: index * 0.5
-                },
-                x: { duration: 0.8, delay: index * 0.3 }
-              }}
+              opacity="0.4"
             >
               {line}
-            </motion.text>
+            </text>
           ))}
-          
-          {/* Decorative accent */}
-          <motion.circle
-            cx={x + 130}
-            cy={y + 35}
-            r="3"
-            fill={haiku.color}
-            animate={{
-              r: [2, 4, 2],
-              opacity: [0.6, 1, 0.6]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
         </motion.g>
       )}
     </AnimatePresence>

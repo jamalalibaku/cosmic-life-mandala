@@ -485,7 +485,7 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           motionTransform={getMotionTransform()}
         />
         
-        {/* NOW Indicator - Time flow visualization */}
+        {/* NOW Indicator - Minimal time marker */}
         <NowIndicator
           centerX={0}
           centerY={0}
@@ -493,20 +493,20 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           theme="mandalaExpressive"
         />
         
-        {/* Layer Data Animator - Mock data visualization */}
+        {/* Layer Data Animator - Only data-driven visuals */}
         <LayerDataAnimator
           centerX={0}
           centerY={0}
           isActive={true}
         />
         
-        {/* Theme Haiku Display */}
+        {/* Theme Haiku - Background only, minimal */}
         <ThemeHaikuDisplay
           theme="mandalaExpressive"
           centerX={0}
           centerY={0}
           maxRadius={layers[0]?.radius || 200}
-          isVisible={true}
+          isVisible={false}
         />
       </motion.g>
 
