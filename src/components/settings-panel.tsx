@@ -133,36 +133,6 @@ export const SettingsPanel = ({
             </div>
 
             <div className="p-4 space-y-6">
-              {/* Theme Selection */}
-              <div className="space-y-3">
-                <h3 className="flex items-center gap-2 text-sm font-medium" style={{ color: themeConfig.colors.text }}>
-                  <Palette className="w-4 h-4" />
-                  Visual Theme
-                </h3>
-                <div className="grid grid-cols-1 gap-2">
-                  {Object.entries(themeConfigs).map(([key, config]) => (
-                    <button
-                      key={key}
-                      onClick={() => setTheme(key as Theme)}
-                      className="flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 hover:scale-105"
-                      style={{
-                        backgroundColor: currentTheme === key ? `${config.colors.accent}20` : 'transparent',
-                        borderColor: currentTheme === key ? config.colors.accent : `${config.colors.text}40`,
-                        color: config.colors.text
-                      }}
-                    >
-                      <div 
-                        className="w-4 h-4 rounded-full border-2"
-                        style={{ backgroundColor: config.colors.primary, borderColor: config.colors.accent }}
-                      />
-                      <div className="text-left">
-                        <div className="text-sm font-medium">{config.name}</div>
-                        <div className="text-xs opacity-70">{config.description}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               {/* Location Control */}
               <div className="space-y-3">

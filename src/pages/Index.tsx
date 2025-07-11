@@ -40,6 +40,7 @@ import { DataLayerLabels } from '@/components/data-layer-labels';
 import { LayerPopOutPanel } from '@/components/LayerPopOutPanel';
 import { ZoomMenuButton } from '@/components/navigation/ZoomMenuButton';
 import { ToolsMenuButton } from '@/components/navigation/ToolsMenuButton';
+import { SkinsMenuButton } from '@/components/navigation/SkinsMenuButton';
 import { TouchTool } from '@/components/interactions/TouchTool';
 import { FixTool } from '@/components/interactions/FixTool';
 import { ScaleTool } from '@/components/interactions/ScaleTool';
@@ -896,6 +897,9 @@ const IndexContent = () => {
 
         {/* Bottom-Right Navigation Stack - All controls consolidated */}
         <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-4">
+          {/* Skins Menu */}
+          <SkinsMenuButton />
+          
           {/* Tools Menu */}
           <ToolsMenuButton
             activeTool={activeTool}
