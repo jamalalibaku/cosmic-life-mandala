@@ -54,27 +54,37 @@ export const VanGoghView = () => {
       style={{ pointerEvents: 'all' }}
     >
       <defs>
-        {/* Van Gogh's Starry Night gradient */}
+        {/* Van Gogh's Starry Night gradient - Enhanced atmosphere */}
         <radialGradient id="starrySky" cx="50%" cy="50%" r="100%">
           <stop offset="0%" stopColor="#0a0f2c" />
-          <stop offset="40%" stopColor="#1b1d47" />
-          <stop offset="80%" stopColor="#2d3561" />
+          <stop offset="30%" stopColor="#1b1d47" />
+          <stop offset="60%" stopColor="#2d3561" />
+          <stop offset="85%" stopColor="#1a2040" />
           <stop offset="100%" stopColor="#0f1419" />
         </radialGradient>
 
-        {/* Breathing sun core */}
-        <radialGradient id="sunCore" cx="50%" cy="50%" r="100%">
-          <stop offset="0%" stopColor="hsl(45, 100%, 85%)" />
-          <stop offset="30%" stopColor="hsl(42, 95%, 70%)" />
-          <stop offset="70%" stopColor="hsl(38, 90%, 60%)" />
-          <stop offset="100%" stopColor="hsl(35, 85%, 50%)" />
+        {/* Exhibition-quality sun core with soft inner glow */}
+        <radialGradient id="sunCoreGradient" cx="50%" cy="50%" r="100%">
+          <stop offset="0%" stopColor="hsl(45, 100%, 90%)" />
+          <stop offset="20%" stopColor="hsl(42, 98%, 78%)" />
+          <stop offset="50%" stopColor="hsl(40, 95%, 68%)" />
+          <stop offset="80%" stopColor="hsl(38, 90%, 58%)" />
+          <stop offset="100%" stopColor="hsl(35, 85%, 45%)" />
         </radialGradient>
 
-        {/* Sun rays gradient */}
-        <radialGradient id="sunRays" cx="50%" cy="50%" r="150%">
-          <stop offset="0%" stopColor="hsl(45, 80%, 70%)" stopOpacity="0.3" />
-          <stop offset="50%" stopColor="hsl(42, 70%, 60%)" stopOpacity="0.1" />
+        {/* Enhanced sun rays with gradient fade */}
+        <radialGradient id="sunRaysEnhanced" cx="50%" cy="50%" r="200%">
+          <stop offset="0%" stopColor="hsl(45, 85%, 75%)" stopOpacity="0.4" />
+          <stop offset="30%" stopColor="hsl(42, 75%, 65%)" stopOpacity="0.2" />
+          <stop offset="60%" stopColor="hsl(40, 65%, 55%)" stopOpacity="0.1" />
           <stop offset="100%" stopColor="hsl(38, 60%, 50%)" stopOpacity="0" />
+        </radialGradient>
+
+        {/* Atmospheric fog gradient */}
+        <radialGradient id="atmosphericFog" cx="50%" cy="50%" r="150%">
+          <stop offset="0%" stopColor="hsl(230, 40%, 15%)" stopOpacity="0" />
+          <stop offset="60%" stopColor="hsl(220, 50%, 20%)" stopOpacity="0.1" />
+          <stop offset="100%" stopColor="hsl(210, 60%, 25%)" stopOpacity="0.3" />
         </radialGradient>
 
         {/* Enhanced brush texture */}
@@ -106,6 +116,35 @@ export const VanGoghView = () => {
         <filter id="paintStroke" x="-20%" y="-20%" width="140%" height="140%">
           <feTurbulence baseFrequency="0.8 0.4" numOctaves="2" result="texture" />
           <feDisplacementMap in="SourceGraphic" in2="texture" scale="1.5" />
+        </filter>
+
+        {/* Soft inner glow for core */}
+        <filter id="softInnerGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="6" result="innerGlow"/>
+          <feOffset dx="0" dy="0" result="innerGlow"/>
+          <feMerge>
+            <feMergeNode in="innerGlow"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        {/* Fuzzy sleep glow filter */}
+        <filter id="fuzzyGlow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="8" result="fuzzyBlur"/>
+          <feOffset dx="0" dy="0" result="fuzzyBlur"/>
+          <feMerge>
+            <feMergeNode in="fuzzyBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        {/* Star twinkle filter */}
+        <filter id="starTwinkle" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" result="starGlow"/>
+          <feMerge>
+            <feMergeNode in="starGlow"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
         </filter>
       </defs>
 
@@ -144,36 +183,54 @@ export const VanGoghView = () => {
         }}
       />
 
-      {/* Slow breathing sun rays */}
+      {/* Atmospheric fog layer */}
       <motion.circle
         cx={0}
         cy={0}
-        r={80}
-        fill="url(#sunRays)"
+        r={350}
+        fill="url(#atmosphericFog)"
         animate={{
-          scale: [1, 1.08, 1],
-          rotate: [0, 8, 0]
+          rotate: [0, 360],
+          scale: [1, 1.02, 1]
         }}
         transition={{
-          duration: 16,
+          duration: 300,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      />
+
+      {/* Enhanced breathing sun rays with gradient fade */}
+      <motion.circle
+        cx={0}
+        cy={0}
+        r={90}
+        fill="url(#sunRaysEnhanced)"
+        animate={{
+          scale: [1, 1.1, 1],
+          rotate: [0, 12, 0],
+          opacity: [0.6, 0.8, 0.6]
+        }}
+        transition={{
+          duration: 18,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
 
-      {/* Deep breathing center - Van Gogh's sun */}
+      {/* Van Gogh's sun core with soft inner glow pulse */}
       <motion.circle
         cx={0}
         cy={0}
-        r={30}
-        fill="url(#sunCore)"
-        filter="url(#emotionalGlow)"
+        r={35}
+        fill="url(#sunCoreGradient)"
+        filter="url(#softInnerGlow)"
         animate={{
-          scale: [1, 1.05, 1],
-          opacity: [0.85, 1, 0.85]
+          scale: [1, 1.02, 1],
+          opacity: [0.9, 1, 0.9]
         }}
         transition={{
-          duration: 12,
+          duration: 6,
           repeat: Infinity,
           ease: "easeInOut"
         }}
@@ -226,30 +283,40 @@ export const VanGoghView = () => {
         }}
       />
 
-      {/* Radial time structure with slow motion */}
+      {/* Radial time structure with slow orbital motion */}
       {[80, 120, 160, 200, 240].map((radius, ringIndex) => (
-        <motion.circle
-          key={`ring-${radius}`}
-          cx={0}
-          cy={0}
-          r={radius}
-          fill="none"
-          stroke="hsl(220, 50%, 40%)"
-          strokeWidth="1.5"
-          strokeOpacity="0.2"
-          strokeDasharray={`${radius * 0.08}, ${radius * 0.06}`}
-          filter="url(#brushTexture)"
-          animate={{
-            rotate: ringIndex % 2 === 0 ? 360 : -360,
-            strokeOpacity: [0.1, 0.3, 0.1],
-            strokeWidth: [1, 2, 1]
+        <motion.g
+          key={`ring-orbit-${radius}`}
+          animate={{ rotate: [0, 360] }}
+          transition={{ 
+            duration: 120 + ringIndex * 30, 
+            repeat: Infinity, 
+            ease: "linear",
+            delay: ringIndex * 8
           }}
-          transition={{
-            duration: 60 + ringIndex * 20,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        />
+        >
+          <motion.circle
+            cx={0}
+            cy={0}
+            r={radius}
+            fill="none"
+            stroke="hsl(220, 50%, 40%)"
+            strokeWidth="1.5"
+            strokeOpacity="0.2"
+            strokeDasharray={`${radius * 0.08}, ${radius * 0.06}`}
+            filter="url(#brushTexture)"
+            animate={{
+              strokeOpacity: [0.1, 0.3, 0.1],
+              strokeWidth: [1, 2.5, 1]
+            }}
+            transition={{
+              duration: 8 + ringIndex * 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: ringIndex * 1.5
+            }}
+          />
+        </motion.g>
       ))}
 
       {/* Semantic Van Gogh Elements */}
@@ -332,7 +399,7 @@ export const VanGoghView = () => {
         }
       })}
 
-      {/* Sleep spirals with gentle drift */}
+      {/* Sleep spirals with fuzzy glow - Exhibition quality */}
       {sleepData.map((sleep, i) => {
         const spiralRadius = 80 + i * 20;
         const x = spiralRadius * Math.cos((sleep.angle * Math.PI) / 180);
@@ -343,6 +410,26 @@ export const VanGoghView = () => {
         
         return (
           <motion.g key={`sleep-spiral-${i}`}>
+            {/* Fuzzy background glow for sleep elements */}
+            <motion.circle
+              cx={x}
+              cy={y}
+              r={15 + sleep.depth * 10}
+              fill={spiralColor}
+              opacity={0.1 + sleep.depth * 0.15}
+              filter="url(#fuzzyGlow)"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.05, 0.25, 0.05]
+              }}
+              transition={{
+                duration: 8 + i * 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 1.5
+              }}
+            />
+            {/* Sharp spiral path */}
             <motion.path
               d={`M ${x} ${y} Q ${x + 20} ${y - 20} ${x + 15} ${y + 15} Q ${x - 10} ${y + 25} ${x} ${y}`}
               fill="none"
@@ -529,35 +616,40 @@ export const VanGoghView = () => {
         );
       })}
 
-      {/* Enhanced swirling stars with drift motion */}
-      {Array.from({ length: 16 }, (_, i) => {
-        const baseAngle = (i * 22.5) * Math.PI / 180;
-        const radius = 260 + Math.sin(i * 0.7) * 60;
-        const baseX = radius * Math.cos(baseAngle);
-        const baseY = radius * Math.sin(baseAngle);
-        const starSize = 1.5 + Math.sin(i * 0.3) * 1.5;
-        
-        return (
-          <motion.circle
-            key={`star-${i}`}
-            r={starSize}
-            fill="hsl(45, 80%, 80%)"
-            filter="url(#emotionalGlow)"
-            animate={{
-              cx: [baseX, baseX + Math.sin(i) * 15, baseX],
-              cy: [baseY, baseY + Math.cos(i) * 15, baseY],
-              scale: [1, 1.3 + Math.sin(i) * 0.2, 1],
-              opacity: [0.5, 0.9, 0.5]
-            }}
-            transition={{
-              duration: 4 + i * 0.3,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.2
-            }}
-          />
-        );
-      })}
+      {/* Exhibition-quality twinkling stars with slow rotation */}
+      <motion.g
+        animate={{ rotate: [0, 360] }}
+        transition={{ duration: 400, repeat: Infinity, ease: "linear" }}
+      >
+        {Array.from({ length: 20 }, (_, i) => {
+          const baseAngle = (i * 18) * Math.PI / 180;
+          const radius = 260 + Math.sin(i * 0.7) * 80;
+          const baseX = radius * Math.cos(baseAngle);
+          const baseY = radius * Math.sin(baseAngle);
+          const starSize = 1.2 + Math.sin(i * 0.3) * 1.8;
+          
+          return (
+            <motion.circle
+              key={`star-${i}`}
+              cx={baseX}
+              cy={baseY}
+              r={starSize}
+              fill="hsl(45, 85%, 85%)"
+              filter="url(#starTwinkle)"
+              animate={{
+                scale: [0.8, 1.4 + Math.sin(i) * 0.3, 0.8],
+                opacity: [0.3, 0.95, 0.3]
+              }}
+              transition={{
+                duration: 3 + i * 0.4,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 0.3
+              }}
+            />
+          );
+        })}
+      </motion.g>
 
       {/* Emotional wind currents */}
       <motion.path
@@ -581,27 +673,30 @@ export const VanGoghView = () => {
         }}
       />
 
-      {/* Floating central text with gentle motion */}
+      {/* Exhibition-quality central quote with breathing typography */}
       <motion.text
         x={0}
         y={0}
         textAnchor="middle"
         dominantBaseline="middle"
-        fill="hsl(45, 70%, 70%)"
-        fontSize="12"
-        opacity="0.6"
-        fontStyle="italic"
+        fill="hsl(45, 75%, 75%)"
+        fontSize="14"
+        opacity="0.7"
+        fontFamily="Dancing Script, cursive"
+        fontWeight="500"
         animate={{
-          y: [0, -2, 0],
-          opacity: [0.5, 0.7, 0.5]
+          y: [0, -3, 0],
+          opacity: [0.6, 0.8, 0.6],
+          scale: [1, 1.01, 1]
         }}
         transition={{
-          duration: 5,
+          duration: 8,
           repeat: Infinity,
           ease: "easeInOut",
-          delay: 3
+          delay: 4
         }}
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 15, scale: 0.95 }}
+        style={{ filter: "drop-shadow(0 0 8px hsl(45, 80%, 60%, 0.3))" }}
       >
         "I dream my painting and I paint my dream"
       </motion.text>
