@@ -16,9 +16,12 @@ import { ThemeOverlayManager } from "@/components/themes/ThemeOverlaySystem";
 import { NowIndicator } from "@/components/time/NowIndicator";
 import { ThemeHaikuDisplay } from "@/components/themes/ThemeHaikuDisplay";
 import { LayerDataAnimator } from "@/components/layers/LayerDataAnimator";
+import { ThemeSunburst } from "@/components/themes/ThemeSunburst";
 import { SupernovaBurst } from "@/components/SupernovaBurst";
 import { analyzeMoodForSupernovas, SupernovaTrigger } from "@/utils/supernova-engine";
 import { DebugSupernova } from "@/components/DebugSupernova";
+import { useVisualSkin } from "@/components/visual-skin-provider";
+import { getThemeGeometry } from "@/utils/day4-dynamics";
 
 interface LayerData {
   name: string;

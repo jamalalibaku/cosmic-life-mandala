@@ -8,6 +8,8 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { Theme } from '@/utils/theme-configs';
+import { applyDay4Dynamics } from '@/utils/day4-dynamics';
 
 export interface MotionConfig {
   // Core physics
@@ -33,6 +35,10 @@ export interface MotionConfig {
   isStabilized: boolean;
   maxScale: number;
   minScale: number;
+  
+  // DAY 4 DYNAMICS: Theme integration
+  theme?: Theme;
+  enableDay4Dynamics?: boolean;
 }
 
 export interface MotionState {
@@ -64,7 +70,9 @@ const defaultConfig: MotionConfig = {
   breathingDepth: 0.02, // Reduced depth
   isStabilized: true,
   maxScale: 1.1,
-  minScale: 0.95
+  minScale: 0.95,
+  theme: 'cosmic',
+  enableDay4Dynamics: true
 };
 
 export const useUnifiedMotion = (config: Partial<MotionConfig> = {}) => {
@@ -158,6 +166,11 @@ export const useUnifiedMotion = (config: Partial<MotionConfig> = {}) => {
       const targetScale = 1 + newState.heartbeat + newState.breathing;
       newState.scale = Math.max(finalConfig.minScale, Math.min(finalConfig.maxScale, targetScale));
       
+      // DAY 4 DYNAMICS: Apply theme-specific enhancements
+      if (finalConfig.enableDay4Dynamics && finalConfig.theme) {
+        newState = applyDay4Dynamics(finalConfig.theme, newState, timeAccumulator.current);
+      }
+      
       return newState;
     });
     
@@ -177,8 +190,10 @@ export const useUnifiedMotion = (config: Partial<MotionConfig> = {}) => {
     
     animationRef.current = requestAnimationFrame(updateMotion);
     
-    console.log('🔧 UnifiedMotion STABILIZED:', {
+    console.log('🌊 UnifiedMotion with Day 4 Dynamics:', {
       config: finalConfig,
+      theme: finalConfig.theme,
+      day4Enabled: finalConfig.enableDay4Dynamics,
       timestamp: new Date().toLocaleTimeString()
     });
     
@@ -244,6 +259,9 @@ export const useUnifiedMotion = (config: Partial<MotionConfig> = {}) => {
     
     // State queries
     isSettled: Math.abs(motionState.velocityX) < 0.001 && Math.abs(motionState.velocityY) < 0.001,
-    isStabilized: finalConfig.isStabilized
+    isStabilized: finalConfig.isStabilized,
+    
+    // DAY 4 DYNAMICS: Expose time accumulator for theme effects
+    timeAccumulator: timeAccumulator.current
   };
 };
