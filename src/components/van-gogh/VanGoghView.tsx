@@ -269,6 +269,118 @@ export const VanGoghView = () => {
         />
       ))}
 
+      {/* Data Foundation Circles - Layered brushstroke rings */}
+      {[120, 160, 200, 240, 280].map((radius, i) => (
+        <motion.g key={`data-layer-${i}`}>
+          {/* Primary data circle - Van Gogh brushstroke style */}
+          <motion.circle
+            cx={0}
+            cy={0}
+            r={radius}
+            fill="none"
+            stroke={`hsl(${210 + i * 15}, ${60 + i * 5}%, ${25 + i * 8}%)`}
+            strokeWidth={8 + i * 2}
+            strokeOpacity={0.15 + i * 0.05}
+            strokeDasharray={`${radius * 0.12}, ${radius * 0.08}`}
+            filter="url(#brushTexture)"
+            animate={{
+              rotate: [0, 360],
+              strokeOpacity: [0.1, 0.25, 0.1],
+              strokeWidth: [6 + i * 2, 10 + i * 2, 6 + i * 2]
+            }}
+            transition={{
+              duration: 120 + i * 20,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          
+          {/* Secondary emotional arcs - colored brushstrokes */}
+          {Array.from({ length: 6 }, (_, arcIndex) => {
+            const arcAngle = (arcIndex * 60) * Math.PI / 180;
+            const arcLength = 40 + arcIndex * 10;
+            const hue = 30 + arcIndex * 45; // Golden to blue spectrum
+            
+            return (
+              <motion.path
+                key={`arc-${i}-${arcIndex}`}
+                d={`M ${(radius + 10) * Math.cos(arcAngle - 0.3)} ${(radius + 10) * Math.sin(arcAngle - 0.3)} 
+                    A ${radius + 10} ${radius + 10} 0 0 1 
+                    ${(radius + 10) * Math.cos(arcAngle + 0.3)} ${(radius + 10) * Math.sin(arcAngle + 0.3)}`}
+                fill="none"
+                stroke={`hsl(${hue}, 70%, ${35 + i * 5}%)`}
+                strokeWidth={4 + i}
+                strokeLinecap="round"
+                strokeOpacity={0.3 + i * 0.05}
+                filter="url(#brushTexture)"
+                animate={{
+                  strokeOpacity: [0.2, 0.4, 0.2],
+                  strokeWidth: [3 + i, 6 + i, 3 + i],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{
+                  duration: 8 + arcIndex * 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: arcIndex * 0.5
+                }}
+              />
+            );
+          })}
+          
+          {/* Semi-circles for emotional states */}
+          <motion.path
+            d={`M ${-radius} 0 A ${radius} ${radius} 0 0 1 ${radius} 0`}
+            fill="none"
+            stroke={`hsl(${280 + i * 20}, 60%, ${40 + i * 5}%)`}
+            strokeWidth={6 + i}
+            strokeOpacity={0.2}
+            strokeDasharray="12,8"
+            filter="url(#emotionalGlow)"
+            animate={{
+              strokeOpacity: [0.15, 0.3, 0.15],
+              strokeDashoffset: [0, 20, 0]
+            }}
+            transition={{
+              duration: 12 + i * 3,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          
+          {/* Sleep phase indicators - soft brushstrokes */}
+          {Array.from({ length: 3 }, (_, sleepIndex) => {
+            const sleepAngle = (sleepIndex * 120) * Math.PI / 180;
+            const sleepRadius = radius - 15;
+            const sleepColor = sleepIndex === 0 ? 230 : sleepIndex === 1 ? 280 : 200;
+            
+            return (
+              <motion.ellipse
+                key={`sleep-${i}-${sleepIndex}`}
+                cx={sleepRadius * Math.cos(sleepAngle) * 0.8}
+                cy={sleepRadius * Math.sin(sleepAngle) * 0.8}
+                rx={20 + sleepIndex * 5}
+                ry={8 + sleepIndex * 2}
+                fill={`hsl(${sleepColor}, 50%, ${30 + i * 3}%)`}
+                opacity={0.25 + sleepIndex * 0.1}
+                filter="url(#fuzzyGlow)"
+                transform={`rotate(${sleepAngle * 180 / Math.PI} ${sleepRadius * Math.cos(sleepAngle) * 0.8} ${sleepRadius * Math.sin(sleepAngle) * 0.8})`}
+                animate={{
+                  scale: [1, 1.1, 1],
+                  opacity: [0.2, 0.4, 0.2]
+                }}
+                transition={{
+                  duration: 15 + sleepIndex * 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: sleepIndex * 2
+                }}
+              />
+            );
+          })}
+        </motion.g>
+      ))}
+
       {/* Atmospheric fog layer */}
       <motion.circle
         cx={0}
