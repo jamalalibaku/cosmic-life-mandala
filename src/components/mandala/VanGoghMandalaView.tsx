@@ -2,18 +2,18 @@
  * (c) 2025 Cosmic Life Mandala – Radial Timeline Project
  * Founder and Author: Jamal Ali
  * Built by ChatGPT & Lovable · MIT Licensed
- * Van Gogh Mandala – A living painting of time and emotion
+ * Van Gogh Mandala – Structured radial timeline with painterly expression
  */
 
 import React from "react";
 import { motion } from "framer-motion";
-import { VanGoghCoreVortex } from "./VanGoghCoreVortex";
-import { VanGoghEmotionalStroke } from "./VanGoghEmotionalStroke";
-import { VanGoghSleepSwirl } from "./VanGoghSleepSwirl";
-import { VanGoghMobilityTrail } from "./VanGoghMobilityTrail";
+import { CoreCircle } from "@/components/mandala/CoreCircle";
+import { VanGoghEmotionalRibbon } from "./VanGoghEmotionalRibbon";
+import { VanGoghSleepRing } from "./VanGoghSleepRing";
+import { VanGoghMobilityComet } from "./VanGoghMobilityComet";
 import { VanGoghStarryBackground } from "./VanGoghStarryBackground";
 
-// Mock data for Van Gogh visualization
+// Structured data following mandala pattern
 const moodSegments = [
   { start: 0, emotion: "joy", valence: 0.8, energy: 0.9, duration: 2, arousal: 0.8 },
   { start: 45, emotion: "stress", valence: -0.5, energy: 1.0, duration: 1.5, arousal: 1.0 },
@@ -23,9 +23,9 @@ const moodSegments = [
 ];
 
 const sleepData = [
-  { phase: "deep" as const, depth: 0.9, duration: 180, angle: 30 },
-  { phase: "REM" as const, depth: 0.4, duration: 90, angle: 120 },
-  { phase: "light" as const, depth: 0.2, duration: 60, angle: 210 }
+  { phase: "deep" as const, depth: 0.9, duration: 180, startAngle: 30 },
+  { phase: "REM" as const, depth: 0.4, duration: 90, startAngle: 120 },
+  { phase: "light" as const, depth: 0.2, duration: 60, startAngle: 210 }
 ];
 
 const mobilityData = [
@@ -46,72 +46,65 @@ export const VanGoghMandalaView = () => {
   const rotationAngle = getCurrentTimeAngle();
 
   return (
-    <div className="w-full h-full min-h-screen flex items-center justify-center relative overflow-hidden" 
-         style={{ background: 'hsl(230, 40%, 8%)' }}>
+    <div className="w-full h-full min-h-screen flex items-center justify-center relative overflow-hidden">
       
       {/* Van Gogh Starry Background */}
       <VanGoghStarryBackground />
       
       <motion.svg
-        viewBox="-400 -400 800 800"
-        width="90%"
-        height="90%"
-        className="max-w-5xl max-h-screen relative z-10 cursor-pointer"
-        initial={{ opacity: 0, scale: 0.8 }}
+        viewBox="-350 -350 700 700"
+        width="85%"
+        height="85%"
+        className="max-w-4xl max-h-screen relative z-10 cursor-pointer"
+        initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2, ease: "easeOut" }}
         style={{ pointerEvents: 'auto' }}
       >
-        {/* Van Gogh brushwork filters */}
+        {/* Van Gogh artistic filters */}
         <defs>
-          <filter id="vanGoghBrush" x="-50%" y="-50%" width="200%" height="200%">
+          <filter id="vanGoghGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
             <feTurbulence 
-              baseFrequency="0.04 0.06" 
-              numOctaves="4" 
+              baseFrequency="0.02 0.03" 
+              numOctaves="2" 
               stitchTiles="stitch"
               type="fractalNoise"
             />
-            <feColorMatrix values="0 0 0 0 0.9 0 0 0 0 0.8 0 0 0 0 0.2 0 0 0 1 0"/>
-            <feComposite in2="SourceGraphic" operator="multiply"/>
-          </filter>
-          
-          <filter id="starryGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+            <feColorMatrix values="1 0.9 0.3 0 0 0.8 0.9 0.2 0 0 0.2 0.3 1 0 0 0 0 0 1 0"/>
+            <feComposite in2="coloredBlur" operator="multiply"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>
+
+          <radialGradient id="vanGoghRadial" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" style={{stopColor: 'hsl(45, 90%, 15%)', stopOpacity: 0.3}} />
+            <stop offset="40%" style={{stopColor: 'hsl(220, 60%, 8%)', stopOpacity: 0.6}} />
+            <stop offset="100%" style={{stopColor: 'hsl(230, 40%, 5%)', stopOpacity: 0.9}} />
+          </radialGradient>
         </defs>
 
-        {/* Time-aligned rotation group */}
+        {/* Background radial gradient */}
+        <circle 
+          cx={0} cy={0} r={350}
+          fill="url(#vanGoghRadial)"
+          opacity={0.8}
+        />
+
+        {/* Time-aligned rotation group - Van Gogh's celestial motion */}
         <motion.g
           animate={{ rotate: rotationAngle }}
-          transition={{ type: "spring", stiffness: 50, damping: 20, duration: 3 }}
+          transition={{ type: "spring", stiffness: 30, damping: 20, duration: 4 }}
         >
-          {/* Van Gogh Core Vortex (NOW) */}
-          <motion.g
-            animate={{ 
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0]
-            }}
-            transition={{ 
-              duration: 4, 
-              repeat: Infinity, 
-              ease: "easeInOut",
-              times: [0, 0.5, 0.8, 1]
-            }}
-          >
-            <VanGoghCoreVortex />
-          </motion.g>
-
-          {/* Sleep Swirls */}
+          {/* Sleep Rings - Inner peaceful orbits */}
           {sleepData.map((sleep, i) => (
             <motion.g
               key={i}
               animate={{ 
-                scale: [1, 1.03, 1],
-                rotate: [0, 2, -2, 0]
+                scale: [1, 1.02, 1],
+                opacity: [0.7, 0.9, 0.7]
               }}
               transition={{ 
                 duration: 8 + i * 2, 
@@ -120,65 +113,85 @@ export const VanGoghMandalaView = () => {
                 delay: i * 1.5
               }}
             >
-              <VanGoghSleepSwirl 
+              <VanGoghSleepRing 
                 depth={sleep.depth} 
                 phase={sleep.phase} 
                 duration={sleep.duration}
-                angle={sleep.angle}
+                startAngle={sleep.startAngle}
+                radius={80 + i * 25}
               />
             </motion.g>
           ))}
 
-          {/* Emotional Brushstrokes */}
+          {/* Emotional Ribbons - Spiraling mood currents */}
           {moodSegments.map((mood, i) => (
             <motion.g
               key={i}
               animate={{ 
-                scale: [1, 1.05 + mood.energy * 0.05, 1],
-                rotate: [0, mood.valence * 3, 0]
+                scale: [1, 1.03 + mood.energy * 0.02, 1],
+                rotate: [0, mood.valence * 2, 0]
               }}
               transition={{ 
-                duration: 2 + mood.energy * 3, 
+                duration: 4 + mood.energy * 3, 
                 repeat: Infinity, 
                 ease: "easeInOut",
                 delay: i * 0.8
               }}
             >
-              <VanGoghEmotionalStroke
+              <VanGoghEmotionalRibbon
                 startAngle={mood.start}
                 arcLength={mood.duration * 18}
                 intensity={mood.energy}
                 valence={mood.valence}
                 arousal={mood.arousal}
                 emotion={mood.emotion}
+                radius={180 + i * 15}
               />
             </motion.g>
           ))}
 
-          {/* Mobility Trails (like shooting stars) */}
+          {/* Mobility Comets - Shooting star trails */}
           {mobilityData.map((mobility, i) => (
             <motion.g
               key={i}
               animate={{ 
                 opacity: [0.6, 1, 0.6],
-                scale: [1, 1.1, 1]
+                scale: [1, 1.05, 1]
               }}
               transition={{ 
-                duration: 4 + mobility.intensity * 2, 
+                duration: 3 + mobility.intensity * 2, 
                 repeat: Infinity, 
                 ease: "easeInOut",
-                delay: i * 2
+                delay: i * 1.5
               }}
             >
-              <VanGoghMobilityTrail
+              <VanGoghMobilityComet
                 activity={mobility.activity}
                 intensity={mobility.intensity}
                 distance={mobility.distance}
                 angle={(mobility.angle * Math.PI) / 180}
                 time={mobility.time}
+                radius={250}
               />
             </motion.g>
           ))}
+
+          {/* Core breathing center - Van Gogh's glowing sun */}
+          <motion.g
+            animate={{ 
+              scale: [1, 1.08, 1],
+              rotate: [0, 3, -3, 0]
+            }}
+            transition={{ 
+              duration: 6, 
+              repeat: Infinity, 
+              ease: "easeInOut"
+            }}
+          >
+            <g filter="url(#vanGoghGlow)">
+              <CoreCircle />
+            </g>
+          </motion.g>
         </motion.g>
       </motion.svg>
     </div>
