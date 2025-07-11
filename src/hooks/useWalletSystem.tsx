@@ -43,6 +43,46 @@ export const useWalletSystem = () => {
   const [recentActivities, setRecentActivities] = useState<WalletActivity[]>([]);
   const [isActive, setIsActive] = useState(false);
 
+  // Initialize with some mock currency values for demonstration
+  useEffect(() => {
+    setCurrency({
+      emotionalCoins: 45,
+      movementMiles: 128,
+      productivityCredits: 67,
+      restTokens: 89,
+      wisdomPoints: 23,
+      clarityStars: 8
+    });
+    
+    // Add some mock recent activities
+    setRecentActivities([
+      {
+        type: 'mood',
+        timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
+        value: 3,
+        description: 'Explored emotional patterns'
+      },
+      {
+        type: 'sleep',
+        timestamp: new Date(Date.now() - 25 * 60 * 1000), // 25 minutes ago
+        value: 5,
+        description: 'Analyzed sleep quality data'
+      },
+      {
+        type: 'plans',
+        timestamp: new Date(Date.now() - 40 * 60 * 1000), // 40 minutes ago
+        value: 8,
+        description: 'Reviewed weekly goals'
+      },
+      {
+        type: 'insight',
+        timestamp: new Date(Date.now() - 55 * 60 * 1000), // 55 minutes ago
+        value: 12,
+        description: 'Discovered mood-sleep correlation'
+      }
+    ]);
+  }, []);
+
   // Track layer interactions and award currency
   const trackActivity = useCallback((
     type: WalletActivity['type'], 

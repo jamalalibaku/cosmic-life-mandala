@@ -60,6 +60,8 @@ import { RippleVisualization } from '@/components/RippleVisualization';
 import { useConsciousnessTracker } from '@/hooks/useConsciousnessTracker';
 import { getUserInsightProfile } from '@/utils/insight-memory';
 import { BehavioralTools } from '@/components/interactions/BehavioralTools';
+import { PlansLayerRing } from '@/components/plans-layer-ring';
+import { WalletCurrencyPanel } from '@/components/enhanced/WalletCurrencyPanel';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -83,6 +85,8 @@ const IndexContent = () => {
   const [showInsightPanel, setShowInsightPanel] = useState(false);
   const [showRitualCompanion, setShowRitualCompanion] = useState(false);
   const [activeBehavioralTool, setActiveBehavioralTool] = useState<'touch' | 'fix' | 'scale' | null>(null);
+  const [showWalletPanel, setShowWalletPanel] = useState(false);
+  const [walletPanelPosition, setWalletPanelPosition] = useState({ x: 0, y: 0 });
 
   // Life phase detection and awareness rhythm
   const userProfile = getUserInsightProfile();
@@ -94,7 +98,7 @@ const IndexContent = () => {
   const currentLifePhase = detectLifePhase(userProfile, mockInteractions);
   const phaseTheme = usePhaseTheme(currentLifePhase.currentPhase);
   
-  // Enhanced awareness rhythm system
+  // Enhanced awareness rhythm system with wallet integration
   const { awarenessState, clearAwarenessMessage, onDataClick } = useEnhancedAwarenessRhythm({
     userProfile,
     recentInteractions: mockInteractions,
@@ -109,6 +113,13 @@ const IndexContent = () => {
     },
     ambientInsightFrequency: 25 // Show ambient insights every 25 minutes
   });
+
+  // Mock wallet system instance for activity tracking
+  const mockWalletTracker = {
+    trackActivity: (type: 'mood' | 'mobility' | 'plans' | 'sleep' | 'insight' | 'correlation', value: number = 1, description?: string) => {
+      console.log(`💼 Wallet activity tracked: ${type} (+${value}) - ${description}`);
+    }
+  };
 
   // Consciousness tracking system
   const consciousnessTracker = useConsciousnessTracker({
@@ -355,19 +366,18 @@ const IndexContent = () => {
               {...currentMetrics}
             />
             
-            {/* 2. Plans - Data-driven ring when active */}
-            {mockPlansData.length > 0 && (
-              <circle
-                cx={centerX}
-                cy={centerY}
-                r={285}
-                fill="none"
-                stroke={currentTheme === 'horizons' ? 'hsl(280 30% 70%)' : 'hsl(240 20% 60%)'}
-                strokeWidth="0.5"
-                strokeDasharray="4,12"
-                opacity="0.2"
-              />
-            )}
+            {/* 2. Plans - Data-driven ring with curved ribbons */}
+            <PlansLayerRing
+              plansData={mockPlansData}
+              centerX={centerX}
+              centerY={centerY}
+              radius={285}
+              theme={currentTheme}
+              onPlanClick={(plan) => {
+                console.log('Plan clicked:', plan);
+                // Could trigger plan details panel
+              }}
+            />
             
             {/* 1. Weather - Atmospheric Outermost Ring */}
             <AtmosphericWeatherRing
@@ -630,8 +640,24 @@ const IndexContent = () => {
               onDataClick(layerType);
               // Track the interaction for consciousness system
               consciousnessTracker.trackInteraction(layerType, position.x, position.y);
-              // Open the insight panel
-              togglePopOut(layerType, position, layerData, `Last 7 days`);
+              
+              // Track wallet activity for any layer interaction
+              if (layerType !== 'wallet') {
+                mockWalletTracker.trackActivity(
+                  layerType as 'mood' | 'mobility' | 'plans' | 'sleep', 
+                  2, 
+                  `Explored ${layerType} layer`
+                );
+              }
+              
+              // Special handling for wallet layer
+              if (layerType === 'wallet') {
+                setWalletPanelPosition(position);
+                setShowWalletPanel(true);
+              } else {
+                // Open the insight panel for other layers
+                togglePopOut(layerType, position, layerData, `Last 7 days`);
+              }
             }}
             layerDataMap={{
               weather: mockWeatherData,
@@ -945,6 +971,14 @@ const IndexContent = () => {
           currentScale={timeScale}
           isVisible={true}
           onToolActivate={setActiveBehavioralTool}
+        />
+
+        {/* Wallet Currency Panel */}
+        <WalletCurrencyPanel
+          isVisible={showWalletPanel}
+          onClose={() => setShowWalletPanel(false)}
+          position={walletPanelPosition}
+          timeScale={timeScale}
         />
 
         {/* Layer Pop-Out Insight Panel */}
