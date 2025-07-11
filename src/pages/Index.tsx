@@ -72,7 +72,7 @@ import { EnhancedSettingsButton } from '@/components/enhanced/EnhancedSettingsBu
 import { MinimalistTimeSymbol } from '@/components/MinimalistTimeSymbol';
 import { TimeScaleColumn } from '@/components/TimeScaleColumn';
 import { HoverBasedInsights } from '@/components/HoverBasedInsights';
-import { useHangingTilt, TiltPresets } from '@/hooks/use-hanging-tilt';
+import { useReactiveTilt } from '@/hooks/use-reactive-tilt';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -143,14 +143,14 @@ const IndexContent = () => {
   // Layer pop-out panel system
   const { popOutState, openPopOut, closePopOut, togglePopOut } = useLayerPopOut();
 
-  // Hanging tilt effects for cosmic swaying motion
-  const mainTilt = useHangingTilt(TiltPresets.main);
-  const weatherTilt = useHangingTilt({ ...TiltPresets.weather, layerIndex: 0 });
-  const plansTilt = useHangingTilt({ ...TiltPresets.plans, layerIndex: 1 });
-  const mobilityTilt = useHangingTilt({ ...TiltPresets.mobility, layerIndex: 2 });
-  const moodTilt = useHangingTilt({ ...TiltPresets.mood, layerIndex: 3 });
-  const sleepTilt = useHangingTilt({ ...TiltPresets.sleep, layerIndex: 4 });
-  const coreTilt = useHangingTilt({ ...TiltPresets.core, layerIndex: 5 });
+  // Reactive living frequency tilt effects - connected to all possible data sources
+  const mainTilt = useReactiveTilt({ layerType: 'core', sensitivity: 0.8, baseAmplitude: 1.5 });
+  const weatherTilt = useReactiveTilt({ layerType: 'weather', sensitivity: 0.9, baseAmplitude: 2.5 });
+  const plansTilt = useReactiveTilt({ layerType: 'plans', sensitivity: 0.7, baseAmplitude: 1.8 });
+  const mobilityTilt = useReactiveTilt({ layerType: 'mobility', sensitivity: 1.0, baseAmplitude: 2.2 });
+  const moodTilt = useReactiveTilt({ layerType: 'mood', sensitivity: 0.9, baseAmplitude: 3.0 });
+  const sleepTilt = useReactiveTilt({ layerType: 'sleep', sensitivity: 0.6, baseAmplitude: 1.2 });
+  const uiTilt = useReactiveTilt({ layerType: 'ui', sensitivity: 0.5, baseAmplitude: 1.0 });
 
   // Handle keyboard shortcuts for zoom and settings
   useEffect(() => {
@@ -275,7 +275,7 @@ const IndexContent = () => {
         )}
         
         {/* Sun Aura Ring - Breathing center anchored to outermost layer */}
-        <g transform={coreTilt.getSVGTiltTransform(centerX, centerY)}>
+        <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
           <SunAuraRing
             centerX={centerX}
             centerY={centerY}
@@ -297,7 +297,7 @@ const IndexContent = () => {
         </g>
         
         {/* Always present: Cosmic sunburst aura layer */}
-        <g transform={coreTilt.getSVGTiltTransform(centerX, centerY)}>
+        <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
           <CosmicSunburstLayer
             centerX={centerX}
             centerY={centerY}

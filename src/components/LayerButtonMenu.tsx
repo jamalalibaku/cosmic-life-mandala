@@ -15,7 +15,7 @@ import {
   ChevronRight,
   ChevronLeft
 } from 'lucide-react';
-import { useHangingTilt, TiltPresets } from '@/hooks/use-hanging-tilt';
+import { useReactiveTilt } from '@/hooks/use-reactive-tilt';
 
 interface LayerButtonMenuProps {
   onLayerClick: (layerType: string, position: { x: number; y: number }, layerData: any) => void;
@@ -84,11 +84,11 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
   const [isExpanded, setIsExpanded] = useState(true);
   const [hoveredLayer, setHoveredLayer] = useState<string | null>(null);
   
-  // Add hanging tilt effect to the button menu
-  const menuTilt = useHangingTilt({ 
-    amplitude: 1.2, 
-    period: 15, 
-    phaseOffset: 1.5, 
+  // Add reactive tilt effect to the button menu - responds to all living frequencies
+  const menuTilt = useReactiveTilt({ 
+    layerType: 'ui', 
+    sensitivity: 0.6, 
+    baseAmplitude: 1.2,
     dampening: 0.85 
   });
 
