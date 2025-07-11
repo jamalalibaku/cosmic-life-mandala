@@ -7,6 +7,8 @@
  * Dependencies: layer-interconnection utils, temporal data structures
  */
 
+import { updateUserProfile, generateProgressiveInsight, getUserInsightProfile } from './insight-memory';
+
 // Legacy compatibility interface for existing components
 export interface Insight {
   id: string;
@@ -25,7 +27,7 @@ export interface Insight {
   timeContext?: string;
 }
 
-interface SliceInsightData {
+export interface SliceInsightData {
   slice: any;
   layerType: string;
   timestamp: string;
@@ -33,7 +35,7 @@ interface SliceInsightData {
   angle: number;
 }
 
-interface InsightResponse {
+export interface InsightResponse {
   type: 'correlation' | 'pattern' | 'anomaly' | 'reflection';
   message: string;
   confidence: number;
@@ -43,7 +45,7 @@ interface InsightResponse {
 
 /**
  * Trigger insight generation for a clicked slice
- * Uses real correlation analysis and pattern detection
+ * Uses progressive learning system that builds depth over time
  */
 export const triggerInsightPrompt = (sliceData: SliceInsightData, timeSlices?: any[]): InsightResponse => {
   console.log('🧠 Insight Engine triggered:', sliceData);
@@ -56,10 +58,40 @@ export const triggerInsightPrompt = (sliceData: SliceInsightData, timeSlices?: a
     correlations = analyzeLayerCorrelations(timeSlices, layerType);
   }
   
-  // Generate insights using real data analysis
-  const insights = generateDataDrivenInsight(layerType, dataValue, correlations);
+  // Update user profile and get progressive insights
+  const updatedProfile = updateUserProfile({
+    layerType,
+    timestamp,
+    correlations,
+    userEngagement: 'medium' // Could be enhanced with actual engagement tracking
+  });
   
-  console.log('🧠 Generated insight:', insights);
+  // Generate progressive insight based on user's sophistication level
+  const progressiveInsight = generateProgressiveInsight(
+    layerType, 
+    dataValue, 
+    correlations, 
+    updatedProfile
+  );
+  
+  console.log('🧠 Progressive insight generated:', progressiveInsight);
+  console.log('🧠 User sophistication level:', updatedProfile.sophisticationLevel);
+  
+  // Convert to InsightResponse format
+  const relatedLayers = Object.keys(correlations)
+    .filter(key => key.startsWith(layerType))
+    .map(key => key.split('-')[1])
+    .slice(0, 3);
+  
+  const insights: InsightResponse = {
+    type: updatedProfile.sophisticationLevel >= 3 ? 'pattern' : 'correlation',
+    message: progressiveInsight.message,
+    confidence: progressiveInsight.confidence,
+    relatedLayers,
+    actionSuggestion: progressiveInsight.actionSuggestions[0] || 'Continue exploring patterns'
+  };
+  
+  console.log('🧠 Final insight response:', insights);
   
   return insights;
 };
@@ -442,7 +474,7 @@ export const generateReflectionPrompts = (
   }, {} as Record<string, number>);
 
   const mostExploredLayer = Object.entries(layerFrequency)
-    .sort(([,a], [,b]) => b - a)[0]?.[0];
+    .sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0];
 
   const totalInteractions = interactionHistory.length;
   const recentInteractions = interactionHistory.slice(-5);
@@ -455,7 +487,7 @@ export const generateReflectionPrompts = (
   }, {} as Record<number, number>);
   
   const peakInteractionHour = Object.entries(commonHours)
-    .sort(([,a], [,b]) => b - a)[0]?.[0];
+    .sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0];
 
   // Generate personalized prompts based on behavior patterns
   const behaviorPrompts: string[] = [];
