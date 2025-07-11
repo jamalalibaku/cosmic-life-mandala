@@ -2,7 +2,7 @@
  * (c) 2025 Cosmic Life Mandala – Radial Timeline Project
  * Founder and Author: Jamal Ali
  * Built by ChatGPT & Lovable · MIT Licensed
- * Phase 28 – Live Visual Composition with Breathing Animation
+ * Phase 28 – Live Visual Composition with Breathing, Sleep Animation, and Time Rotation
  */
 
 import React from "react";
@@ -33,7 +33,17 @@ const mobilityData = [
   { activity: "bike" as const, intensity: 0.6, distance: 120, angle: 160 }
 ];
 
+const getCurrentTimeAngle = (): number => {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const totalMinutes = hours * 60 + minutes;
+  return -(totalMinutes / 1440) * 360; // rotate counter-clockwise to keep NOW at top
+};
+
 export const MandalaView = () => {
+  const rotationAngle = getCurrentTimeAngle();
+
   return (
     <div className="w-full h-full min-h-screen flex items-center justify-center bg-background">
       <motion.svg
@@ -45,50 +55,62 @@ export const MandalaView = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        {/* Core breathing center */}
+        {/* Full radial system rotation to keep NOW at top */}
         <motion.g
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ rotate: rotationAngle }}
+          transition={{ type: "tween", duration: 2 }}
         >
-          <CoreCircle />
-        </motion.g>
+          {/* Core breathing center */}
+          <motion.g
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <CoreCircle />
+          </motion.g>
 
-        {/* Sleep ripples */}
-        {sleepData.map((sleep, i) => (
-          <SleepRipple key={i} depth={sleep.depth} phase={sleep.phase} duration={sleep.duration} />
-        ))}
-
-        {/* Emotional Creatures */}
-        {moodSegments.map((mood, i) => {
-          const breathDur = mandalaExpressiveTheme.breathingRhythms[mood.emotion] || 4;
-          return (
+          {/* Sleep ripples with soft pulsing */}
+          {sleepData.map((sleep, i) => (
             <motion.g
               key={i}
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: breathDur, repeat: Infinity, ease: "easeInOut" }}
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
             >
-              <EmotionalCreature
-                startAngle={mood.start}
-                arcLength={mood.duration * 15}
-                intensity={mood.energy}
-                valence={mood.valence}
-                arousal={mood.arousal}
-                emotion={mood.emotion}
-              />
+              <SleepRipple depth={sleep.depth} phase={sleep.phase} duration={sleep.duration} />
             </motion.g>
-          );
-        })}
+          ))}
 
-        {/* Cosmic Mobility Trails */}
-        {mobilityData.map((m, i) => (
-          <MobilitySpirit
-            key={i}
-            activity={m.activity}
-            intensity={m.intensity}
-            distance={m.distance}
-            angle={(m.angle * Math.PI) / 180}
-          />
-        ))}
+          {/* Emotional Creatures */}
+          {moodSegments.map((mood, i) => {
+            const breathDur = mandalaExpressiveTheme.breathingRhythms[mood.emotion] || 4;
+            return (
+              <motion.g
+                key={i}
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: breathDur, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <EmotionalCreature
+                  startAngle={mood.start}
+                  arcLength={mood.duration * 15}
+                  intensity={mood.energy}
+                  valence={mood.valence}
+                  arousal={mood.arousal}
+                  emotion={mood.emotion}
+                />
+              </motion.g>
+            );
+          })}
+
+          {/* Cosmic Mobility Trails */}
+          {mobilityData.map((m, i) => (
+            <MobilitySpirit
+              key={i}
+              activity={m.activity}
+              intensity={m.intensity}
+              distance={m.distance}
+              angle={(m.angle * Math.PI) / 180}
+            />
+          ))}
+        </motion.g>
       </motion.svg>
     </div>
   );
