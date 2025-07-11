@@ -37,7 +37,11 @@ import { InsightOrbitRing } from '@/components/insight-orbit-ring';
 import { MoonPhaseMarker } from '@/components/moon-phase-marker';
 import { DataLayerLabels } from '@/components/data-layer-labels';
 import { LayerPopOutPanel } from '@/components/LayerPopOutPanel';
-import { ManualZoomControls } from '@/components/ManualZoomControls';
+import { ZoomMenuButton } from '@/components/navigation/ZoomMenuButton';
+import { ToolsMenuButton } from '@/components/navigation/ToolsMenuButton';
+import { TouchTool } from '@/components/interactions/TouchTool';
+import { FixTool } from '@/components/interactions/FixTool';
+import { ScaleTool } from '@/components/interactions/ScaleTool';
 import { useLayerPopOut } from '@/hooks/useLayerPopOut';
 import { mockWeatherData, mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
@@ -59,7 +63,6 @@ import { RitualCompanion } from '@/components/RitualCompanion';
 import { RippleVisualization } from '@/components/RippleVisualization';
 import { useConsciousnessTracker } from '@/hooks/useConsciousnessTracker';
 import { getUserInsightProfile } from '@/utils/insight-memory';
-import { BehavioralTools } from '@/components/interactions/BehavioralTools';
 import { PlansLayerRing } from '@/components/plans-layer-ring';
 import { WalletCurrencyPanel } from '@/components/enhanced/WalletCurrencyPanel';
 import { EnhancedSettingsButton } from '@/components/enhanced/EnhancedSettingsButton';
@@ -85,7 +88,7 @@ const IndexContent = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showInsightPanel, setShowInsightPanel] = useState(false);
   const [showRitualCompanion, setShowRitualCompanion] = useState(false);
-  const [activeBehavioralTool, setActiveBehavioralTool] = useState<'touch' | 'fix' | 'scale' | null>(null);
+  const [activeTool, setActiveTool] = useState<'touch' | 'fix' | 'scale' | null>(null);
   const [showWalletPanel, setShowWalletPanel] = useState(false);
   const [walletPanelPosition, setWalletPanelPosition] = useState({ x: 0, y: 0 });
 
@@ -956,23 +959,59 @@ const IndexContent = () => {
           )}
         </FractalTimeZoomManager>
 
-        {/* Enhanced Manual Zoom Controls - Replaces zoom dial */}
-        <ManualZoomControls
-          currentScale={timeScale}
-          onScaleChange={setTimeScale}
-          onTimeNavigate={handleTimeNavigate}
-          currentDate={currentDate}
-          position="top"
-        />
+        {/* Consolidated Top-Right Navigation Stack */}
+        <div className="fixed top-4 right-4 z-50 flex flex-col gap-3">
+          {/* Settings Button */}
+          <EnhancedSettingsButton
+            onClick={() => setShowSettings(!showSettings)}
+            isOpen={showSettings}
+          />
+          
+          {/* Zoom Menu */}
+          <ZoomMenuButton
+            currentScale={timeScale}
+            onScaleChange={setTimeScale}
+            onTimeNavigate={handleTimeNavigate}
+            currentDate={currentDate}
+          />
+          
+          {/* Tools Menu */}
+          <ToolsMenuButton
+            activeTool={activeTool}
+            onToolSelect={setActiveTool}
+          />
+        </div>
 
-        {/* Behavioral Tools - Adria's Emotional Interaction Design */}
-        <BehavioralTools
-          centerX={350}
-          centerY={350}
-          currentScale={timeScale}
-          isVisible={true}
-          onToolActivate={setActiveBehavioralTool}
-        />
+        {/* Active Tool Overlays */}
+        <svg className="fixed inset-0 pointer-events-none z-45" width="100%" height="100%">
+          <TouchTool
+            isActive={activeTool === 'touch'}
+            onMomentTouch={(moment) => {
+              console.log('🫧 Moment touched:', moment);
+            }}
+            centerX={350}
+            centerY={350}
+          />
+
+          <FixTool
+            isActive={activeTool === 'fix'}
+            onMomentFix={(moment) => {
+              console.log('🧲 Moment fixed:', moment);
+            }}
+            centerX={350}
+            centerY={350}
+          />
+
+          <ScaleTool
+            isActive={activeTool === 'scale'}
+            onScaleGesture={(gesture) => {
+              console.log('🌀 Scale gesture:', gesture);
+            }}
+            centerX={350}
+            centerY={350}
+            currentScale={timeScale}
+          />
+        </svg>
 
         {/* Wallet Currency Panel */}
         <WalletCurrencyPanel
@@ -992,11 +1031,6 @@ const IndexContent = () => {
           timeRange={popOutState.timeRange}
           currentTimeScale={timeScale}
           theme={currentTheme}
-        />
-        {/* Enhanced Settings Button */}
-        <EnhancedSettingsButton
-          onClick={() => setShowSettings(!showSettings)}
-          isOpen={showSettings}
         />
 
         {/* Settings Panel */}
