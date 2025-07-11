@@ -10,6 +10,9 @@ import { RadialTooltip } from "@/components/interactions/RadialTooltip";
 import { InteractiveDataPoint } from "@/components/interactions/InteractiveDataPoint";
 import { ExpandedCard } from "@/components/interactions/ExpandedCard";
 import { EmojiBurst } from "@/components/interactions/EmojiBurst";
+import { ClickableLayer } from "@/components/interactions/ClickableLayer";
+import { ClickableSlice } from "@/components/interactions/ClickableSlice";
+import { InfoPanelSystem, PanelData } from "@/components/interactions/InfoPanelSystem";
 import { useUnifiedMotion } from "@/hooks/useUnifiedMotion";
 import { useTimeAxis } from "@/contexts/TimeAxisContext";
 import { ThemeOverlayManager } from "@/components/themes/ThemeOverlaySystem";
@@ -365,6 +368,10 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   const [emojiBurstData, setEmojiBurstData] = useState<any>(null);
   const [emojiBurstActive, setEmojiBurstActive] = useState(false);
   
+  // Info panel system for clickable elements
+  const [infoPanelData, setInfoPanelData] = useState<PanelData | null>(null);
+  const [infoPanelVisible, setInfoPanelVisible] = useState(false);
+  
   // Supernova burst states
   const [activeSupernovas, setActiveSupernovas] = useState<SupernovaTrigger[]>([]);
   const [supernovaCounter, setSupernovaCounter] = useState(0);
@@ -440,6 +447,40 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
     setTimeout(() => setEmojiBurstData(null), 100);
   };
 
+  // Handle clickable layer interactions
+  const handleLayerClick = (layerData: any) => {
+    setInfoPanelData({
+      type: 'layer',
+      title: layerData.name,
+      subtitle: `${layerData.layerType} layer`,
+      content: layerData
+    });
+    setInfoPanelVisible(true);
+  };
+
+  const handleSliceClick = (sliceData: any) => {
+    setInfoPanelData({
+      type: 'slice',
+      title: `Time Slice`,
+      subtitle: `${sliceData.sliceType} period`,
+      content: sliceData
+    });
+    setInfoPanelVisible(true);
+  };
+
+  const handleSliceFocusZoom = (sliceData: any) => {
+    // Trigger a focused zoom animation
+    addImpulse(
+      Math.cos(sliceData.angle) * 2,
+      Math.sin(sliceData.angle) * 2
+    );
+  };
+
+  const handleInfoPanelClose = () => {
+    setInfoPanelVisible(false);
+    setTimeout(() => setInfoPanelData(null), 200);
+  };
+
   const handleSupernovaComplete = (completedSupernova: SupernovaTrigger) => {
     setActiveSupernovas(prev => 
       prev.filter(supernova => supernova !== completedSupernova)
@@ -463,23 +504,31 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
         transition={{ duration: 1 }}
         style={{ transformOrigin: "center" }}
       >
-        {/* Render layers from outside to inside with motion field */}
+        {/* Render layers from outside to inside with clickable interaction */}
         {layers.slice().reverse().map((layer, index) => (
-          <Layer
+          <ClickableLayer
             key={layer.name}
-            name={layer.name}
-            data={layer.data}
             radius={layer.radius}
             color={layer.color}
-            zoomLevel={currentZoom}
-            layerIndex={index}
-            totalLayers={layers.length}
+            name={layer.name}
             layerType={layer.layerType}
-            onTooltipShow={handleTooltipShow}
-            onTooltipHide={handleTooltipHide}
-            onDataPointClick={handleDataPointClick}
-            layer={layer}
-          />
+            onClick={handleLayerClick}
+          >
+            <Layer
+              name={layer.name}
+              data={layer.data}
+              radius={layer.radius}
+              color={layer.color}
+              zoomLevel={currentZoom}
+              layerIndex={index}
+              totalLayers={layers.length}
+              layerType={layer.layerType}
+              onTooltipShow={handleTooltipShow}
+              onTooltipHide={handleTooltipHide}
+              onDataPointClick={handleDataPointClick}
+              layer={layer}
+            />
+          </ClickableLayer>
         ))}
 
         {/* Glowing center with living heartbeat */}
@@ -524,6 +573,13 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
         data={expandedCardData}
         isVisible={expandedCardVisible}
         onClose={handleExpandedCardClose}
+      />
+
+      {/* Info Panel System for clicked elements */}
+      <InfoPanelSystem
+        panelData={infoPanelData}
+        isVisible={infoPanelVisible}
+        onClose={handleInfoPanelClose}
       />
 
       {/* Emoji burst effects */}

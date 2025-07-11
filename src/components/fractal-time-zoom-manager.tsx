@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { goldenRatio, PHI } from '../utils/golden-ratio';
 import { ZoomDialControl } from './zoom-dial-control';
+import { DollyZoomTransition } from './cinematic/DollyZoomTransition';
 
 export type TimeScale = 'day' | 'week' | 'month' | 'year';
 
@@ -57,12 +58,18 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
     return () => cancelAnimationFrame(animationId);
   }, [reflectivePlayback]);
 
-  // Smooth fractal transition animation
+  // Store previous scale for dolly-zoom transition
+  const [previousScale, setPreviousScale] = useState<TimeScale>(currentScale);
+  
+  // Smooth fractal transition animation with dolly-zoom
   const animateTransition = useCallback((targetScale: TimeScale) => {
+    if (isTransitioning) return; // Prevent overlapping transitions
+    
+    setPreviousScale(currentScale);
     setIsTransitioning(true);
     setTransitionProgress(0);
     
-    const duration = 1500; // Slower, more meditative
+    const duration = 2000; // Extended for cinematic effect
     const startTime = Date.now();
     
     const animate = () => {
@@ -96,7 +103,7 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
     
     requestAnimationFrame(animate);
     onScaleChange(targetScale);
-  }, [onScaleChange]);
+  }, [currentScale, isTransitioning, onScaleChange]);
 
   // Handle scroll zoom
   useEffect(() => {
@@ -197,23 +204,31 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
         />
       )}
 
-      {/* Content with fractal zoom transformation */}
-      <div
-        className="w-full h-full transition-transform duration-1500 ease-out"
-        style={{
-          transform: `scale(${currentZoomLevel}) rotate(${isTransitioning ? transitionProgress * 2 : 0}deg)`,
-          filter: isTransitioning ? `blur(${Math.sin(transitionProgress * Math.PI) * 2}px)` : 'none',
-          opacity: isTransitioning ? 0.9 + (Math.cos(transitionProgress * Math.PI) * 0.1) : 1,
-          transition: isTransitioning ? 'all 1.618s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
+      {/* Content with cinematic dolly-zoom transformation */}
+      <DollyZoomTransition
+        fromScale={previousScale}
+        toScale={currentScale}
+        isActive={isTransitioning}
+        duration={2000}
+        onComplete={() => {
+          // Transition complete - cleanup handled by animateTransition
         }}
       >
-        {children({
-          scale: currentScale,
-          transitionProgress,
-          zoomLevel: currentZoomLevel,
-          isTransitioning
-        })}
-      </div>
+        <div
+          className="w-full h-full"
+          style={{
+            transform: `scale(${currentZoomLevel})`,
+            transformOrigin: 'center center'
+          }}
+        >
+          {children({
+            scale: currentScale,
+            transitionProgress,
+            zoomLevel: currentZoomLevel,
+            isTransitioning
+          })}
+        </div>
+      </DollyZoomTransition>
 
       {/* Usage hint */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
