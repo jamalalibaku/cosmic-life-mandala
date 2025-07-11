@@ -52,6 +52,7 @@ export const ZoomMenuButton: React.FC<ZoomMenuButtonProps> = ({
   className = ''
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Format current date based on scale
   const formatCurrentPeriod = () => {
@@ -74,11 +75,28 @@ export const ZoomMenuButton: React.FC<ZoomMenuButtonProps> = ({
     setIsOpen(false);
   };
 
+  const handleMouseEnter = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
+    }
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setIsOpen(false);
+    }, 150); // Small delay to allow moving to menu
+    setHoverTimeout(timeout);
+  };
+
   return (
     <div className={`relative ${className}`}>
       {/* Main Zoom Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         className="w-12 h-12 rounded-2xl bg-black/70 backdrop-blur-xl border border-white/20 text-white/90 hover:text-white hover:bg-black/80 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center group"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -106,7 +124,11 @@ export const ZoomMenuButton: React.FC<ZoomMenuButtonProps> = ({
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="absolute top-full right-0 mt-2 z-50"
           >
-            <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden min-w-[280px]">
+            <div 
+              className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden min-w-[280px]"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
               
               {/* Time Navigation Row */}
               <div className="flex items-center gap-0 p-3 border-b border-white/10">

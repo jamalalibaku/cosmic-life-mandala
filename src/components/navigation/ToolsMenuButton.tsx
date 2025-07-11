@@ -47,11 +47,27 @@ export const ToolsMenuButton: React.FC<ToolsMenuButtonProps> = ({
   className = ''
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const handleToolSelect = (toolId: ToolType) => {
     const newActiveTool = activeTool === toolId ? null : toolId;
     onToolSelect(newActiveTool);
     setIsOpen(false);
+  };
+
+  const handleMouseEnter = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
+    }
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setIsOpen(false);
+    }, 150); // Small delay to allow moving to menu
+    setHoverTimeout(timeout);
   };
 
   const isAnyToolActive = activeTool !== null;
@@ -61,6 +77,8 @@ export const ToolsMenuButton: React.FC<ToolsMenuButtonProps> = ({
       {/* Main Tools Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         className="w-12 h-12 rounded-2xl bg-black/70 backdrop-blur-xl border border-white/20 text-white/90 hover:text-white hover:bg-black/80 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center group"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -98,7 +116,11 @@ export const ToolsMenuButton: React.FC<ToolsMenuButtonProps> = ({
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="absolute top-full right-0 mt-2 z-50"
           >
-            <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden min-w-[300px]">
+            <div 
+              className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden min-w-[300px]"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
               
               {/* Header */}
               <div className="p-4 border-b border-white/10">
