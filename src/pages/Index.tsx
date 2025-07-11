@@ -38,8 +38,7 @@ import { MoonPhaseMarker } from '@/components/moon-phase-marker';
 import { DataLayerLabels } from '@/components/data-layer-labels';
 import { LayerPopOutPanel } from '@/components/LayerPopOutPanel';
 import { useLayerPopOut } from '@/hooks/useLayerPopOut';
-import { mockWeatherData } from '@/data/weatherData';
-import { mockWeatherToday } from '@/data/mock-weather-data';
+import { mockWeatherData, mockWeatherToday } from '@/data/mock-weather-data';
 import { mockMobilityData, mockMoodData, mockSleepData } from '@/data/mock-life-data';
 import { mockWeekData, mockMonthData, mockYearData } from '@/data/mock-temporal-data';
 import { mockFriends } from '@/data/mock-friend-data';
@@ -239,7 +238,27 @@ const IndexContent = () => {
           <>
             {/* Core weather visualization (center) */}
             <WeatherSunburst
-              weatherData={mockWeatherData}
+              weatherData={{
+                date: "2025-07-11",
+                sunrise: "05:12",
+                sunset: "21:08",
+                temperature: mockWeatherData.slice(0, 8).map((w, i) => ({
+                  time: `${i * 3}:00`,
+                  value: w.temperature
+                })),
+                cloudiness: mockWeatherData.slice(0, 4).map((w, i) => ({
+                  time: `${i * 6}:00`,
+                  value: w.condition === 'cloudy' ? 80 : w.condition === 'partly_cloudy' ? 50 : 20
+                })),
+                sunIntensity: mockWeatherData.slice(0, 6).map((w, i) => ({
+                  time: `${i * 4}:00`,
+                  value: w.condition === 'sunny' ? 800 : w.condition === 'partly_cloudy' ? 400 : 100
+                })),
+                windSpeed: mockWeatherData.slice(0, 4).map((w, i) => ({
+                  time: `${i * 6}:00`,
+                  value: w.windSpeed
+                }))
+              }}
               centerX={centerX}
               centerY={centerY}
               innerRadius={80}
@@ -559,7 +578,7 @@ const IndexContent = () => {
               togglePopOut(layerType, position, layerData, `Last 7 days`);
             }}
             layerDataMap={{
-              weather: mockWeatherToday,
+              weather: mockWeatherData,
               plans: [], // Will be populated with actual plan data
               mobility: mockMobilityData,
               mood: mockMoodData,

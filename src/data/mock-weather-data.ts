@@ -1,5 +1,108 @@
 import { WeatherSegment } from '../components/weather-sunburst-ring';
 
+// Mock Berlin July weather data
+export const mockWeatherData = [
+  {
+    timestamp: "2025-07-01T12:00:00+02:00",
+    condition: "sunny",
+    temperature: 24.1,
+    intensity: 0.2,
+    humidity: 46,
+    windSpeed: 13.7,
+    layerType: "weather"
+  },
+  {
+    timestamp: "2025-07-02T12:00:00+02:00",
+    condition: "partly_cloudy",
+    temperature: 21.3,
+    intensity: 0.4,
+    humidity: 52,
+    windSpeed: 15.4,
+    layerType: "weather"
+  },
+  {
+    timestamp: "2025-07-03T12:00:00+02:00",
+    condition: "rainy",
+    temperature: 18.6,
+    intensity: 0.8,
+    humidity: 72,
+    windSpeed: 16.2,
+    layerType: "weather"
+  },
+  {
+    timestamp: "2025-07-04T12:00:00+02:00",
+    condition: "cloudy",
+    temperature: 19.8,
+    intensity: 0.6,
+    humidity: 68,
+    windSpeed: 12.3,
+    layerType: "weather"
+  },
+  {
+    timestamp: "2025-07-05T12:00:00+02:00",
+    condition: "sunny",
+    temperature: 26.4,
+    intensity: 0.3,
+    humidity: 42,
+    windSpeed: 8.9,
+    layerType: "weather"
+  },
+  {
+    timestamp: "2025-07-06T12:00:00+02:00",
+    condition: "partly_cloudy",
+    temperature: 23.7,
+    intensity: 0.5,
+    humidity: 58,
+    windSpeed: 14.1,
+    layerType: "weather"
+  },
+  {
+    timestamp: "2025-07-07T12:00:00+02:00",
+    condition: "rainy",
+    temperature: 17.2,
+    intensity: 0.9,
+    humidity: 78,
+    windSpeed: 18.6,
+    layerType: "weather"
+  },
+  {
+    timestamp: "2025-07-08T12:00:00+02:00",
+    condition: "stormy",
+    temperature: 16.5,
+    intensity: 1.0,
+    humidity: 85,
+    windSpeed: 24.3,
+    layerType: "weather"
+  },
+  {
+    timestamp: "2025-07-09T12:00:00+02:00",
+    condition: "partly_cloudy",
+    temperature: 20.9,
+    intensity: 0.4,
+    humidity: 61,
+    windSpeed: 11.7,
+    layerType: "weather"
+  },
+  {
+    timestamp: "2025-07-10T12:00:00+02:00",
+    condition: "sunny",
+    temperature: 25.8,
+    intensity: 0.2,
+    humidity: 48,
+    windSpeed: 9.4,
+    layerType: "weather"
+  },
+  {
+    timestamp: "2025-07-11T12:00:00+02:00",
+    condition: "sunny",
+    temperature: 27.1,
+    intensity: 0.1,
+    humidity: 44,
+    windSpeed: 7.8,
+    layerType: "weather"
+  }
+];
+
 // Mock weather data generators for testing
 export const generateMockWeatherData = (scenario: 'sunny-day' | 'mixed-weather' | 'winter-night'): WeatherSegment[] => {
   switch (scenario) {
