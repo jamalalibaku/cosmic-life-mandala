@@ -5,6 +5,8 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
+import { useDateNavigation } from "@/contexts/DateNavigationContext";
 
 interface InteractiveDataPointProps {
   x: number;
@@ -16,6 +18,8 @@ interface InteractiveDataPointProps {
   onHover: (tooltipData: any) => void;
   onLeave: () => void;
   onClick: (expandedData: any, burstData: any) => void;
+  date?: Date; // Real calendar date for this data point
+  isWeek?: boolean; // Whether this represents a week that can be drilled down
 }
 
 export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
@@ -28,8 +32,11 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
   onHover,
   onLeave,
   onClick,
+  date,
+  isWeek = false,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { navigateToWeek, navigateToDay, zoomLevel } = useDateNavigation();
 
   const getEmojiBurst = () => {
     switch (layerType) {
@@ -69,15 +76,19 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
   };
 
   const getExpandedData = () => {
+    const formattedDate = date ? format(date, "EEEE, MMMM d, yyyy") : new Date().toLocaleTimeString();
+    
     return {
       id: `${layerType}-${Date.now()}`,
       layerType,
-      title: layerType.toUpperCase(),
-      subtitle: getSubtitle(),
+      title: isWeek ? `WEEK VIEW` : layerType.toUpperCase(),
+      subtitle: isWeek ? (date ? format(date, "MMM d") + " - Week" : "Week View") : getSubtitle(),
       emoji: getMainEmoji(),
       data,
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: formattedDate,
       position: { x, y },
+      isWeek,
+      date,
     };
   };
 
@@ -122,67 +133,77 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
   };
 
   const getTooltipData = () => {
+    const baseTooltip = {
+      x,
+      y,
+    };
+
+    // Add date information if available
+    const dateInfo = date ? format(date, "MMM d, yyyy") : "";
+    const weekInfo = isWeek ? " (Click to view week)" : "";
+    const dayInfo = !isWeek && zoomLevel === "week" ? " (Click to view day)" : "";
+
     switch (layerType) {
       case "mood":
         return {
-          title: data.emotion?.toUpperCase() || "MOOD",
-          value: `${Math.round((data.valence || 0) * 100)}% positive`,
+          ...baseTooltip,
+          title: `MOOD${weekInfo || dayInfo}`,
+          value: data.emotion ? `${data.emotion.toUpperCase()} · ${Math.round((data.valence || 0) * 100)}%` : "No mood data",
           emoji: data.emotion === "joy" ? "😊" : data.emotion === "calm" ? "😌" : "🎯",
-          description: `Energy: ${data.energy ? Math.round(data.energy * 100) : 0}%`,
-          x,
-          y,
+          description: dateInfo + (data.energy ? ` · Energy: ${Math.round(data.energy * 100)}%` : ""),
         };
-      
       case "places":
         return {
-          title: data.location?.toUpperCase() || "LOCATION",
-          value: `${data.duration || 0}h spent`,
+          ...baseTooltip,
+          title: `PLACES${weekInfo || dayInfo}`,
+          value: data.location ? `${data.location.toUpperCase()} · ${data.duration || 0}h` : "No location data",
           emoji: data.location === "home" ? "🏠" : data.location === "work" ? "🏢" : "📍",
-          x,
-          y,
+          description: dateInfo,
         };
       
       case "mobility":
         return {
-          title: data.activity?.toUpperCase() || "ACTIVITY",
-          value: `${data.distance || 0}m distance`,
+          ...baseTooltip,
+          title: `MOBILITY${weekInfo || dayInfo}`,
+          value: data.activity ? `${data.activity.toUpperCase()} · ${(data.distance || 0)}m` : "No activity data",
           emoji: data.activity === "walk" ? "🚶" : data.activity === "run" ? "🏃" : "🚴",
-          description: `Intensity: ${data.intensity ? Math.round(data.intensity * 100) : 0}%`,
-          x,
-          y,
+          description: dateInfo + (data.intensity ? ` · Intensity: ${Math.round(data.intensity * 100)}%` : ""),
         };
       
       case "plans":
         return {
-          title: data.event?.toUpperCase() || "EVENT",
-          value: `Priority: ${data.priority ? Math.round(data.priority * 100) : 0}%`,
+          ...baseTooltip,
+          title: `PLANS${weekInfo || dayInfo}`,
+          value: data.event ? `${data.event.toUpperCase()}` : "No plans",
           emoji: data.event === "meeting" ? "🤝" : data.event === "workout" ? "💪" : "📅",
-          x,
-          y,
+          description: dateInfo + (data.priority ? ` · Priority: ${Math.round(data.priority * 100)}%` : ""),
         };
       
       case "weather":
         return {
-          title: "WEATHER",
+          ...baseTooltip,
+          title: `WEATHER${weekInfo || dayInfo}`,
           value: `${data.temp || 0}°C`,
           emoji: "🌤️",
-          description: `Clouds: ${data.clouds ? Math.round(data.clouds * 100) : 0}%`,
-          x,
-          y,
+          description: dateInfo + (data.clouds ? ` · Clouds: ${Math.round(data.clouds * 100)}%` : ""),
         };
       
       case "moon":
         return {
-          title: "MOON PHASE",
+          ...baseTooltip,
+          title: `MOON${weekInfo || dayInfo}`,
           value: data.phase?.toUpperCase() || "UNKNOWN",
           emoji: "🌙",
-          description: `Luminosity: ${data.luminosity ? Math.round(data.luminosity * 100) : 0}%`,
-          x,
-          y,
+          description: dateInfo + (data.luminosity ? ` · ${Math.round(data.luminosity * 100)}% visible` : ""),
         };
       
       default:
-        return null;
+        return {
+          ...baseTooltip,
+          title: "DATA",
+          value: dateInfo || "No data",
+          emoji: "✨",
+        };
     }
   };
 
@@ -201,6 +222,21 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
   };
 
   const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    
+    // If this is a week and we're in month view, drill down to week
+    if (isWeek && zoomLevel === "month" && date) {
+      navigateToWeek(date);
+      return;
+    }
+    
+    // If this is a day and we're in week view, drill down to day
+    if (!isWeek && zoomLevel === "week" && date) {
+      navigateToDay(date);
+      return;
+    }
+    
+    // Otherwise, show expanded card
     const rect = (event.target as SVGElement).getBoundingClientRect();
     const screenX = rect.left + window.scrollX + rect.width / 2;
     const screenY = rect.top + window.scrollY + rect.height / 2;

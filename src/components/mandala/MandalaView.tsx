@@ -8,69 +8,141 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { RadialLayerSystem } from "@/components/mandala/RadialLayerSystem";
+import { DateNavigationProvider, useDateNavigation } from "@/contexts/DateNavigationContext";
+import { generateRealDateData, getWeekData, getDayData, type DateBasedData } from "@/utils/real-date-data";
+import { format, startOfWeek, eachWeekOfInterval, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
 import mandalaExpressiveTheme from "@/themes/mandala-expressive";
 
-// Life dimension data layers for radial system - refined with layer types
-const createLayerData = () => [
-  {
-    name: "Moon",
-    data: [{ phase: "waxing", luminosity: 0.7 }],
-    color: "hsl(240, 25%, 65%)",
-    radius: 260,
-    layerType: "moon" as const
-  },
-  {
-    name: "Weather", 
-    data: [{ temp: 22, clouds: 0.3, wind: 0.5 }],
-    color: "hsl(200, 30%, 60%)",
-    radius: 220,
-    layerType: "weather" as const
-  },
-  {
-    name: "Plans",
-    data: [
-      { event: "meeting", priority: 0.8 }, 
-      { event: "workout", priority: 0.6 },
-      { event: "dinner", priority: 0.4 }
-    ],
-    color: "hsl(260, 25%, 70%)",
-    radius: 180,
-    layerType: "plans" as const
-  },
-  {
-    name: "Mobility",
-    data: [
-      { activity: "walk", intensity: 0.4, distance: 3200 },
-      { activity: "run", intensity: 0.8, distance: 7500 },
-      { activity: "bike", intensity: 0.6, distance: 12000 }
-    ],
-    color: "hsl(140, 25%, 65%)",
-    radius: 140,
-    layerType: "mobility" as const
-  },
-  {
-    name: "Places",
-    data: [
-      { location: "home", duration: 8 }, 
-      { location: "work", duration: 9 },
-      { location: "cafe", duration: 2 }
-    ],
-    color: "hsl(30, 30%, 70%)",
-    radius: 100,
-    layerType: "places" as const
-  },
-  {
-    name: "Mood",
-    data: [
-      { emotion: "joy", valence: 0.8, energy: 0.6 },
-      { emotion: "calm", valence: 0.3, energy: 0.3 },
-      { emotion: "focus", valence: 0.1, energy: 0.5 }
-    ],
-    color: "hsl(340, 30%, 70%)",
-    radius: 70,
-    layerType: "mood" as const
+// Real date-based layer data generator
+const createDateBasedLayerData = (
+  dateData: DateBasedData[], 
+  zoomLevel: "year" | "month" | "week" | "day" | "hour",
+  currentDate: Date
+) => {
+  // Get data based on zoom level
+  let relevantData: DateBasedData[] = [];
+  let isWeekView = false;
+  
+  switch (zoomLevel) {
+    case "month":
+      // Show weeks in the current month
+      const monthStart = startOfMonth(currentDate);
+      const monthEnd = endOfMonth(currentDate);
+      const weeks = eachWeekOfInterval({ start: monthStart, end: monthEnd }, { weekStartsOn: 1 });
+      
+      // Create week-aggregated data
+      relevantData = weeks.map(weekStart => {
+        const weekData = getWeekData(dateData, weekStart);
+        const weekMood = weekData.reduce((acc, day) => {
+          if (day.mood) {
+            acc.valence += day.mood.valence;
+            acc.energy += day.mood.energy;
+            acc.count++;
+          }
+          return acc;
+        }, { valence: 0, energy: 0, count: 0 });
+        
+        return {
+          date: weekStart,
+          dayOfWeek: weekStart.getDay(),
+          weekNumber: 0,
+          mood: weekMood.count > 0 ? {
+            emotion: weekMood.valence / weekMood.count > 0.6 ? "joy" : "calm",
+            valence: weekMood.valence / weekMood.count,
+            energy: weekMood.energy / weekMood.count,
+          } : undefined,
+          // Aggregate other data types...
+          places: weekData.flatMap(d => d.places || []).slice(0, 3),
+          mobility: weekData.flatMap(d => d.mobility || []).slice(0, 2),
+          plans: weekData.flatMap(d => d.plans || []).slice(0, 3),
+          weather: weekData[0]?.weather, // Use first day's weather as representative
+          moon: weekData[0]?.moon,
+        } as DateBasedData;
+      });
+      isWeekView = true;
+      break;
+      
+    case "week":
+      // Show individual days in the current week
+      const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+      
+      relevantData = days.map(day => {
+        const dayData = getDayData(dateData, day);
+        return dayData || {
+          date: day,
+          dayOfWeek: day.getDay(),
+          weekNumber: 0,
+        } as DateBasedData;
+      });
+      break;
+      
+    case "day":
+      // Show detailed view of single day
+      const dayData = getDayData(dateData, currentDate);
+      relevantData = dayData ? [dayData] : [];
+      break;
+      
+    default:
+      // Month view as fallback
+      relevantData = dateData.slice(-30);
+      break;
   }
-];
+
+  // Convert to layer format
+  return [
+    {
+      name: "Moon",
+      data: relevantData.filter(d => d.moon).map(d => ({ ...d.moon, date: d.date })),
+      color: "hsl(240, 25%, 65%)",
+      radius: 260,
+      layerType: "moon" as const,
+      isWeek: isWeekView
+    },
+    {
+      name: "Weather", 
+      data: relevantData.filter(d => d.weather).map(d => ({ ...d.weather, date: d.date })),
+      color: "hsl(200, 30%, 60%)",
+      radius: 220,
+      layerType: "weather" as const,
+      isWeek: isWeekView
+    },
+    {
+      name: "Plans",
+      data: relevantData.flatMap(d => (d.plans || []).map(p => ({ ...p, date: d.date }))),
+      color: "hsl(260, 25%, 70%)",
+      radius: 180,
+      layerType: "plans" as const,
+      isWeek: isWeekView
+    },
+    {
+      name: "Mobility",
+      data: relevantData.flatMap(d => (d.mobility || []).map(m => ({ ...m, date: d.date }))),
+      color: "hsl(140, 25%, 65%)",
+      radius: 140,
+      layerType: "mobility" as const,
+      isWeek: isWeekView
+    },
+    {
+      name: "Places",
+      data: relevantData.flatMap(d => (d.places || []).map(p => ({ ...p, date: d.date }))),
+      color: "hsl(30, 30%, 70%)",
+      radius: 100,
+      layerType: "places" as const,
+      isWeek: isWeekView
+    },
+    {
+      name: "Mood",
+      data: relevantData.filter(d => d.mood).map(d => ({ ...d.mood, date: d.date })),
+      color: "hsl(340, 30%, 70%)",
+      radius: 70,
+      layerType: "mood" as const,
+      isWeek: isWeekView
+    }
+  ];
+};
 
 const getCurrentTimeAngle = (): number => {
   const now = new Date();
@@ -80,43 +152,70 @@ const getCurrentTimeAngle = (): number => {
   return -(totalMinutes / 1440) * 360; // rotate counter-clockwise to keep NOW at top
 };
 
-export const MandalaView = () => {
+const MandalaViewContent = () => {
+  const { currentDate, zoomLevel, getDisplayTitle } = useDateNavigation();
   const rotationAngle = getCurrentTimeAngle();
-  const layerData = createLayerData();
+  
+  // Generate real date data (in production, this would come from API)
+  const dateData = React.useMemo(() => generateRealDateData(), []);
+  const layerData = React.useMemo(() => 
+    createDateBasedLayerData(dateData, zoomLevel, currentDate), 
+    [dateData, zoomLevel, currentDate]
+  );
 
   return (
-    <div className="w-full h-full min-h-screen flex items-center justify-center relative overflow-hidden">
+    <div className="w-full h-full min-h-screen flex flex-col relative overflow-hidden">
+      {/* Date Navigation Header */}
+      <div className="absolute top-4 left-4 z-20 bg-black/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
+        <h2 className="text-white font-light text-lg tracking-wide">
+          {getDisplayTitle()}
+        </h2>
+        <p className="text-white/60 text-sm">
+          {zoomLevel.charAt(0).toUpperCase() + zoomLevel.slice(1)} View
+        </p>
+      </div>
+
       {/* Subtle background texture */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute inset-0 bg-gradient-radial from-background-subtle via-background to-background-vignette" />
       </div>
       
-      <motion.svg
-        viewBox="-320 -320 640 640"
-        width="85%"
-        height="85%"
-        className="max-w-5xl max-h-screen relative z-10"
-        style={{
-          filter: "drop-shadow(0 0 40px rgba(0, 0, 0, 0.3))"
-        }}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-      >
-        {/* Full radial system rotation to keep NOW at top */}
-        <motion.g
-          animate={{ rotate: rotationAngle }}
-          transition={{ type: "tween", duration: 3, ease: "easeInOut" }}
+      <div className="flex-1 flex items-center justify-center">
+        <motion.svg
+          viewBox="-320 -320 640 640"
+          width="85%"
+          height="85%"
+          className="max-w-5xl max-h-screen relative z-10"
+          style={{
+            filter: "drop-shadow(0 0 40px rgba(0, 0, 0, 0.3))"
+          }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
         >
-          {/* Radial Layer Architecture System */}
-          <RadialLayerSystem 
-            layers={layerData}
-            currentZoom="month"
-            centerRadius={45}
-            layerSpacing={60}
-          />
-        </motion.g>
-      </motion.svg>
+          {/* Full radial system rotation to keep NOW at top */}
+          <motion.g
+            animate={{ rotate: rotationAngle }}
+            transition={{ type: "tween", duration: 3, ease: "easeInOut" }}
+          >
+            {/* Real Date-Based Radial Layer Architecture System */}
+            <RadialLayerSystem 
+              layers={layerData}
+              currentZoom={zoomLevel}
+              centerRadius={45}
+              layerSpacing={60}
+            />
+          </motion.g>
+        </motion.svg>
+      </div>
     </div>
+  );
+};
+
+export const MandalaView = () => {
+  return (
+    <DateNavigationProvider>
+      <MandalaViewContent />
+    </DateNavigationProvider>
   );
 };

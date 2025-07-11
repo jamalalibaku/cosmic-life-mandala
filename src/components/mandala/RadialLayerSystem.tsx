@@ -18,6 +18,7 @@ interface LayerData {
   radius: number;
   zoomLevel?: "year" | "month" | "week" | "day" | "hour";
   layerType?: "mood" | "places" | "mobility" | "plans" | "weather" | "moon";
+  isWeek?: boolean;
 }
 
 interface RadialLayerSystemProps {
@@ -64,7 +65,8 @@ const Layer: React.FC<{
   onTooltipShow: (tooltipData: any) => void;
   onTooltipHide: () => void;
   onDataPointClick: (expandedData: any, burstData: any) => void;
-}> = ({ name, data, radius, color, zoomLevel, layerIndex, totalLayers, layerType, onTooltipShow, onTooltipHide, onDataPointClick }) => {
+  layer: any; // Pass the full layer object to access isWeek property
+}> = ({ name, data, radius, color, zoomLevel, layerIndex, totalLayers, layerType, onTooltipShow, onTooltipHide, onDataPointClick, layer }) => {
   const getDetailLevel = () => {
     switch (zoomLevel) {
       case "year": return "outline";
@@ -138,6 +140,8 @@ const Layer: React.FC<{
                 onHover={onTooltipShow}
                 onLeave={onTooltipHide}
                 onClick={onDataPointClick}
+                date={item.date}
+                isWeek={layer.isWeek}
               />
             )}
             
@@ -188,6 +192,8 @@ const Layer: React.FC<{
                 onHover={onTooltipShow}
                 onLeave={onTooltipHide}
                 onClick={onDataPointClick}
+                date={item.date}
+                isWeek={layer.isWeek}
               />
             )}
           </motion.g>
@@ -376,6 +382,7 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
             onTooltipShow={handleTooltipShow}
             onTooltipHide={handleTooltipHide}
             onDataPointClick={handleDataPointClick}
+            layer={layer}
           />
         ))}
 
