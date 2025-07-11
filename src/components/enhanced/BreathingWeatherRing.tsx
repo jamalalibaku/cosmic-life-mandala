@@ -62,21 +62,24 @@ export const BreathingWeatherRing: React.FC<BreathingWeatherRingProps> = ({
         r={radius}
         fill="none"
         stroke="url(#weather-gradient)"
-        strokeWidth={themeConfig.animations.speed === 'fast' ? 1 : 3}
-        opacity={themeConfig.name === 'Mandala Expressive' ? 0.6 : 0.4}
+        strokeWidth={themeConfig.name === 'Cosmic Default' ? 2 : (themeConfig.animations.speed === 'fast' ? 1 : 3)}
+        opacity={themeConfig.name === 'Cosmic Default' ? 0.8 : (themeConfig.name === 'Mandala Expressive' ? 0.6 : 0.4)}
         style={{
           filter: themeConfig.name === 'Mandala Expressive' 
             ? `drop-shadow(0 0 ${breathing * 15}px ${themeConfig.colors.glow}60)`
-            : `drop-shadow(0 0 8px ${themeConfig.colors.glow}40)`
+            : themeConfig.name === 'Cosmic Default'
+            ? `drop-shadow(0 0 12px ${themeConfig.colors.glow}50)`
+            : `drop-shadow(0 0 8px ${themeConfig.colors.glow}40)`,
+          zIndex: 2
         }}
       />
 
-      {/* Gradient definition */}
+      {/* Gradient definition with depth for data layer */}
       <defs>
         <linearGradient id="weather-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={themeConfig.colors.secondary} stopOpacity={0.6} />
-          <stop offset="50%" stopColor={themeConfig.colors.accent} stopOpacity={0.4} />
-          <stop offset="100%" stopColor={themeConfig.colors.primary} stopOpacity={0.6} />
+          <stop offset="0%" stopColor={themeConfig.colors.secondary} stopOpacity={0.8} />
+          <stop offset="50%" stopColor={themeConfig.colors.accent} stopOpacity={0.6} />
+          <stop offset="100%" stopColor={themeConfig.colors.primary} stopOpacity={0.8} />
         </linearGradient>
       </defs>
 
@@ -91,8 +94,9 @@ export const BreathingWeatherRing: React.FC<BreathingWeatherRingProps> = ({
             key={`weather-${index}`}
             cx={x}
             cy={y}
-            r={4}
+            r={themeConfig.name === 'Cosmic Default' ? 5 : 4}
             fill={themeConfig.colors.accent}
+            style={{ zIndex: 3 }}
             initial={{ scale: 0 }}
             animate={{ 
               scale: [1, 1.2, 1],

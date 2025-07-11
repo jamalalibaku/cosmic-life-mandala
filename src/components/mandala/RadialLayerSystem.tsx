@@ -28,6 +28,8 @@ import { getThemeGeometry } from "@/utils/day4-dynamics";
 import { BreathingWeatherRing } from "@/components/enhanced/BreathingWeatherRing";
 import { KandinskyDataMarbles } from "@/components/enhanced/KandinskyDataMarbles";
 import { RippleTrails } from "@/components/enhanced/RippleTrails";
+import { CosmicBackgroundPulse } from "@/components/cosmic/CosmicBackgroundPulse";
+import { CosmicRadialTicks } from "@/components/cosmic/CosmicRadialTicks";
 import { useZoomCompensation } from "@/hooks/useZoomCompensation";
 
 interface LayerData {
@@ -584,6 +586,25 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
               />
             </ClickableLayer>
           ))}
+
+          {/* Cosmic background elements (z-depth 0) */}
+          <CosmicBackgroundPulse
+            center={{ x: 0, y: 0 }}
+            layers={[
+              { radius: 100, offset: 0 },
+              { radius: 160, offset: 1.2 },
+              { radius: 220, offset: 2.1 },
+              { radius: 280, offset: 0.7 }
+            ]}
+            className="cosmic-background"
+          />
+          
+          <CosmicRadialTicks
+            center={{ x: 0, y: 0 }}
+            radius={layers[0]?.radius || 200}
+            tickCount={24}
+            className="cosmic-ticks"
+          />
 
           {/* Kandinsky-style data marbles overlay */}
           <KandinskyDataMarbles
