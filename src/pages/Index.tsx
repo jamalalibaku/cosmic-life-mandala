@@ -72,6 +72,7 @@ import { EnhancedSettingsButton } from '@/components/enhanced/EnhancedSettingsBu
 import { MinimalistTimeSymbol } from '@/components/MinimalistTimeSymbol';
 import { TimeScaleColumn } from '@/components/TimeScaleColumn';
 import { HoverBasedInsights } from '@/components/HoverBasedInsights';
+import { useHangingTilt, TiltPresets } from '@/hooks/use-hanging-tilt';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -141,6 +142,15 @@ const IndexContent = () => {
 
   // Layer pop-out panel system
   const { popOutState, openPopOut, closePopOut, togglePopOut } = useLayerPopOut();
+
+  // Hanging tilt effects for cosmic swaying motion
+  const mainTilt = useHangingTilt(TiltPresets.main);
+  const weatherTilt = useHangingTilt({ ...TiltPresets.weather, layerIndex: 0 });
+  const plansTilt = useHangingTilt({ ...TiltPresets.plans, layerIndex: 1 });
+  const mobilityTilt = useHangingTilt({ ...TiltPresets.mobility, layerIndex: 2 });
+  const moodTilt = useHangingTilt({ ...TiltPresets.mood, layerIndex: 3 });
+  const sleepTilt = useHangingTilt({ ...TiltPresets.sleep, layerIndex: 4 });
+  const coreTilt = useHangingTilt({ ...TiltPresets.core, layerIndex: 5 });
 
   // Handle keyboard shortcuts for zoom and settings
   useEffect(() => {
@@ -243,7 +253,7 @@ const IndexContent = () => {
     
     
     return (
-      <g transform={timeDrift.getDriftTransform(centerX, centerY)}>
+      <g transform={mainTilt.getSVGTiltTransform(centerX, centerY, timeDrift.getDriftTransform(centerX, centerY))}>
         {/* Sky Arc Gradient - Day/Night cycle - render once */}
         {scale === 'day' && (
           <SkyArcGradient
@@ -265,46 +275,52 @@ const IndexContent = () => {
         )}
         
         {/* Sun Aura Ring - Breathing center anchored to outermost layer */}
-        <SunAuraRing
-          centerX={centerX}
-          centerY={centerY}
-          radius={timeDrift.applyBreathing(55)}
-          theme={currentTheme}
-          isPlaybackActive={showPlayback}
-          activeLayerRadius={scale === 'day' ? 340 : 320}
-          timeOfDay={(() => {
-            const hour = new Date().getHours();
-            if (hour >= 5 && hour < 7) return 'dawn';
-            if (hour >= 7 && hour < 11) return 'morning';
-            if (hour >= 11 && hour < 15) return 'noon';
-            if (hour >= 15 && hour < 18) return 'afternoon';
-            if (hour >= 18 && hour < 20) return 'sunset';
-            if (hour >= 20 && hour < 22) return 'dusk';
-            return 'night';
-          })()}
-        />
+        <g transform={coreTilt.getSVGTiltTransform(centerX, centerY)}>
+          <SunAuraRing
+            centerX={centerX}
+            centerY={centerY}
+            radius={timeDrift.applyBreathing(55)}
+            theme={currentTheme}
+            isPlaybackActive={showPlayback}
+            activeLayerRadius={scale === 'day' ? 340 : 320}
+            timeOfDay={(() => {
+              const hour = new Date().getHours();
+              if (hour >= 5 && hour < 7) return 'dawn';
+              if (hour >= 7 && hour < 11) return 'morning';
+              if (hour >= 11 && hour < 15) return 'noon';
+              if (hour >= 15 && hour < 18) return 'afternoon';
+              if (hour >= 18 && hour < 20) return 'sunset';
+              if (hour >= 20 && hour < 22) return 'dusk';
+              return 'night';
+            })()}
+          />
+        </g>
         
         {/* Always present: Cosmic sunburst aura layer */}
-        <CosmicSunburstLayer
-          centerX={centerX}
-          centerY={centerY}
-          innerRadius={60}
-          maxRadius={320}
-          theme="sunfire"
-          poetryMode={reflectiveMode}
-        />
+        <g transform={coreTilt.getSVGTiltTransform(centerX, centerY)}>
+          <CosmicSunburstLayer
+            centerX={centerX}
+            centerY={centerY}
+            innerRadius={60}
+            maxRadius={320}
+            theme="sunfire"
+            poetryMode={reflectiveMode}
+          />
+        </g>
         
         {/* Fractal View - unified geometry for all scales */}
-        <RadialFractalView
-          scale={scale}
-          centerX={centerX}
-          centerY={centerY}
-          radius={scale === 'day' ? 260 : scale === 'week' ? 280 : scale === 'month' ? 300 : 320}
-          theme={currentTheme}
-          targetDate={new Date()}
-          transitionProgress={transitionProgress}
-          isTransitioning={isTransitioning}
-        />
+        <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
+          <RadialFractalView
+            scale={scale}
+            centerX={centerX}
+            centerY={centerY}
+            radius={scale === 'day' ? 260 : scale === 'week' ? 280 : scale === 'month' ? 300 : 320}
+            theme={currentTheme}
+            targetDate={new Date()}
+            transitionProgress={transitionProgress}
+            isTransitioning={isTransitioning}
+          />
+        </g>
         
         {/* Scale-specific content */}
         {scale === 'day' && (
@@ -340,124 +356,145 @@ const IndexContent = () => {
             
             {/* Data rings in proper hierarchy (inner → outer) */}
             {/* 5. Sleep - Innermost data ring */}
-            <DataBlobRing
-              data={mockSleepData}
-              centerX={centerX}
-              centerY={centerY}
-              innerRadius={150}
-              outerRadius={180}
-              type="sleep"
-              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
-              {...currentMetrics}
-            />
+            <g transform={sleepTilt.getSVGTiltTransform(centerX, centerY)}>
+              <DataBlobRing
+                data={mockSleepData}
+                centerX={centerX}
+                centerY={centerY}
+                innerRadius={150}
+                outerRadius={180}
+                type="sleep"
+                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
+                {...currentMetrics}
+              />
+            </g>
             
             {/* 4. Mood */}
-            <DataBlobRing
-              data={mockMoodData}
-              centerX={centerX}
-              centerY={centerY}
-              innerRadius={190}
-              outerRadius={220}
-              type="mood"
-              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
-              {...currentMetrics}
-              onMoodChange={setCurrentMood}
-            />
+            <g transform={moodTilt.getSVGTiltTransform(centerX, centerY)}>
+              <DataBlobRing
+                data={mockMoodData}
+                centerX={centerX}
+                centerY={centerY}
+                innerRadius={190}
+                outerRadius={220}
+                type="mood"
+                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
+                {...currentMetrics}
+                onMoodChange={setCurrentMood}
+              />
+            </g>
             
             {/* 3. Mobility */}
-            <DataBlobRing
-              data={mockMobilityData}
-              centerX={centerX}
-              centerY={centerY}
-              innerRadius={230}
-              outerRadius={260}
-              type="mobility"
-              label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOBILITY DATA" : undefined}
-              {...currentMetrics}
-            />
+            <g transform={mobilityTilt.getSVGTiltTransform(centerX, centerY)}>
+              <DataBlobRing
+                data={mockMobilityData}
+                centerX={centerX}
+                centerY={centerY}
+                innerRadius={230}
+                outerRadius={260}
+                type="mobility"
+                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOBILITY DATA" : undefined}
+                {...currentMetrics}
+              />
+            </g>
             
             {/* 2. Plans - Data-driven ring with curved ribbons */}
-            <PlansLayerRing
-              plansData={mockPlansData}
-              centerX={centerX}
-              centerY={centerY}
-              radius={285}
-              theme={currentTheme}
-              onPlanClick={(plan) => {
-                console.log('Plan clicked:', plan);
-                // Could trigger plan details panel
-              }}
-            />
+            <g transform={plansTilt.getSVGTiltTransform(centerX, centerY)}>
+              <PlansLayerRing
+                plansData={mockPlansData}
+                centerX={centerX}
+                centerY={centerY}
+                radius={285}
+                theme={currentTheme}
+                onPlanClick={(plan) => {
+                  console.log('Plan clicked:', plan);
+                  // Could trigger plan details panel
+                }}
+              />
+            </g>
             
             {/* 1. Weather - Enhanced CSV Data Visualization */}
-            <EnhancedWeatherRing
-              centerX={centerX}
-              centerY={centerY}
-              innerRadius={295}
-              outerRadius={325}
-              theme={currentTheme as any}
-              className="enhanced-weather-layer"
-            />
+            <g transform={weatherTilt.getSVGTiltTransform(centerX, centerY)}>
+              <EnhancedWeatherRing
+                centerX={centerX}
+                centerY={centerY}
+                innerRadius={295}
+                outerRadius={325}
+                theme={currentTheme as any}
+                className="enhanced-weather-layer"
+              />
+            </g>
           </>
         )}
         
         {scale === 'week' && (
-          <RadialWeekView
-            weekData={mockWeekData}
-            centerX={centerX}
-            centerY={centerY}
-            radius={280}
-            theme="cosmic"
-            onDayClick={(day) => {
-              console.log('Day clicked:', day);
-              setTimeScale('day');
-            }}
-          />
+          <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
+            <RadialWeekView
+              weekData={mockWeekData}
+              centerX={centerX}
+              centerY={centerY}
+              radius={280}
+              theme="cosmic"
+              onDayClick={(day) => {
+                console.log('Day clicked:', day);
+                setTimeScale('day');
+              }}
+            />
+          </g>
         )}
         
         {scale === 'month' && (
-          <RadialMonthConstellation
-            monthData={mockMonthData.map(day => ({
-              ...day,
-              moodColor: currentMood?.primaryColor || 'hsl(280 70% 60%)',
-              weatherIcon: day.weatherBand === 'sunny' ? '☀️' : 
-                          day.weatherBand === 'rainy' ? '🌧️' : '☁️',
-              activityLevel: day.sleepMoodPulse,
-              emotionalPattern: currentMood?.moodType || 'calm'
-            }))}
-            centerX={centerX}
-            centerY={centerY}
-            radius={300}
-            theme="cosmic"
-            onDayClick={(day) => {
-              console.log('Day clicked:', day);
-              setTimeScale('day');
-            }}
-          />
+          <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
+            <RadialMonthView
+              monthData={mockMonthData}
+              centerX={centerX}
+              centerY={centerY}
+              radius={300}
+              theme="cosmic"
+            />
+            
+            <RadialMonthConstellation
+              monthData={mockMonthData}
+              centerX={centerX}
+              centerY={centerY}
+              radius={320}
+              theme="cosmic"
+            />
+          </g>
         )}
         
         {scale === 'year' && (
-          <RadialYearSeasons
-            yearData={mockYearData.map(month => ({
-              ...month,
-              dominantMood: currentMood?.moodType === 'joyful' ? 'energetic' :
-                           currentMood?.moodType === 'drained' ? 'restful' :
-                           currentMood?.moodType === 'tense' ? 'chaotic' :
-                           currentMood?.moodType === 'creative' ? 'creative' : 'calm',
-              averageSleep: month.dataSummary.avgSleep,
-              peakMobilityDay: Math.round(month.dataSummary.avgActivity * 30),
-              weatherSummary: month.dataSummary.dominantWeather,
-              totalActiveDays: Math.round(month.dataSummary.avgActivity * 31)
-            }))}
-            centerX={centerX}
-            centerY={centerY}
-            radius={320}
-            theme="seasonal"
-            onMonthClick={(month) => {
-              console.log('Month clicked:', month);
-              setTimeScale('month');
-            }}
-          />
+          <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
+            <RadialYearView
+              yearData={mockYearData}
+              centerX={centerX}
+              centerY={centerY}
+              radius={320}
+              theme="cosmic"
+              onMonthClick={(month) => {
+                console.log('Month clicked:', month);
+                setTimeScale('month');
+              }}
+            />
+            
+            <RadialYearSeasons
+              yearData={mockYearData.map((month, index) => ({
+                month: month.month,
+                name: month.name,
+                season: month.season,
+                isCurrentMonth: month.isCurrentMonth,
+                dominantMood: 'calm',
+                averageSleep: month.dataSummary.avgSleep,
+                peakMobilityDay: Math.round(month.dataSummary.avgActivity * 30),
+                weatherSummary: month.dataSummary.dominantWeather,
+                totalActiveDays: Math.round(month.dataSummary.avgActivity * 31)
+              }))}
+              centerX={centerX}
+              centerY={centerY}
+              radius={340}
+              theme="cosmic"
+            />
+          </g>
         )}
         
         {/* User Core - Central identity with mood integration */}

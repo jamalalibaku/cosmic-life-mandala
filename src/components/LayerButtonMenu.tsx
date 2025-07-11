@@ -15,6 +15,7 @@ import {
   ChevronRight,
   ChevronLeft
 } from 'lucide-react';
+import { useHangingTilt, TiltPresets } from '@/hooks/use-hanging-tilt';
 
 interface LayerButtonMenuProps {
   onLayerClick: (layerType: string, position: { x: number; y: number }, layerData: any) => void;
@@ -82,6 +83,14 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [hoveredLayer, setHoveredLayer] = useState<string | null>(null);
+  
+  // Add hanging tilt effect to the button menu
+  const menuTilt = useHangingTilt({ 
+    amplitude: 1.2, 
+    period: 15, 
+    phaseOffset: 1.5, 
+    dampening: 0.85 
+  });
 
   const handleLayerClick = (layer: typeof layerData[0], event: React.MouseEvent) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -101,7 +110,10 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
   };
 
   return (
-    <div className={`fixed right-4 top-1/2 transform -translate-y-1/2 z-30 ${className}`}>
+    <div 
+      className={`fixed right-4 top-1/2 transform -translate-y-1/2 z-30 ${className}`}
+      style={{ transform: `translateY(-50%) ${menuTilt.getTiltTransform()}` }}
+    >
       <motion.div
         className="flex flex-col items-end"
         initial={{ x: 100, opacity: 0 }}
