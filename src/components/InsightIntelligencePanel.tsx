@@ -30,6 +30,8 @@ import { detectLifePhase, LifePhaseProfile, LifePhaseThemeMap } from '@/utils/li
 import { generatePhaseAwareInsight } from '@/utils/phase-aware-insights';
 import { addPhaseReflection, exportPhaseHistory } from '@/utils/phase-history-manager';
 import { PhaseTimelineTracker } from './PhaseTimelineTracker';
+import { LifePhaseTimeline } from './LifePhaseTimeline';
+import { PhaseTransitionConstellations } from './PhaseTransitionConstellations';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
