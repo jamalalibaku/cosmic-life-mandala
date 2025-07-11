@@ -46,6 +46,7 @@ import { MoodInfluence } from '@/utils/mood-engine';
 import { Theme, themeConfigs } from '@/utils/theme-configs';
 import { generateInsights } from '@/utils/insight-engine';
 import { SettingsPanel } from '@/components/settings-panel';
+import { ViewSwitcher } from '@/components/ViewSwitcher';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -704,6 +705,12 @@ const IndexContent = () => {
       
       {/* Main content */}
       <div className="relative z-10 text-center w-full">
+        {/* View Switcher */}
+        <ViewSwitcher 
+          onTimeScaleChange={setTimeScale}
+          className="fixed top-4 left-4 z-50"
+        />
+        
         <h1 
           className={`text-6xl font-bold mb-4 text-transparent bg-clip-text transition-all duration-500 ${poetryMode ? 'opacity-30 text-sm' : 'opacity-100'}`}
           style={{
