@@ -656,12 +656,21 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
 
           {/* Sky Connected Weather Ring with revolutionary time-based effects */}
           {layers.find(l => l.layerType === 'weather') && (
-            <SkyConnectedWeatherRing
-              radius={layers.find(l => l.layerType === 'weather')?.radius || 150}
-              center={{ x: 0, y: 0 }}
-              weatherData={layers.find(l => l.layerType === 'weather')?.data || []}
-              className="weather-enhancement"
-            />
+            <>
+              <SkyConnectedWeatherRing
+                radius={layers.find(l => l.layerType === 'weather')?.radius || 150}
+                center={{ x: 0, y: 0 }}
+                weatherData={layers.find(l => l.layerType === 'weather')?.data || []}
+                className="weather-enhancement"
+              />
+              
+              {/* Wind Whirl Field - Fill between weather and inner layers */}
+              <WindWhirlField
+                centerX={0}
+                centerY={0}
+                radius={layers.find(l => l.layerType === 'weather')?.radius - 30 || 120}
+              />
+            </>
           )}
 
           {/* North Pole Moon - relocated from center */}
@@ -750,12 +759,6 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
             sleepData={layers.find(l => l.name.toLowerCase().includes('sleep'))?.data?.[0]}
           />
           
-          {/* Wind Whirl Field - Dynamic flowing patterns around the main circle */}
-          <WindWhirlField
-            centerX={0}
-            centerY={0}
-            radius={layers[0]?.radius || 200}
-          />
           
           {/* Layer Data Animator - Only data-driven visuals */}
           <LayerDataAnimator
