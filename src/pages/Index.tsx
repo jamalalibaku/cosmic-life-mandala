@@ -87,7 +87,7 @@ import { WalletDisplay } from '@/components/WalletDisplay';
 import { SkyRing } from '@/components/enhanced/SkyRing';
 import { SunburstGrooveField } from '@/components/enhanced/SunburstGrooveField';
 import { LayerButtonMenu } from '@/components/LayerButtonMenu';
-import { SkyBand } from '@/components/SkyBand';
+
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -482,17 +482,6 @@ const IndexContent = () => {
               />
             </g>
 
-            {/* 6. SkyBand - Outermost atmospheric 1440-minute day cycle (350-400px) */}
-            <SkyBand
-              centerX={centerX}
-              centerY={centerY}
-              radius={400}
-              weatherData={mockWeatherToday.length > 0 ? {
-                conditions: mockWeatherToday.some(w => w.condition === 'rainy' || w.condition === 'storm') ? ['rain'] : 
-                           mockWeatherToday.some(w => w.condition === 'snowy') ? ['snow'] : []
-              } : undefined}
-              currentTime={new Date()}
-            />
 
             {/* 7. Self - Core identity layer (around UserCore radius 350px) */}
             {/* UserCore is rendered separately at lines 501-518 */}
