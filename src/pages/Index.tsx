@@ -85,6 +85,7 @@ import { WalletDisplay } from '@/components/WalletDisplay';
 import { SkyRing } from '@/components/enhanced/SkyRing';
 import { SunburstGrooveField } from '@/components/enhanced/SunburstGrooveField';
 import { LayerButtonMenu } from '@/components/LayerButtonMenu';
+import { SkyBand } from '@/components/SkyBand';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -427,7 +428,7 @@ const IndexContent = () => {
               />
             </g>
 
-            {/* 5. Weather - Outermost cosmic influence layer (310-340px) */}
+            {/* 5. Weather - Cosmic influence layer (310-340px) */}
             <g transform={weatherTilt.getSVGTiltTransform(centerX, centerY)}>
               <EnhancedWeatherRing
                 centerX={centerX}
@@ -439,10 +440,22 @@ const IndexContent = () => {
               />
             </g>
 
-            {/* 6. Self - Core identity layer (around UserCore radius 350px) */}
+            {/* 6. SkyBand - Outermost atmospheric 1440-minute day cycle (350-400px) */}
+            <SkyBand
+              centerX={centerX}
+              centerY={centerY}
+              radius={400}
+              weatherData={mockWeatherToday.length > 0 ? {
+                conditions: mockWeatherToday.some(w => w.condition === 'rainy' || w.condition === 'storm') ? ['rain'] : 
+                           mockWeatherToday.some(w => w.condition === 'snowy') ? ['snow'] : []
+              } : undefined}
+              currentTime={new Date()}
+            />
+
+            {/* 7. Self - Core identity layer (around UserCore radius 350px) */}
             {/* UserCore is rendered separately at lines 501-518 */}
 
-            {/* 7. Wallet - Outermost material layer */}
+            {/* 8. Wallet - Material layer */}
             <WalletDisplay
               isVisible={true}
               onActivityTrack={(type: any, value?: number, description?: string) => {
