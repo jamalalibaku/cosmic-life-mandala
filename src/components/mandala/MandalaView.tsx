@@ -8,9 +8,11 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { RadialLayerSystem } from "@/components/mandala/RadialLayerSystem";
+import { EnvironmentalLayer } from "@/components/layers/EnvironmentalLayer";
 import { DateNavigationProvider, useDateNavigation } from "@/contexts/DateNavigationContext";
 import { useTimeAxis } from "@/contexts/TimeAxisContext";
 import { generateRealDateData, getWeekData, getDayData, type DateBasedData } from "@/utils/real-date-data";
+import { mockEnvironmentalData } from "@/data/mock-environmental-data";
 import { format, startOfWeek, eachWeekOfInterval, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
 import mandalaExpressiveTheme from "@/themes/mandala-expressive";
 
@@ -157,6 +159,7 @@ const MandalaViewContent = () => {
   const { currentDate, zoomLevel, getDisplayTitle } = useDateNavigation();
   const { timeSlices, nowAngle } = useTimeAxis();
   const rotationAngle = getCurrentTimeAngle();
+  const [showEnvironmental, setShowEnvironmental] = React.useState(true);
   
   // Generate real date data (in production, this would come from API)
   const dateData = React.useMemo(() => generateRealDateData(), []);
@@ -185,6 +188,22 @@ const MandalaViewContent = () => {
         </p>
       </div>
 
+      {/* Environmental Layer Toggle */}
+      <div className="absolute top-20 left-4 z-20">
+        <motion.button
+          onClick={() => setShowEnvironmental(!showEnvironmental)}
+          className={`px-4 py-2 rounded-lg backdrop-blur-sm border transition-all duration-300 ${
+            showEnvironmental 
+              ? 'bg-green-500/20 border-green-400/40 text-green-300' 
+              : 'bg-black/40 border-white/20 text-white/60'
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          🌿 Nature Connection
+        </motion.button>
+      </div>
+
       {/* Subtle background texture */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute inset-0 bg-gradient-radial from-background-subtle via-background to-background-vignette" />
@@ -203,6 +222,14 @@ const MandalaViewContent = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
         >
+          {/* Environmental Layer (beneath other layers) */}
+          <EnvironmentalLayer 
+            radius={320}
+            center={{ x: 0, y: 0 }}
+            environmentalData={mockEnvironmentalData}
+            isVisible={showEnvironmental}
+          />
+          
           {/* Full radial system rotation to keep NOW at top */}
           <motion.g
             animate={{ rotate: rotationAngle }}
@@ -217,6 +244,34 @@ const MandalaViewContent = () => {
               showConstellations={false}
             />
           </motion.g>
+
+          {/* Curved Environmental Layer Label */}
+          {showEnvironmental && (
+            <motion.g
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              <defs>
+                <path
+                  id="environmentalCurve"
+                  d={`M ${-280 * Math.cos(Math.PI/6)} ${-280 * Math.sin(Math.PI/6)} 
+                      A 280 280 0 0 1 ${280 * Math.cos(Math.PI/6)} ${-280 * Math.sin(Math.PI/6)}`}
+                />
+              </defs>
+              <text
+                fontSize="12"
+                fill="hsl(160, 60%, 70%)"
+                opacity={0.8}
+                fontWeight="300"
+                letterSpacing="3px"
+              >
+                <textPath href="#environmentalCurve" startOffset="50%">
+                  NATURE · CONNECTION · SENSORY · EXPERIENCE
+                </textPath>
+              </text>
+            </motion.g>
+          )}
         </motion.svg>
       </div>
     </div>
