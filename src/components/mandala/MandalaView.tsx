@@ -18,7 +18,7 @@ import mandalaExpressiveTheme from "@/themes/mandala-expressive";
 import { usePerformanceOptimizer } from "@/hooks/usePerformanceOptimizer";
 import { CosmicFaderTrack } from "@/components/navigation/CosmicFaderTrack";
 import { RadioooLayerTabs } from "@/components/navigation/RadioooLayerTabs";
-import { AIInsightOrbiter } from "@/components/insights/AIInsightOrbiter";
+import { OrbitalInsightSatellites } from "@/components/insights/OrbitalInsightSatellites";
 import { AtmosphericAuroraLayer, useAuroraEvents } from "@/components/layers/AtmosphericAuroraLayer";
 import { useEmotionalIntelligence } from "@/hooks/useEmotionalIntelligence";
 import { useMemoryPatterns } from "@/hooks/useMemoryPatterns";
@@ -125,16 +125,16 @@ const createDateBasedLayerData = (
     {
       name: "Weather", 
       data: relevantData.filter(d => d.weather).map(d => ({ ...d.weather, date: d.date })),
-      color: "hsl(200, 30%, 60%)",
-      radius: 180,
+      color: "hsl(200, 35%, 65%)",
+      radius: 185,
       layerType: "weather" as const,
       isWeek: isWeekView
     },
     {
       name: "Mobility",
       data: relevantData.flatMap(d => (d.mobility || []).map(m => ({ ...m, date: d.date }))),
-      color: "hsl(140, 25%, 65%)",
-      radius: 140,
+      color: "hsl(140, 30%, 70%)",
+      radius: 135,
       layerType: "mobility" as const,
       isWeek: isWeekView
     },
@@ -401,12 +401,12 @@ const MandalaViewContent = () => {
               </g>
             )}
 
-            {/* AI Insight Satellite Orbiter - Enhanced with seasonal colors */}
-            <AIInsightOrbiter 
+            {/* Orbital Insight Satellites - Paper ball quotes in horizontal orbit */}
+            <OrbitalInsightSatellites 
               centerX={0}
               centerY={0}
               soulCoreRadius={45}
-              quotes={[]}
+              maxSatellites={3}
             />
 
             {/* Curved Environmental Layer Label */}

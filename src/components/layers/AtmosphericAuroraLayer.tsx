@@ -25,11 +25,12 @@ interface AtmosphericAuroraLayerProps {
 
 export const AtmosphericAuroraLayer: React.FC<AtmosphericAuroraLayerProps> = ({
   center,
-  radius,
+  radius: baseRadius,
   events,
   className = ''
 }) => {
   const [activeAuroras, setActiveAuroras] = useState<AuroraEvent[]>([]);
+  const radius = baseRadius * 0.5; // 50% reduction as requested
 
   // Process incoming events and trigger auroras
   useEffect(() => {

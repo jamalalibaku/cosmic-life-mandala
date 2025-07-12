@@ -113,20 +113,10 @@ const IndexContent = () => {
   const phaseTheme = usePhaseTheme(currentLifePhase.currentPhase);
   
   // Enhanced awareness rhythm system with wallet integration
-  const { awarenessState, clearAwarenessMessage, onDataClick } = useEnhancedAwarenessRhythm({
-    userProfile,
-    recentInteractions: mockInteractions,
-    explorationStyle: (['gentle', 'analytical', 'intuitive', 'playful'].includes(userProfile.behaviorPatterns?.explorationStyle) 
-      ? userProfile.behaviorPatterns?.explorationStyle 
-      : 'gentle') as 'gentle' | 'analytical' | 'intuitive' | 'playful',
-    onPhaseTransition: (transition) => {
-      console.log('🌀 Phase transition detected:', transition);
-    },
-    onInsightOpportunity: () => {
-      // Glow the Intelligence button or show notification
-    },
-    ambientInsightFrequency: 25 // Show ambient insights every 25 minutes
-  });
+  const { rhythmState, emotionalState, triggerAwarenessEvent } = useEnhancedAwarenessRhythm(
+    userProfile.moodHistory || [],
+    mockInteractions
+  );
 
   // Mock wallet system instance for activity tracking
   const mockWalletTracker = {
@@ -670,8 +660,6 @@ const IndexContent = () => {
           }}
           theme={currentTheme}
           onToggle={(layerKey) => {
-            // Trigger data click insight
-            onDataClick(layerKey);
             // Track the interaction for consciousness system
             consciousnessTracker.trackInteraction(layerKey, 0, 0);
             
@@ -930,11 +918,10 @@ const IndexContent = () => {
         <HoverBasedInsights
           currentTimeSlices={[]}
           recentInteractions={mockInteractions}
-          awarenessState={awarenessState}
-          onDismiss={clearAwarenessMessage}
+          awarenessState={null}
+          onDismiss={() => {}}
           onExplore={() => {
             setShowInsightPanel(true);
-            clearAwarenessMessage();
           }}
         >
           {/* Fractal Time Zoom Manager wrapped in hover detection */}

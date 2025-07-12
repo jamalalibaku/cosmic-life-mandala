@@ -1,6 +1,6 @@
 /**
  * Interactive Data Point Components
- * Smart, hoverable elements for each layer type
+ * Enhanced with depth, gloss, and magical visual effects
  */
 
 import React, { useState } from "react";
@@ -37,6 +37,16 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { navigateToWeek, navigateToDay, zoomLevel } = useDateNavigation();
+
+  const getDataPointColor = () => {
+    // Enhanced color processing for better visual depth
+    const hsl = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+    if (hsl) {
+      const [, h, s, l] = hsl;
+      return `hsl(${h}, ${Math.min(100, parseInt(s) + 10)}, ${Math.min(90, parseInt(l) + 5)})`;
+    }
+    return color;
+  };
 
   const getEmojiBurst = () => {
     switch (layerType) {
@@ -292,34 +302,79 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
   };
 
   return (
-    <motion.circle
-      cx={x}
-      cy={y}
-      r={size}
-      fill={color}
-      style={{
-        filter: isHovered 
-          ? `drop-shadow(0 0 12px ${color}80)` 
-          : `drop-shadow(0 0 6px ${color}50)`,
-        cursor: "pointer",
-      }}
-      animate={{
-        scale: isHovered ? 1.2 : 1,
-        opacity: isHovered ? 1 : 0.85,
-      }}
-      transition={{
-        duration: 0.2,
-        ease: "easeOut",
-      }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
-      whileHover={{
-        scale: 1.2,
-      }}
-      whileTap={{
-        scale: 0.9,
-      }}
-    />
+    <motion.g
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
+      {/* Gradient definitions for gloss effect */}
+      <defs>
+        <radialGradient id={`dataPointGradient-${layerType}`} cx="30%" cy="30%">
+          <stop offset="0%" stopColor={`${getDataPointColor()}FF`} />
+          <stop offset="60%" stopColor={getDataPointColor()} />
+          <stop offset="100%" stopColor={`${getDataPointColor()}CC`} />
+        </radialGradient>
+      </defs>
+
+      {/* Depth shadow */}
+      <motion.circle
+        cx={x + 1}
+        cy={y + 2}
+        r={size}
+        fill="rgba(0,0,0,0.15)"
+        opacity={0.6}
+        animate={{ 
+          scale: isHovered ? 1.4 : 1,
+          opacity: isHovered ? 0.3 : 0.6
+        }}
+        transition={{ duration: 0.2 }}
+      />
+      
+      {/* Main data point with gloss effect */}
+      <motion.circle
+        cx={x}
+        cy={y}
+        r={size}
+        fill={`url(#dataPointGradient-${layerType})`}
+        stroke={`${getDataPointColor()}CC`}
+        strokeWidth={0.8}
+        opacity={0.9}
+        style={{
+          filter: `drop-shadow(0 0 6px ${getDataPointColor()}60)`,
+          cursor: "pointer"
+        }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ 
+          scale: isHovered ? 1.4 : 1,
+          opacity: isHovered ? 1 : 0.9,
+          r: isHovered ? size * 1.2 : size
+        }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        whileHover={{
+          scale: 1.6,
+          opacity: 1,
+          strokeWidth: 1.2
+        }}
+        whileTap={{ scale: 0.95 }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+      />
+      
+      {/* Highlight reflection */}
+      <motion.circle
+        cx={x - size * 0.3}
+        cy={y - size * 0.3}
+        r={size * 0.4}
+        fill="rgba(255,255,255,0.6)"
+        opacity={0.7}
+        animate={{ 
+          scale: isHovered ? 1.4 : 1,
+          opacity: isHovered ? 0.9 : 0.7
+        }}
+        transition={{ duration: 0.2 }}
+        style={{ pointerEvents: 'none' }}
+      />
+    </motion.g>
   );
 };

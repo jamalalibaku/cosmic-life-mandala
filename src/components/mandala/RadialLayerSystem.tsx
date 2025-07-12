@@ -147,26 +147,28 @@ const Layer: React.FC<{
         }}
       />
       
-      {/* Organic deformed layer outline */}
+      {/* Organic deformed layer outline with inner transparency */}
       <motion.path
         d={organicMotion.generateOrbitPath(0, 0)}
         fill="none"
         stroke={color}
-        strokeWidth={detailLevel === "outline" ? 0.8 : 1.2}
-        opacity={0.75}
+        strokeWidth={layerType === "weather" || layerType === "mobility" ? 0.6 : (detailLevel === "outline" ? 0.8 : 1.2)}
+        opacity={layerType === "weather" || layerType === "sleep" || layerType === "mood" ? 0.4 : 0.65}
         style={{
           filter: `drop-shadow(0 0 3px ${color}30)`,
           strokeLinecap: "round",
           transform: `rotate(${organicMotion.rotationOffset}deg)`,
-          transformOrigin: "center"
+          transformOrigin: "center",
+          mixBlendMode: layerType === "weather" || layerType === "mobility" ? "multiply" : "normal"
         }}
         animate={{ 
-          strokeDasharray: detailLevel === "outline" ? "3,6" : "none",
-          opacity: [0.75, 0.9, 0.75]
+          strokeDasharray: detailLevel === "outline" ? "3,6" : (layerType === "weather" ? "2,4" : "none"),
+          opacity: layerType === "weather" || layerType === "sleep" || layerType === "mood" ? 
+            [0.3, 0.5, 0.3] : [0.65, 0.8, 0.65]
         }}
         transition={{
           strokeDasharray: { duration: 0 },
-          opacity: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+          opacity: { duration: 6, repeat: Infinity, ease: "easeInOut" }
         }}
       />
 
@@ -250,8 +252,30 @@ const Layer: React.FC<{
         );
       })}
 
-      {/* Ring label */}
-      <RingLabel name={name} radius={radius} color={color} />
+      {/* Enhanced ring label with magical glow */}
+      <motion.text
+        x={0}
+        y={-radius - 18}
+        textAnchor="middle"
+        fill={color}
+        fontSize={10}
+        fontWeight="300"
+        fontFamily="Inter, system-ui, sans-serif"
+        letterSpacing="0.15em"
+        opacity={0.9}
+        style={{
+          filter: `drop-shadow(0 0 6px ${color}60)`,
+          textShadow: `0 0 8px ${color}40`
+        }}
+        initial={{ opacity: 0, y: -radius - 25 }}
+        animate={{ opacity: [0.7, 0.9, 0.7], y: -radius - 18 }}
+        transition={{ 
+          opacity: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+          y: { duration: 0.8, ease: "easeOut" }
+        }}
+      >
+        ✦ {name.toUpperCase()} ✦
+      </motion.text>
     </motion.g>
   );
 };

@@ -135,9 +135,9 @@ export const WindHairField: React.FC<WindHairFieldProps> = ({
     return emotions;
   }, [dataLayers]);
 
-  // Generate hair fibers with wind physics
+  // Generate hair fibers with wind physics - reduced density for breathing space
   const hairFibers = useMemo(() => {
-    const fiberCount = 480; // Dense but performance-conscious
+    const fiberCount = 240; // Reduced density for more elegant spacing
     const fibers: HairFiber[] = [];
     
     for (let i = 0; i < fiberCount; i++) {
@@ -157,11 +157,13 @@ export const WindHairField: React.FC<WindHairFieldProps> = ({
       const lightness = 65 + localEmotion * 25;
       const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
       
-      // Create segmented fiber for fluid motion
-      const segmentCount = 5;
+      // Create segmented fiber for fluid motion with breathing gaps
+      const segmentCount = 4; // Reduced segments for smoother curves
       const segments = [];
+      const gapFactor = 1 + 0.3 * Math.sin(angle * 3); // Breathing gaps based on position
+      
       for (let s = 0; s < segmentCount; s++) {
-        const segmentRadius = radius + (s / (segmentCount - 1)) * baseLength;
+        const segmentRadius = radius + (s / (segmentCount - 1)) * baseLength * gapFactor;
         segments.push({
           x: center.x + Math.cos(angle) * segmentRadius,
           y: center.y + Math.sin(angle) * segmentRadius,
@@ -282,8 +284,8 @@ export const WindHairField: React.FC<WindHairFieldProps> = ({
             key={`wind-hair-${index}`}
             d={path}
             stroke={fiber.color}
-            strokeWidth={isHighEmotion ? 1.2 : 0.7}
-            strokeOpacity={fiber.opacity}
+            strokeWidth={isHighEmotion ? 0.8 : 0.4}
+            strokeOpacity={fiber.opacity * 0.7}
             fill="none"
             strokeLinecap="round"
             filter="url(#organicGlow)"

@@ -1,247 +1,225 @@
 /**
- * [Lap 12 – Enhanced Insight Banner]
- * Enhanced Awareness Rhythm Hook - Dynamic insight messaging with varied triggers
+ * Enhanced Awareness Rhythm - Orchestrates all consciousness-responsive features
+ * 
+ * Purpose: Central coordination of emotional intelligence, memory patterns, and micro-interactions
+ * Features: Unified rhythm system, depth awareness, magical transitions
+ * Design: Creates coherent visual poetry across all mandala systems
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { LifePhase, LifePhaseProfile, detectLifePhase } from '@/utils/life-phase-detection';
-import { updatePhaseHistory, PhaseTransition } from '@/utils/phase-history-manager';
-import { 
-  selectInsightMessage, 
-  formatInsightForDisplay, 
-  InsightMessage,
-  InsightSelectionOptions 
-} from '@/utils/poetic-insight-library';
+import { useState, useEffect, useCallback } from 'react';
+import { useEmotionalIntelligence } from './useEmotionalIntelligence';
+import { useMemoryPatterns } from './useMemoryPatterns';
+import { useMicroInteractions } from './useMicroInteractions';
+import { useSoundDesign } from './useSoundDesign';
+import { useSeasonalAwareness } from './useSeasonalAwareness';
 
-export interface EnhancedAwarenessState {
-  lastCheck: number;
-  phaseUpdateAvailable: boolean;
-  insightOpportunity: boolean;
-  currentPhase: LifePhase | null;
-  awarenessMessage: string | null;
-  currentInsight: InsightMessage | null;
-  recentInsightIds: string[];
-  lastTriggerTime: number;
+interface AwarenessRhythmState {
+  globalDepth: number;
+  magicalIntensity: number;
+  breathingCycle: number;
+  consciousnessFlow: number;
+  awarenessPulse: number;
 }
 
-export interface UseEnhancedAwarenessRhythmOptions {
-  checkInterval?: number; // minutes
-  userProfile: any;
-  recentInteractions: any[];
-  explorationStyle?: 'gentle' | 'analytical' | 'intuitive' | 'playful';
-  onPhaseTransition?: (transition: PhaseTransition) => void;
-  onInsightOpportunity?: (insight: string) => void;
-  ambientInsightFrequency?: number; // minutes between ambient insights
+interface EnhancedAwarenessConfig {
+  enableDepthLayers: boolean;
+  enableMagicalEffects: boolean;
+  enableRhythmicBreathing: boolean;
+  enableConsciousnessFlow: boolean;
+  maxConcurrentEffects: number;
 }
 
-export function useEnhancedAwarenessRhythm({
-  checkInterval = 15,
-  userProfile,
-  recentInteractions,
-  explorationStyle = 'gentle',
-  onPhaseTransition,
-  onInsightOpportunity,
-  ambientInsightFrequency = 30
-}: UseEnhancedAwarenessRhythmOptions) {
-  const [awarenessState, setAwarenessState] = useState<EnhancedAwarenessState>({
-    lastCheck: Date.now(),
-    phaseUpdateAvailable: false,
-    insightOpportunity: false,
-    currentPhase: null,
-    awarenessMessage: null,
-    currentInsight: null,
-    recentInsightIds: [],
-    lastTriggerTime: 0
+export const useEnhancedAwarenessRhythm = (
+  moodData: any[],
+  lifeData: any[],
+  config: Partial<EnhancedAwarenessConfig> = {}
+) => {
+  const {
+    enableDepthLayers = true,
+    enableMagicalEffects = true,
+    enableRhythmicBreathing = true,
+    enableConsciousnessFlow = true,
+    maxConcurrentEffects = 5
+  } = config;
+
+  // Core awareness state
+  const [rhythmState, setRhythmState] = useState<AwarenessRhythmState>({
+    globalDepth: 0.5,
+    magicalIntensity: 0.3,
+    breathingCycle: 0,
+    consciousnessFlow: 0,
+    awarenessPulse: 0
   });
 
-  const [lastPhaseProfile, setLastPhaseProfile] = useState<LifePhaseProfile | null>(null);
-  const lastInteractionCount = useRef(0);
+  // Integrate consciousness systems
+  const { emotionalState, getBreathingParams, getMoodColors } = useEmotionalIntelligence(moodData);
+  const { detectedPatterns, getMemoryEchoes } = useMemoryPatterns(lifeData);
+  const { hoverState, getConnectionLines } = useMicroInteractions();
+  const { playInsightSound, playConnectionSound } = useSoundDesign();
+  const { currentPalette } = useSeasonalAwareness();
 
-  const shouldShowInsight = useCallback(() => {
-    const now = Date.now();
-    const timeSinceLastTrigger = now - awarenessState.lastTriggerTime;
-    const minTimeBetweenInsights = 5 * 60 * 1000; // 5 minutes minimum
-    
-    return timeSinceLastTrigger >= minTimeBetweenInsights;
-  }, [awarenessState.lastTriggerTime]);
+  // Master rhythm animation loop
+  useEffect(() => {
+    if (!enableRhythmicBreathing) return;
 
-  const triggerInsight = useCallback((
-    triggerContext: InsightMessage['triggerContext'],
-    customMessage?: string
-  ) => {
-    if (!shouldShowInsight()) return;
+    let animationId: number;
+    let startTime = Date.now();
 
-    const options: InsightSelectionOptions = {
-      currentPhase: awarenessState.currentPhase || undefined,
-      explorationStyle,
-      excludeRecent: awarenessState.recentInsightIds
+    const animate = () => {
+      const elapsed = (Date.now() - startTime) * 0.001;
+      
+      setRhythmState(prev => ({
+        ...prev,
+        breathingCycle: Math.sin(elapsed * 0.3) * 0.5 + 0.5,
+        consciousnessFlow: Math.sin(elapsed * 0.1 + Math.PI/3) * 0.3 + 0.7,
+        awarenessPulse: Math.sin(elapsed * 0.5 + Math.PI/6) * 0.2 + 0.8,
+        globalDepth: 0.4 + emotionalState.currentMood.valence * 0.4,
+        magicalIntensity: 0.2 + (detectedPatterns.length / 10) * 0.6
+      }));
+
+      animationId = requestAnimationFrame(animate);
     };
 
-    let insight: InsightMessage | null = null;
-    let formattedMessage = customMessage;
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, [enableRhythmicBreathing, emotionalState.currentMood.valence, detectedPatterns.length]);
 
-    if (!customMessage) {
-      insight = selectInsightMessage(triggerContext, options);
-      if (insight) {
-        formattedMessage = formatInsightForDisplay(insight);
-      }
-    }
+  // Generate depth and gloss effects for data points
+  const getDepthEffects = useCallback((layerType: string, dataPoint: any) => {
+    if (!enableDepthLayers) return {};
 
-    if (formattedMessage) {
-      setAwarenessState(prev => ({
-        ...prev,
-        awarenessMessage: formattedMessage,
-        currentInsight: insight,
-        lastTriggerTime: Date.now(),
-        recentInsightIds: insight 
-          ? [...prev.recentInsightIds.slice(-4), insight.id] // Keep last 5
-          : prev.recentInsightIds
-      }));
+    const baseDepth = rhythmState.globalDepth;
+    const emotionalBoost = emotionalState.currentMood.energy * 0.3;
+    const magicalGlow = rhythmState.magicalIntensity;
 
-      if (onInsightOpportunity) {
-        onInsightOpportunity(formattedMessage);
-      }
-    }
-  }, [awarenessState.currentPhase, awarenessState.recentInsightIds, explorationStyle, shouldShowInsight, onInsightOpportunity]);
-
-  const checkForPhaseUpdate = useCallback(() => {
-    if (recentInteractions.length === 0) return;
-
-    const currentPhaseProfile = detectLifePhase(userProfile, recentInteractions);
-    
-    // Check if this is a new phase transition
-    if (lastPhaseProfile && currentPhaseProfile.currentPhase !== lastPhaseProfile.currentPhase) {
-      const { isNewPhase, transition } = updatePhaseHistory(
-        currentPhaseProfile.currentPhase,
-        currentPhaseProfile.phaseStability
-      );
-
-      if (isNewPhase && transition && onPhaseTransition) {
-        onPhaseTransition(transition);
-      }
-
-      // Trigger phase transition insight
-      if (isNewPhase && transition) {
-        const phaseMessages = [
-          `A new rhythm emerges: ${transition.to}`,
-          `You're entering a ${transition.to} phase—trust this natural progression`,
-          `Phase shift detected: welcome to your ${transition.to} season`
-        ];
-        
-        const randomMessage = phaseMessages[Math.floor(Math.random() * phaseMessages.length)];
-        triggerInsight('phase_transition', randomMessage);
-      }
-
-      setAwarenessState(prev => ({
-        ...prev,
-        phaseUpdateAvailable: true,
-        currentPhase: currentPhaseProfile.currentPhase
-      }));
-    }
-
-    setLastPhaseProfile(currentPhaseProfile);
-  }, [recentInteractions, userProfile, lastPhaseProfile, onPhaseTransition, triggerInsight]);
-
-  const checkForCorrelationInsights = useCallback(() => {
-    if (recentInteractions.length < 3) return;
-
-    // Check for multi-layer exploration
-    const recentLayerTypes = recentInteractions.slice(-5).map(i => i.layerType);
-    const uniqueLayers = new Set(recentLayerTypes).size;
-    
-    if (uniqueLayers >= 3) {
-      triggerInsight('correlation_detected');
-    }
-
-    // Check for specific patterns
-    const sleepMoodPattern = recentLayerTypes.filter(l => l === 'sleep' || l === 'mood').length;
-    if (sleepMoodPattern >= 2) {
-      triggerInsight('correlation_detected');
-    }
-  }, [recentInteractions, triggerInsight]);
-
-  const checkForExplorationInsights = useCallback(() => {
-    // Trigger when user starts exploring (new interactions detected)
-    if (recentInteractions.length > lastInteractionCount.current) {
-      const newInteractionCount = recentInteractions.length - lastInteractionCount.current;
+    return {
+      shadowDepth: (baseDepth + emotionalBoost) * 3,
+      glossIntensity: magicalGlow * 0.8,
+      reflectionOpacity: 0.4 + magicalGlow * 0.4,
+      glowRadius: 4 + emotionalBoost * 6,
+      floatHeight: Math.sin(rhythmState.awarenessPulse * Math.PI) * 2,
       
-      if (newInteractionCount >= 2) { // Multiple new interactions
-        triggerInsight('exploration');
+      // Layer-specific enhancements
+      layerEffects: {
+        weather: {
+          shimmer: Math.sin(rhythmState.consciousnessFlow * Math.PI) * 0.3,
+          transparency: 0.6 + rhythmState.breathingCycle * 0.2
+        },
+        mood: {
+          intensity: emotionalState.currentMood.energy,
+          colorShift: emotionalState.currentMood.valence * 20
+        },
+        mobility: {
+          trailLength: baseDepth * 8,
+          energyFlow: rhythmState.consciousnessFlow
+        }
       }
-      
-      lastInteractionCount.current = recentInteractions.length;
-    }
-  }, [recentInteractions.length, triggerInsight]);
+    };
+  }, [enableDepthLayers, rhythmState, emotionalState]);
 
-  const checkForAmbientInsights = useCallback(() => {
-    const now = Date.now();
-    const timeSinceLastInsight = now - awarenessState.lastTriggerTime;
-    const ambientInterval = ambientInsightFrequency * 60 * 1000;
+  // Generate magical text effects for labels
+  const getMagicalTextEffects = useCallback((text: string, layerType: string) => {
+    if (!enableMagicalEffects) return { text, style: {} };
+
+    const magicalLevel = rhythmState.magicalIntensity;
+    const starryGlow = magicalLevel > 0.5;
+
+    return {
+      text: starryGlow ? `✦ ${text} ✦` : text,
+      style: {
+        filter: `drop-shadow(0 0 ${4 + magicalLevel * 4}px ${currentPalette.primary}60)`,
+        textShadow: `0 0 ${6 + magicalLevel * 6}px ${currentPalette.primary}40`,
+        opacity: 0.7 + magicalLevel * 0.3,
+        letterSpacing: starryGlow ? '0.15em' : '0.05em',
+        fontWeight: starryGlow ? '400' : '300'
+      }
+    };
+  }, [enableMagicalEffects, rhythmState.magicalIntensity, currentPalette]);
+
+  // Generate awareness-responsive breathing parameters
+  const getAwarenessBreathing = useCallback(() => {
+    const baseBreathing = getBreathingParams();
+    const awarenessModifier = rhythmState.breathingCycle;
     
-    // Show ambient insights occasionally when user is not actively exploring
-    if (timeSinceLastInsight >= ambientInterval && recentInteractions.length > 0) {
-      triggerInsight('ambient');
-    }
-  }, [awarenessState.lastTriggerTime, ambientInsightFrequency, recentInteractions.length, triggerInsight]);
+    return {
+      ...baseBreathing,
+      duration: baseBreathing.duration * (0.8 + awarenessModifier * 0.4),
+      intensity: baseBreathing.intensity * (0.7 + rhythmState.awarenessPulse * 0.3),
+      smoothness: rhythmState.consciousnessFlow,
+      magicalPulse: rhythmState.magicalIntensity > 0.6
+    };
+  }, [getBreathingParams, rhythmState]);
 
-  const performAwarenessCheck = useCallback(() => {
-    const now = Date.now();
-    const timeSinceLastCheck = now - awarenessState.lastCheck;
-    const checkIntervalMs = checkInterval * 60 * 1000;
-
-    if (timeSinceLastCheck >= checkIntervalMs) {
-      checkForPhaseUpdate();
-      checkForCorrelationInsights();
-      checkForExplorationInsights();
-      checkForAmbientInsights();
-      
-      setAwarenessState(prev => ({
-        ...prev,
-        lastCheck: now
-      }));
-    }
-  }, [
-    awarenessState.lastCheck, 
-    checkInterval, 
-    checkForPhaseUpdate, 
-    checkForCorrelationInsights,
-    checkForExplorationInsights,
-    checkForAmbientInsights
-  ]);
-
-  // Handle data click insights
-  const onDataClick = useCallback((layerType: string) => {
-    triggerInsight('data_click');
-  }, [triggerInsight]);
-
-  // Set up periodic awareness checks
-  useEffect(() => {
-    const intervalId = setInterval(performAwarenessCheck, 60000); // Check every minute
-    return () => clearInterval(intervalId);
-  }, [performAwarenessCheck]);
-
-  // Initial check
-  useEffect(() => {
-    if (recentInteractions.length > 0) {
-      performAwarenessCheck();
-    }
-  }, [recentInteractions.length, performAwarenessCheck]);
-
-  const clearAwarenessMessage = useCallback(() => {
-    setAwarenessState(prev => ({
+  // Handle conscious interaction moments
+  const triggerAwarenessEvent = useCallback((eventType: 'insight' | 'connection' | 'pattern', intensity: number = 0.5) => {
+    // Boost magical intensity temporarily
+    setRhythmState(prev => ({
       ...prev,
-      awarenessMessage: null,
-      currentInsight: null,
-      phaseUpdateAvailable: false,
-      insightOpportunity: false
+      magicalIntensity: Math.min(1, prev.magicalIntensity + intensity * 0.3)
     }));
-  }, []);
+
+    // Play corresponding sound
+    switch (eventType) {
+      case 'insight':
+        playInsightSound(intensity);
+        break;
+      case 'connection':
+        playConnectionSound(undefined, intensity);
+        break;
+      case 'pattern':
+        // Pattern recognition sound
+        playConnectionSound(undefined, intensity * 0.7);
+        break;
+    }
+
+    // Decay magical intensity
+    setTimeout(() => {
+      setRhythmState(prev => ({
+        ...prev,
+        magicalIntensity: Math.max(0.2, prev.magicalIntensity - intensity * 0.2)
+      }));
+    }, 2000);
+  }, [playInsightSound, playConnectionSound]);
+
+  // Generate connection visualization data
+  const getAwarenessConnections = useCallback(() => {
+    const connections = getConnectionLines();
+    const magicalLevel = rhythmState.magicalIntensity;
+    
+    return connections.map(connection => ({
+      ...connection,
+      opacity: connection.strength * (0.4 + magicalLevel * 0.4),
+      glow: magicalLevel > 0.5,
+      sparkles: magicalLevel > 0.7,
+      flowSpeed: rhythmState.consciousnessFlow
+    }));
+  }, [getConnectionLines, rhythmState]);
 
   return {
-    awarenessState,
-    clearAwarenessMessage,
-    performManualCheck: performAwarenessCheck,
-    onDataClick,
-    triggerInsight
+    // State
+    rhythmState,
+    emotionalState,
+    detectedPatterns,
+    hoverState,
+    
+    // Enhanced effects
+    getDepthEffects,
+    getMagicalTextEffects,
+    getAwarenessBreathing,
+    getAwarenessConnections,
+    
+    // Event triggers
+    triggerAwarenessEvent,
+    
+    // Integrated colors and palette
+    moodColors: getMoodColors(),
+    seasonalPalette: currentPalette,
+    
+    // Performance metrics
+    performanceMetrics: {
+      activeEffects: Object.values(rhythmState).filter(v => v > 0.5).length,
+      systemLoad: rhythmState.magicalIntensity + rhythmState.consciousnessFlow,
+      efficiencyRating: maxConcurrentEffects / 5
+    }
   };
-}
+};
