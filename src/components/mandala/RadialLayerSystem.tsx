@@ -25,7 +25,7 @@ import { analyzeMoodForSupernovas, SupernovaTrigger } from "@/utils/supernova-en
 import { DebugSupernova } from "@/components/DebugSupernova";
 import { useVisualSkin } from "@/components/visual-skin-provider";
 import { getThemeGeometry } from "@/utils/day4-dynamics";
-import { BreathingWeatherRing } from "@/components/enhanced/BreathingWeatherRing";
+import { SkyConnectedWeatherRing } from "@/components/enhanced/SkyConnectedWeatherRing";
 import { KandinskyDataMarbles } from "@/components/enhanced/KandinskyDataMarbles";
 import { RippleTrails } from "@/components/enhanced/RippleTrails";
 import { CosmicBackgroundPulse } from "@/components/cosmic/CosmicBackgroundPulse";
@@ -618,9 +618,9 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           transition={{ duration: 1 }}
           style={{ transformOrigin: "center" }}
         >
-          {/* Enhanced Weather Ring with breathing pulse */}
+          {/* Sky Connected Weather Ring with revolutionary time-based effects */}
           {layers.find(l => l.layerType === 'weather') && (
-            <BreathingWeatherRing
+            <SkyConnectedWeatherRing
               radius={layers.find(l => l.layerType === 'weather')?.radius || 150}
               center={{ x: 0, y: 0 }}
               weatherData={layers.find(l => l.layerType === 'weather')?.data || []}
