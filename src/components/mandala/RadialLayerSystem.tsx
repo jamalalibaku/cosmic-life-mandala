@@ -652,6 +652,7 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
             radius={Math.max(...layers.map(l => l.radius)) + 60}
             center={{ x: 0, y: 0 }}
             className="celestial-sky-ring"
+            crazinessLevel={42} // Perfect harmony level
           />
 
           {/* Sky Connected Weather Ring with revolutionary time-based effects */}

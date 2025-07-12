@@ -13,6 +13,7 @@ interface SkyRingProps {
   radius: number;
   center: { x: number; y: number };
   className?: string;
+  crazinessLevel?: number; // 0-100 amplitude control
 }
 
 interface Ray {
@@ -26,8 +27,14 @@ interface Ray {
   dominantWaveType: string;
 }
 
-export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) => {
+export const SkyRing: React.FC<SkyRingProps> = ({ 
+  radius, 
+  center, 
+  className, 
+  crazinessLevel = 35 // Sweet spot for natural harmonics
+}) => {
   const [harmonicTime, setHarmonicTime] = useState(Date.now());
+  const [waveSourceTime, setWaveSourceTime] = useState(0);
   const currentHour = new Date().getHours();
   const minutes = new Date().getMinutes();
   const timeOfDay = currentHour + minutes / 60;
@@ -35,13 +42,42 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
   // Sun position based on time
   const sunAngle = (timeOfDay / 24) * Math.PI * 2 - Math.PI / 2; // Start at top (noon)
 
-  // Reduced ray count for smoother performance and less chaos
-  const rayCount = 720; // One ray per 2 minutes for smoother performance
+  // Optimized ray count for Mexican wave harmonics
+  const rayCount = 360; // One ray per degree for perfect wave propagation
   
   // Weather data for current day (mock for now)
   const currentWeather = enhancedWeatherData[0]; // Use first entry as current
   const windDirection = Math.PI * 0.25; // 45 degrees (northeast)
   const solarFlareIntensity = 0.3 + Math.sin(harmonicTime * 0.00005) * 0.4; // Much slower solar variation
+  
+  // Amplitude modulation based on craziness level
+  const amplitudeScale = crazinessLevel / 100;
+  const harmonicIntensity = amplitudeScale * 0.8; // Scale harmonic displacement
+  const waveSpeed = 0.5 + amplitudeScale * 1.5; // Faster waves at higher craziness
+  
+  // Mexican wave system - multiple wave sources
+  const waveSourceAngles = [
+    0, // North
+    Math.PI * 0.5, // East
+    Math.PI, // South
+    Math.PI * 1.5, // West
+    Math.PI * 0.25, // Northeast
+    Math.PI * 0.75, // Southeast
+  ];
+  
+  // Create traveling waves with different phases
+  const createTravelingWave = (sourceAngle: number, phase: number) => {
+    return {
+      sourceAngle,
+      phase: (waveSourceTime * waveSpeed + phase) % (Math.PI * 2),
+      intensity: 0.3 + Math.sin(waveSourceTime * 0.001 + phase) * 0.2,
+      wavelength: Math.PI * 0.4 + Math.sin(waveSourceTime * 0.0005 + phase) * 0.2,
+    };
+  };
+  
+  const mexicanWaves = waveSourceAngles.map((angle, i) => 
+    createTravelingWave(angle, i * Math.PI * 0.33)
+  );
   
   // Calculate sunlight hours (sunrise to sunset effect)
   const isDaytime = currentHour >= 6 && currentHour <= 20;
@@ -58,50 +94,70 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
     );
   }, [solarFlareIntensity, currentWeather.windIntensity, windDirection, harmonicTime]);
 
-  // Generate ray array with harmonic-driven properties
+  // Generate ray array with Mexican wave harmonics
   const rays = useMemo(() => {
     const rays: Ray[] = [];
     
-    // Add data-driven wave sources (mock mobility and mood spikes)
-    const dataWaveSources = createDataWaveSources(
-      [0.2, 0.6, 0.9], // Mock mobility spikes at different times of day
-      [0.1, 0.4, 0.8], // Mock mood transitions
-      []
-    );
-    
     for (let i = 0; i < rayCount; i++) {
       const angle = (i / rayCount) * Math.PI * 2;
+      
+      // Calculate Mexican wave influence at this angle
+      let totalWaveInfluence = 0;
+      let dominantWaveIntensity = 0;
+      
+      mexicanWaves.forEach((wave) => {
+        // Calculate distance from wave source
+        let angleDiff = Math.abs(angle - wave.sourceAngle);
+        if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+        
+        // Wave propagation with fade-in/fade-out
+        const waveProgress = (wave.phase - angleDiff / wave.wavelength) % (Math.PI * 2);
+        const waveEnvelope = Math.max(0, Math.sin(waveProgress));
+        const distanceFade = Math.max(0, 1 - angleDiff / (Math.PI * 0.6));
+        
+        const waveContribution = wave.intensity * waveEnvelope * distanceFade * harmonicIntensity;
+        totalWaveInfluence += waveContribution;
+        
+        if (waveContribution > dominantWaveIntensity) {
+          dominantWaveIntensity = waveContribution;
+        }
+      });
       
       // Calculate sun influence - rays near sun position shine brighter
       const sunDistance = Math.abs(angle - sunAngle);
       const normalizedSunDistance = Math.min(sunDistance, Math.PI * 2 - sunDistance);
       const sunInfluence = Math.max(0, 1 - (normalizedSunDistance / (Math.PI * 0.3))); // Influence within 54 degrees
       
-      // Get harmonic influence at this angle
+      // Combine traditional harmonic influence with Mexican waves
       const harmonicInfluence = calculateHarmonicInfluence(angle, harmonicField, harmonicTime);
+      const mexicanWaveDisplacement = totalWaveInfluence * 15; // Scale displacement
+      const combinedDisplacement = harmonicInfluence.displacement * (1 - amplitudeScale) + mexicanWaveDisplacement * amplitudeScale;
       
       // Temperature-based length and glow
       const temperatureRatio = (currentWeather.temperatureHigh - 10) / 30; // Normalize 10-40°C to 0-1
       const temperatureGlow = Math.max(0.2, temperatureRatio);
       
-      // Base length influenced by temperature and sunlight (more stable, less random)
-      const baseLength = 15; // Fixed base instead of random
+      // Length influenced by Mexican waves and traditional harmonics
+      const baseLength = 15;
       const temperatureLength = temperatureRatio * 20;
       const sunEnhancement = sunInfluence * 30 * sunlightFactor;
-      const rainReduction = currentWeather.precipitationOpacity * 15; // Rain makes rays shorter
-      const harmonicLength = harmonicInfluence.intensity * 12; // Harmonic influence on length
-      const length = Math.max(8, baseLength + temperatureLength + sunEnhancement + harmonicLength - rainReduction);
+      const rainReduction = currentWeather.precipitationOpacity * 15;
+      const waveLength = totalWaveInfluence * 25; // Mexican wave length boost
+      const harmonicLength = harmonicInfluence.intensity * 8; // Reduced traditional harmonic influence
+      const length = Math.max(8, baseLength + temperatureLength + sunEnhancement + waveLength + harmonicLength - rainReduction);
       
-      // Curvature influenced by harmonics instead of random factors
-      const curvature = Math.max(0, Math.min(1, harmonicInfluence.curvature + sunInfluence * 0.3));
+      // Curvature enhanced by wave activity
+      const waveCurvature = Math.min(0.8, totalWaveInfluence * 2);
+      const curvature = Math.max(0, Math.min(1, harmonicInfluence.curvature * 0.5 + waveCurvature + sunInfluence * 0.3));
       
-      // Brightness enhanced by harmonic intensity
+      // Brightness pulsing with waves
       const baseBrightness = 0.2 + sunInfluence * 0.6;
       const temperatureBrightness = temperatureGlow * 0.3;
       const sunlightBoost = sunlightFactor * 0.4;
-      const harmonicBoost = harmonicInfluence.intensity * 0.3;
+      const waveBoost = totalWaveInfluence * 0.5; // Wave brightness enhancement
+      const harmonicBoost = harmonicInfluence.intensity * 0.2; // Reduced traditional boost
       const rainDimming = currentWeather.precipitationOpacity * 0.3;
-      const brightness = Math.max(0.1, baseBrightness + temperatureBrightness + sunlightBoost + harmonicBoost - rainDimming);
+      const brightness = Math.max(0.1, baseBrightness + temperatureBrightness + sunlightBoost + waveBoost + harmonicBoost - rainDimming);
       
       rays.push({
         angle,
@@ -109,28 +165,30 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
         curvature,
         brightness,
         sunInfluence,
-        harmonicDisplacement: harmonicInfluence.displacement,
+        harmonicDisplacement: combinedDisplacement,
         temperatureGlow,
-        dominantWaveType: harmonicInfluence.dominantType
+        dominantWaveType: totalWaveInfluence > 0.3 ? 'mexican-wave' : harmonicInfluence.dominantType
       });
     }
     
     return rays;
-  }, [rayCount, sunAngle, currentWeather, sunlightFactor, harmonicField, harmonicTime]);
+  }, [rayCount, sunAngle, currentWeather, sunlightFactor, harmonicField, harmonicTime, mexicanWaves, amplitudeScale, harmonicIntensity]);
 
-  // Much slower harmonic time progression
+  // Smooth animation loop with dual time tracking
   useEffect(() => {
     let animationId: number;
     
     const animate = () => {
-      setHarmonicTime(Date.now());
+      const now = Date.now();
+      setHarmonicTime(now);
+      setWaveSourceTime(now * 0.001); // Slower time scale for waves
       animationId = requestAnimationFrame(animate);
     };
     
-    // Update much less frequently for smoother, less chaotic motion
+    // Smooth 60fps updates with controlled time progression
     const interval = setInterval(() => {
       animationId = requestAnimationFrame(animate);
-    }, 100); // Update every 100ms instead of every frame
+    }, 16); // ~60fps but with controlled time stepping
     
     return () => {
       clearInterval(interval);
@@ -140,42 +198,50 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
     };
   }, []);
 
-  // Generate harmonic ray path with smooth cosmic motion
+  // Generate ray path with Mexican wave harmonics
   const generateRayPath = (ray: Ray, index: number): string => {
     const { angle, length, curvature, sunInfluence, harmonicDisplacement, temperatureGlow } = ray;
     
-    // Much gentler breathing animation
-    const globalPhase = (harmonicTime * 0.00003) % (Math.PI * 2); // Ultra-slow global rhythm
-    const breathingScale = 1 + 0.05 * Math.sin(globalPhase + index * 0.01); // Gentle breathing
-    const sunPulse = 1 + sunInfluence * 0.15 * Math.sin(globalPhase * 1.2); // Subtle sun pulse
+    // Smooth breathing animation controlled by craziness level
+    const globalPhase = (harmonicTime * 0.00003 * (1 + amplitudeScale)) % (Math.PI * 2);
+    const breathingScale = 1 + (0.02 + amplitudeScale * 0.08) * Math.sin(globalPhase + index * 0.01);
+    const sunPulse = 1 + sunInfluence * 0.15 * Math.sin(globalPhase * 1.2);
     
-    // Solar flare effects are much more controlled
+    // Solar flare effects with amplitude modulation
     const solarFlareVibration = solarFlareIntensity > 0.6 ? 
-      1 + 0.08 * Math.sin(globalPhase * 4 + index * 0.05) : 1; // Gentle solar activity
+      1 + (0.04 + amplitudeScale * 0.12) * Math.sin(globalPhase * 4 + index * 0.05) : 1;
     
-    const dynamicLength = length * breathingScale * sunPulse * solarFlareVibration;
+    // Mexican wave length modulation
+    const waveModulation = ray.dominantWaveType === 'mexican-wave' ? 
+      1 + amplitudeScale * 0.2 * Math.sin(waveSourceTime + index * 0.1) : 1;
+    
+    const dynamicLength = length * breathingScale * sunPulse * solarFlareVibration * waveModulation;
     
     // Start point at ring edge
     const startX = center.x + Math.cos(angle) * radius;
     const startY = center.y + Math.sin(angle) * radius;
     
     if (curvature < 0.2) {
-      // Straight ray with harmonic displacement
-      const harmonicOffset = harmonicDisplacement * 0.4; // Reduced for subtlety
+      // Straight ray with controlled harmonic displacement
+      const harmonicOffset = harmonicDisplacement * amplitudeScale * 0.6;
       const endX = center.x + Math.cos(angle) * (radius + dynamicLength) + Math.cos(angle + Math.PI/2) * harmonicOffset;
       const endY = center.y + Math.sin(angle) * (radius + dynamicLength) + Math.sin(angle + Math.PI/2) * harmonicOffset;
       
       return `M ${startX} ${startY} L ${endX} ${endY}`;
     } else {
-      // Curved ray with harmonic field influence
+      // Curved ray with Mexican wave influence
       const midLength = dynamicLength * 0.6;
       const endLength = dynamicLength;
       
-      // Smooth harmonic displacement instead of chaotic waves
-      const harmonicCurve = harmonicDisplacement * 0.5; // Much gentler than before
-      const temperatureShimmer = temperatureGlow * 3 * Math.sin(globalPhase * 2 + angle * 4); // Reduced intensity
+      // Enhanced harmonic displacement with wave modulation
+      const harmonicCurve = harmonicDisplacement * amplitudeScale * 0.8;
+      const temperatureShimmer = temperatureGlow * 2 * Math.sin(globalPhase * 2 + angle * 4) * amplitudeScale;
       
-      const totalDisplacement = harmonicCurve + temperatureShimmer;
+      // Add Mexican wave curvature enhancement
+      const wavePhaseShift = ray.dominantWaveType === 'mexican-wave' ? 
+        amplitudeScale * 8 * Math.sin(waveSourceTime * 2 + angle * 8) : 0;
+      
+      const totalDisplacement = harmonicCurve + temperatureShimmer + wavePhaseShift;
       
       const midX = center.x + Math.cos(angle) * (radius + midLength) + Math.cos(angle + Math.PI/2) * totalDisplacement;
       const midY = center.y + Math.sin(angle) * (radius + midLength) + Math.sin(angle + Math.PI/2) * totalDisplacement;

@@ -456,6 +456,7 @@ const IndexContent = () => {
               radius={280}
               center={{ x: centerX, y: centerY }}
               className="sky-gradient-layer cosmic-rays"
+              crazinessLevel={42} // Perfect harmony level
             />
           </>
         )}
