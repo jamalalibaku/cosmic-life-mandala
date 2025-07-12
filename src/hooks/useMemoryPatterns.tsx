@@ -2,7 +2,7 @@
  * Memory Patterns Hook - Detect and visualize life pattern correlations
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { DateBasedData } from '@/utils/real-date-data';
 
 interface MemoryPattern {
@@ -49,7 +49,7 @@ export const useMemoryPatterns = (historicalData: DateBasedData[]) => {
   }, [historicalData]);
 
   // Find correlations between patterns
-  const findCorrelations = (patterns: MemoryPattern[]) => {
+  const findCorrelations = useCallback((patterns: MemoryPattern[]) => {
     const correlations: PatternCorrelation[] = [];
     
     for (let i = 0; i < patterns.length; i++) {
@@ -67,12 +67,12 @@ export const useMemoryPatterns = (historicalData: DateBasedData[]) => {
     }
     
     return correlations;
-  };
+  }, []);
 
   useEffect(() => {
     setDetectedPatterns(patterns);
     setCorrelations(findCorrelations(patterns));
-  }, [patterns]);
+  }, [patterns, findCorrelations]);
 
   // Get memory echoes for current context
   const getMemoryEchoes = (currentDate: Date) => {
