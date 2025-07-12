@@ -48,7 +48,7 @@ import { SunCoreMesh } from '@/components/enhanced/SunCoreMesh';
 import { CelestialGlyph } from '@/components/enhanced/CelestialGlyph';
 import { InvisibleDiscoBall } from '@/components/enhanced/InvisibleDiscoBall';
 import { MidnightFirework } from '@/components/enhanced/MidnightFirework';
-import { CosmicGradientRing } from '@/components/enhanced/CosmicGradientRing';
+
 import { ZoomMenuButton } from '@/components/navigation/ZoomMenuButton';
 import { ToolsMenuButton } from '@/components/navigation/ToolsMenuButton';
 import { SkinsMenuButton } from '@/components/navigation/SkinsMenuButton';
@@ -446,15 +446,6 @@ const IndexContent = () => {
               </g>
             </g>
 
-        {/* Cosmic Gradient Ring - Eclipse-inspired outer atmosphere */}
-        <CosmicGradientRing
-          centerX={centerX}
-          centerY={centerY}
-          radius={380}
-          thickness={35}
-          rotationSpeed={0.3}
-          intensity={0.8}
-        />
 
             {/* 4. Plans - Intentional structure layer (270-300px) */}
             <g transform={plansTilt.getSVGTiltTransform(centerX, centerY)}>
