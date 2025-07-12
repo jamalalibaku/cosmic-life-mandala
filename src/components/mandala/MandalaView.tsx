@@ -15,6 +15,7 @@ import { generateRealDateData, getWeekData, getDayData, type DateBasedData } fro
 import { mockEnvironmentalData } from "@/data/mock-environmental-data";
 import { format, startOfWeek, eachWeekOfInterval, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
 import mandalaExpressiveTheme from "@/themes/mandala-expressive";
+import { usePerformanceOptimizer } from "@/hooks/usePerformanceOptimizer";
 
 // Real date-based layer data generator
 const createDateBasedLayerData = (
@@ -161,6 +162,14 @@ const MandalaViewContent = () => {
   const rotationAngle = getCurrentTimeAngle();
   const [showEnvironmental, setShowEnvironmental] = React.useState(true);
   
+  // Performance optimization for smooth animations
+  const { scheduleAnimation, createSmoothEasing, getPerformanceMetrics } = usePerformanceOptimizer({
+    batchSize: 4,
+    staggerDelay: 80,
+    throttleMs: 16,
+    maxConcurrent: 10
+  });
+  
   // Generate real date data (in production, this would come from API)
   const dateData = React.useMemo(() => generateRealDateData(), []);
   const layerData = React.useMemo(() => 
@@ -230,10 +239,14 @@ const MandalaViewContent = () => {
             isVisible={showEnvironmental}
           />
           
-          {/* Full radial system rotation to keep NOW at top */}
+          {/* Full radial system rotation to keep NOW at top with enhanced smoothing */}
           <motion.g
             animate={{ rotate: rotationAngle }}
-            transition={{ type: "tween", duration: 3, ease: "easeInOut" }}
+            transition={{ 
+              type: "tween", 
+              duration: 4, 
+              ease: [0.25, 0.46, 0.45, 0.94] // Cosmic easing for celestial motion
+            }}
           >
             {/* Real Date-Based Radial Layer Architecture System */}
             <RadialLayerSystem 

@@ -50,10 +50,10 @@ export const SkyRing: React.FC<SkyRingProps> = ({
   const windDirection = Math.PI * 0.25; // 45 degrees (northeast)
   const solarFlareIntensity = 0.3 + Math.sin(harmonicTime * 0.00005) * 0.4; // Much slower solar variation
   
-  // Amplitude modulation based on craziness level
+  // Ultra-smooth amplitude modulation based on craziness level
   const amplitudeScale = crazinessLevel / 100;
-  const harmonicIntensity = amplitudeScale * 0.8; // Scale harmonic displacement
-  const waveSpeed = 0.5 + amplitudeScale * 1.5; // Faster waves at higher craziness
+  const harmonicIntensity = amplitudeScale * 0.6; // Reduced for smoother motion
+  const waveSpeed = 0.3 + amplitudeScale * 1.0; // Smoother wave speeds
   
   // Mexican wave system - multiple wave sources
   const waveSourceAngles = [
@@ -128,10 +128,14 @@ export const SkyRing: React.FC<SkyRingProps> = ({
       const normalizedSunDistance = Math.min(sunDistance, Math.PI * 2 - sunDistance);
       const sunInfluence = Math.max(0, 1 - (normalizedSunDistance / (Math.PI * 0.3))); // Influence within 54 degrees
       
-      // Combine traditional harmonic influence with Mexican waves
+      // Combine traditional harmonic influence with Mexican waves using cubic interpolation
       const harmonicInfluence = calculateHarmonicInfluence(angle, harmonicField, harmonicTime);
-      const mexicanWaveDisplacement = totalWaveInfluence * 15; // Scale displacement
-      const combinedDisplacement = harmonicInfluence.displacement * (1 - amplitudeScale) + mexicanWaveDisplacement * amplitudeScale;
+      const mexicanWaveDisplacement = totalWaveInfluence * 12; // Reduced scale for smoother motion
+      
+      // Ultra-smooth combination with cubic bezier-like blending
+      const blendFactor = Math.sin(amplitudeScale * Math.PI * 0.5); // Smooth 0-1 transition
+      const combinedDisplacement = harmonicInfluence.displacement * (1 - blendFactor) + 
+                                  mexicanWaveDisplacement * blendFactor * 0.8; // Further reduced intensity
       
       // Temperature-based length and glow
       const temperatureRatio = (currentWeather.temperatureHigh - 10) / 30; // Normalize 10-40°C to 0-1
