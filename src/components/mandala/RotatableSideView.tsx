@@ -101,7 +101,7 @@ export const RotatableSideView: React.FC<RotatableSideViewProps> = ({
           friends={mockFriends}
           centerX={centerX}
           centerY={centerY}
-          radius={layerRadius * 0.8}
+          radius={layerRadius * 0.8 * 0.875}
           theme={theme}
         />
       )

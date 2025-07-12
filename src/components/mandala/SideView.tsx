@@ -142,7 +142,7 @@ export const SideView: React.FC<SideViewProps> = ({
               friends={mockFriends}
               centerX={centerX}
               centerY={centerY}
-              radius={layerRadius * 0.8}
+              radius={layerRadius * 0.8 * 0.875}
               theme={theme}
             />
           </motion.div>

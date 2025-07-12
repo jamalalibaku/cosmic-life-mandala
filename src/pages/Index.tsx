@@ -621,7 +621,7 @@ const IndexContent = () => {
             friends={mockFriends}
             centerX={centerX}
             centerY={centerY}
-            radius={360}
+            radius={360 * 0.875}
             theme="cosmic"
             visible={showFriends}
           />
