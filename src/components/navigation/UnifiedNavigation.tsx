@@ -9,6 +9,7 @@ import { Calendar, Settings, MapPin, Clock } from 'lucide-react';
 import { TimeScale } from '@/components/fractal-time-zoom-manager';
 import { InsightIntelligenceTrigger } from '@/components/InsightIntelligenceTrigger';
 import { InsightTriggerButton } from '@/components/insights/InsightTriggerButton';
+import { RadialMenu } from './RadialMenu';
 
 export interface UnifiedNavigationProps {
   currentTimeScale: TimeScale;
@@ -117,10 +118,14 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
         </button>
       )}
 
-      {/* Insight Intelligence Trigger */}
-      <InsightIntelligenceTrigger
-        currentTimeSlices={currentTimeSlices}
-        recentInteractions={recentInteractions}
+      {/* Radial Menu System */}
+      <RadialMenu
+        onSettingsClick={onSettingsClick}
+        onTimeScale={() => console.log('Time scale triggered')}
+        onThemeChange={() => console.log('Theme change triggered')}
+        onZoomIn={() => console.log('Zoom in')}
+        onZoomOut={() => console.log('Zoom out')}
+        onLocationToggle={() => console.log('Location toggle')}
       />
       
       {/* Behavioral Correlation Engine */}
