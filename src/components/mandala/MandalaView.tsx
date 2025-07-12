@@ -19,6 +19,7 @@ import { usePerformanceOptimizer } from "@/hooks/usePerformanceOptimizer";
 import { CosmicFaderTrack } from "@/components/navigation/CosmicFaderTrack";
 import { RadioooLayerTabs } from "@/components/navigation/RadioooLayerTabs";
 import { AIInsightOrbiter } from "@/components/insights/AIInsightOrbiter";
+import { AtmosphericAuroraLayer, useAuroraEvents } from "@/components/layers/AtmosphericAuroraLayer";
 
 // Real date-based layer data generator
 const createDateBasedLayerData = (
@@ -164,6 +165,7 @@ const MandalaViewContent = () => {
   const { timeSlices, nowAngle } = useTimeAxis();
   const rotationAngle = getCurrentTimeAngle();
   const [showEnvironmental, setShowEnvironmental] = React.useState(true);
+  const { events, triggerInsightDiscovery, triggerMilestone, triggerCorrelation } = useAuroraEvents();
   
   // Performance optimization for smooth animations
   const { scheduleAnimation, createSmoothEasing, getPerformanceMetrics } = usePerformanceOptimizer({
@@ -252,6 +254,13 @@ const MandalaViewContent = () => {
               delay: 0.2
             }}
           >
+            {/* Atmospheric Aurora Layer - Sacred sky celebrations */}
+            <AtmosphericAuroraLayer 
+              center={{ x: 0, y: 0 }}
+              radius={300}
+              events={events}
+            />
+            
             {/* Environmental Layer (beneath other layers) */}
             <EnvironmentalLayer 
               radius={320}

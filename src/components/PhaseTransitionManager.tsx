@@ -3,19 +3,23 @@ import { PhaseTransitionRitual } from './PhaseTransitionRitual';
 import { updatePhaseHistory, PhaseTransition } from '@/utils/phase-history-manager';
 import { detectLifePhase } from '@/utils/life-phase-detection';
 import { useToast } from '@/hooks/use-toast';
+import { useAuroraEvents } from '@/components/layers/AtmosphericAuroraLayer';
 
 interface PhaseTransitionManagerProps {
   userProfile: any;
   recentInteractions: any[];
   children: React.ReactNode;
+  onAuroraEvent?: (events: any[]) => void;
 }
 
 export const PhaseTransitionManager: React.FC<PhaseTransitionManagerProps> = ({
   userProfile,
   recentInteractions,
-  children
+  children,
+  onAuroraEvent
 }) => {
   const { toast } = useToast();
+  const { triggerPhaseTransition } = useAuroraEvents();
   const [pendingTransition, setPendingTransition] = useState<PhaseTransition | null>(null);
   const [lastCheckedInteractionCount, setLastCheckedInteractionCount] = useState(0);
 
@@ -29,6 +33,9 @@ export const PhaseTransitionManager: React.FC<PhaseTransitionManagerProps> = ({
       );
 
       if (isNewPhase && transition) {
+        // Trigger aurora celebration first
+        triggerPhaseTransition();
+        
         // Small delay to let the UI settle before showing transition
         setTimeout(() => {
           setPendingTransition(transition);
