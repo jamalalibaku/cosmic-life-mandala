@@ -22,6 +22,8 @@ interface EmotionalState {
 }
 
 export const useEmotionalIntelligence = (recentMoodData: MoodData[] = []) => {
+  // Ensure recentMoodData is always an array
+  const safeMoodData = Array.isArray(recentMoodData) ? recentMoodData : [];
   const [emotionalState, setEmotionalState] = useState<EmotionalState>({
     currentMood: {
       emotion: 'calm',
@@ -38,10 +40,10 @@ export const useEmotionalIntelligence = (recentMoodData: MoodData[] = []) => {
 
   // Calculate emotional metrics
   const emotionalMetrics = useMemo(() => {
-    if (recentMoodData.length === 0) return emotionalState;
+    if (safeMoodData.length === 0) return emotionalState;
 
-    const current = recentMoodData[recentMoodData.length - 1] || emotionalState.currentMood;
-    const recent = recentMoodData.slice(-10); // Last 10 mood entries
+    const current = safeMoodData[safeMoodData.length - 1] || emotionalState.currentMood;
+    const recent = safeMoodData.slice(-10); // Last 10 mood entries
 
     // Calculate volatility (how much mood fluctuates)
     let volatility = 0;
@@ -80,7 +82,7 @@ export const useEmotionalIntelligence = (recentMoodData: MoodData[] = []) => {
       breathingIntensity,
       colorTemperature
     };
-  }, [recentMoodData]);
+  }, [safeMoodData]);
 
   useEffect(() => {
     setEmotionalState(emotionalMetrics);

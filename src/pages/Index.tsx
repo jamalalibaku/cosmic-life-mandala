@@ -114,7 +114,7 @@ const IndexContent = () => {
   
   // Enhanced awareness rhythm system with wallet integration
   const { rhythmState, emotionalState, triggerAwarenessEvent } = useEnhancedAwarenessRhythm(
-    userProfile.moodHistory || [],
+    [], // TODO: Add mood data source
     mockInteractions
   );
 
