@@ -159,12 +159,18 @@ export const EnhancedDataBlobRing: React.FC<EnhancedDataBlobRingProps> = ({
             <stop offset="100%" stopColor={colors.base} stopOpacity="0.3" />
           </radialGradient>
           
-          {/* Enhanced glow with better depth */}
-          <filter id={`${type}-glow`} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-            <feOffset in="coloredBlur" dx="0" dy="0" result="offsetBlur"/>
+          {/* Enhanced atmospheric glow with cosmic depth */}
+          <filter id={`${type}-glow`} x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="6" result="atmosphereGlow"/>
+            <feGaussianBlur stdDeviation="2" result="softGlow"/>
+            <feGaussianBlur stdDeviation="0.5" result="sharpCore"/>
+            <feColorMatrix values="1.4 0 0 0 0  0 1.4 0 0 0  0 0 1.7 0 0  0 0 0 1 0" result="enhanced"/>
+            <feOffset in="enhanced" dx="0" dy="0" result="offsetBlur"/>
             <feMerge>
+              <feMergeNode in="atmosphereGlow"/>
+              <feMergeNode in="softGlow"/>
               <feMergeNode in="offsetBlur"/>
+              <feMergeNode in="sharpCore"/>
               <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>

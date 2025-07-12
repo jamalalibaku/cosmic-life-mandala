@@ -187,11 +187,17 @@ export const KandinskyDataMarbles: React.FC<KandinskyDataMarblesProps> = ({
     <OrganicMotionDrift type="gentle-rotation" intensity={0.3} duration={90}>
       <g className={className}>
         <defs>
-          {/* Enhanced blur filters */}
-          <filter id="kandinsky-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          {/* Enhanced celestial glow filters */}
+          <filter id="kandinsky-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="4" result="atmosphereGlow"/>
+            <feGaussianBlur stdDeviation="1.5" result="softGlow"/>
+            <feGaussianBlur stdDeviation="0.3" result="sharpCore"/>
+            <feColorMatrix values="1.3 0 0 0 0  0 1.3 0 0 0  0 0 1.6 0 0  0 0 0 1 0" result="enhanced"/>
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="atmosphereGlow"/>
+              <feMergeNode in="softGlow"/>
+              <feMergeNode in="enhanced"/>
+              <feMergeNode in="sharpCore"/>
               <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>
@@ -204,23 +210,29 @@ export const KandinskyDataMarbles: React.FC<KandinskyDataMarblesProps> = ({
               <g>
                 {renderMarbleShape(marble, style)}
                 
-                {/* Enhanced glow effect with better blur */}
-                {marble.value > 0.7 && (
+                {/* Enhanced celestial aura with dynamic intensity */}
+                {marble.value > 0.5 && (
                   <motion.circle
                     cx={marble.x}
                     cy={marble.y}
-                    r={style.size * 1.2}
+                    r={style.size * (1.2 + marble.value * 0.4)}
                     fill="none"
                     stroke={style.color}
-                    strokeWidth={2}
-                    opacity={0.4}
+                    strokeWidth={2 + marble.value * 2}
+                    opacity={0.3 + marble.value * 0.3}
                     filter="url(#kandinsky-glow)"
+                    style={{
+                      filter: `drop-shadow(0 0 ${style.size * 1.5}px ${style.color}50) drop-shadow(0 0 ${style.size * 2.5}px ${style.color}20)`
+                    }}
                     initial={{ scale: 1 }}
-                    animate={{ scale: [1, 1.3, 1] }}
+                    animate={{ 
+                      scale: [1, 1.4 + marble.value * 0.3, 1],
+                      opacity: [0.3, 0.7 + marble.value * 0.2, 0.3]
+                    }}
                     transition={{
-                      duration: 3,
+                      duration: 3 + marble.value * 2,
                       repeat: Infinity,
-                      ease: "easeOut"
+                      ease: "easeInOut"
                     }}
                   />
                 )}
