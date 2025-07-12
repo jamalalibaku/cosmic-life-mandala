@@ -213,8 +213,8 @@ export const useUltimateAnimationFlow = () => {
     };
   }, [metrics.frameRate]);
 
-  // Emergency performance mode
-  const isEmergencyMode = metrics.frameRate < 35 || activeAnimations.size > MAX_CONCURRENT_ANIMATIONS;
+  // Emergency performance mode DISABLED - Show 100% result
+  const isEmergencyMode = false; // Always disabled for full visual experience
 
   return {
     registerAnimation,
