@@ -654,23 +654,21 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
             className="celestial-sky-ring"
           />
 
+          {/* Wind Whirl Field - Always visible for testing */}
+          <WindWhirlField
+            centerX={0}
+            centerY={0}
+            radius={120}
+          />
+          
           {/* Sky Connected Weather Ring with revolutionary time-based effects */}
           {layers.find(l => l.layerType === 'weather') && (
-            <>
-              <SkyConnectedWeatherRing
-                radius={layers.find(l => l.layerType === 'weather')?.radius || 150}
-                center={{ x: 0, y: 0 }}
-                weatherData={layers.find(l => l.layerType === 'weather')?.data || []}
-                className="weather-enhancement"
-              />
-              
-              {/* Wind Whirl Field - Fill between weather and inner layers */}
-              <WindWhirlField
-                centerX={0}
-                centerY={0}
-                radius={layers.find(l => l.layerType === 'weather')?.radius - 30 || 120}
-              />
-            </>
+            <SkyConnectedWeatherRing
+              radius={layers.find(l => l.layerType === 'weather')?.radius || 150}
+              center={{ x: 0, y: 0 }}
+              weatherData={layers.find(l => l.layerType === 'weather')?.data || []}
+              className="weather-enhancement"
+            />
           )}
 
           {/* North Pole Moon - relocated from center */}

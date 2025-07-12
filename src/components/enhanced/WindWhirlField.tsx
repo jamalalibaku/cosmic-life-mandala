@@ -47,6 +47,9 @@ export const WindWhirlField: React.FC<WindWhirlFieldProps> = ({
   radius,
   className = ""
 }) => {
+  // Debug logging
+  console.log('🌪️ WindWhirlField rendering:', { centerX, centerY, radius, className });
+  
   const windData = useMemo(() => generateMockWindData(), []);
   
   // Generate path for each wind line with wave patterns and gravity effects
@@ -93,32 +96,32 @@ export const WindWhirlField: React.FC<WindWhirlFieldProps> = ({
     <g className={className}>
       {/* Wind whirl lines */}
       {windData.map((windLine, index) => (
-        <motion.path
-          key={windLine.id}
-          d={generateWindPath(windLine, 0)}
-          fill="none"
-          stroke={`hsl(var(--primary) / ${0.3 + windLine.thickness * 0.1})`}
-          strokeWidth={windLine.thickness}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity={0.6 + windLine.thickness * 0.1}
-          animate={{
-            d: [
-              generateWindPath(windLine, 0),
-              generateWindPath(windLine, Math.PI),
-              generateWindPath(windLine, Math.PI * 2)
-            ]
-          }}
-          transition={{
-            duration: 3 + windLine.speed,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          style={{
-            filter: `blur(${windLine.thickness > 2 ? 0.5 : 0}px)`,
-            mixBlendMode: 'screen'
-          }}
-        />
+          <motion.path
+            key={windLine.id}
+            d={generateWindPath(windLine, 0)}
+            fill="none"
+            stroke={`hsl(var(--primary) / ${0.6 + windLine.thickness * 0.2})`}
+            strokeWidth={windLine.thickness * 1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity={0.8 + windLine.thickness * 0.1}
+            animate={{
+              d: [
+                generateWindPath(windLine, 0),
+                generateWindPath(windLine, Math.PI),
+                generateWindPath(windLine, Math.PI * 2)
+              ]
+            }}
+            transition={{
+              duration: 3 + windLine.speed,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+            style={{
+              filter: `drop-shadow(0 0 ${windLine.thickness}px hsl(var(--primary) / 0.5))`,
+              mixBlendMode: 'normal'
+            }}
+          />
       ))}
       
       {/* Gravity field visualization - thicker lines create visible distortion zones */}
