@@ -99,8 +99,8 @@ export const SkyBand: React.FC<SkyBandProps> = ({
   weatherData,
   currentTime = new Date()
 }) => {
-  const innerRadius = radius * 0.8;
-  const outerRadius = radius;
+  const innerRadius = radius * 0.68;
+  const outerRadius = radius * 0.85;
   
   // Create 1440 segments (one per minute)
   const segments = useMemo(() => {
