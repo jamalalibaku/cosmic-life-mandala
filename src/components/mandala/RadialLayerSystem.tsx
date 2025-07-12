@@ -33,6 +33,7 @@ import { CosmicRadialTicks } from "@/components/cosmic/CosmicRadialTicks";
 import { MysticalSoulCore } from "@/components/enhanced/MysticalSoulCore";
 import { NorthPoleMoon } from "@/components/enhanced/NorthPoleMoon";
 import { SkyRing } from "@/components/enhanced/SkyRing";
+import { SunburstGrooveField } from "@/components/enhanced/SunburstGrooveField";
 import { useZoomCompensation } from "@/hooks/useZoomCompensation";
 import { useInteractionTracking } from "@/hooks/useInteractionTracking";
 import { findRecurringSlices, getConstellationColors } from "@/utils/constellation-engine";
@@ -637,6 +638,14 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           transition={{ duration: 1 }}
           style={{ transformOrigin: "center" }}
         >
+          {/* Sunburst Groove Field - Living plasma corona */}
+          <SunburstGrooveField
+            radius={Math.max(...layers.map(l => l.radius)) + 80}
+            center={{ x: 0, y: 0 }}
+            dataLayers={layers}
+            className="sunburst-groove-field"
+          />
+
           {/* Sky Ring - Celestial canvas surrounding everything */}
           <SkyRing
             radius={Math.max(...layers.map(l => l.radius)) + 60}
