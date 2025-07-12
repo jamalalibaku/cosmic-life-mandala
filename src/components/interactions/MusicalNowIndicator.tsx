@@ -70,11 +70,11 @@ export const MusicalNowIndicator: React.FC<MusicalNowIndicatorProps> = ({
   const [activeRipples, setActiveRipples] = useState<RippleEvent[]>([]);
   const [lastPlayedMood, setLastPlayedMood] = useState<string>('');
 
-  // Update time every second
+  // Update time every second - throttled for performance
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 5000); // Reduced to 5 seconds for performance
 
     return () => clearInterval(timer);
   }, []);

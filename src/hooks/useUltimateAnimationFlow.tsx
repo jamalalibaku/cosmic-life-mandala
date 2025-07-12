@@ -17,6 +17,7 @@ interface AnimationState {
 
 interface PerformanceMetrics {
   frameRate: number;
+  currentFPS: number;
   activeAnimations: number;
   droppedFrames: number;
   memoryUsage: number;
@@ -26,6 +27,7 @@ export const useUltimateAnimationFlow = () => {
   const [activeAnimations, setActiveAnimations] = useState<Map<string, AnimationState>>(new Map());
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     frameRate: 60,
+    currentFPS: 60,
     activeAnimations: 0,
     droppedFrames: 0,
     memoryUsage: 0
@@ -74,6 +76,7 @@ export const useUltimateAnimationFlow = () => {
     
     setMetrics(prev => ({
       frameRate: Math.round(currentFPS),
+      currentFPS: Math.round(currentFPS),
       activeAnimations: activeAnimations.size,
       droppedFrames,
       memoryUsage: (performance as any).memory?.usedJSHeapSize || 0

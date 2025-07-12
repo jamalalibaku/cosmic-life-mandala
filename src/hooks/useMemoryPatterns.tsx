@@ -70,8 +70,10 @@ export const useMemoryPatterns = (historicalData: DateBasedData[]) => {
   }, []);
 
   useEffect(() => {
-    setDetectedPatterns(patterns);
-    setCorrelations(findCorrelations(patterns));
+    if (patterns.length > 0) {
+      setDetectedPatterns(patterns);
+      setCorrelations(findCorrelations(patterns));
+    }
   }, [patterns, findCorrelations]);
 
   // Get memory echoes for current context

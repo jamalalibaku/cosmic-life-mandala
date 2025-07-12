@@ -46,32 +46,45 @@ export const SmoothFlowProvider: React.FC<SmoothFlowProviderProps> = ({
     ambientMotion: true
   });
 
-  // ALL FEATURES ENABLED FOR 100% VISUAL RESULT - Performance checks disabled
+  // EMERGENCY PERFORMANCE MODE - Adaptive features based on performance
   useEffect(() => {
     setEnabledFeatures({
-      particleAnimations: true,
-      backgroundEffects: true,
-      transitionAnimations: true,
-      ambientMotion: true
+      particleAnimations: performanceLevel !== 'poor',
+      backgroundEffects: performanceLevel === 'excellent',
+      transitionAnimations: performanceLevel !== 'poor',
+      ambientMotion: performanceLevel === 'excellent'
     });
-  }, []); // No dependency on performance level
+  }, [performanceLevel]);
 
-  // Apply global CSS variables for 100% visual result - all optimized for performance disabled
+  // Apply performance-based CSS variables
   useEffect(() => {
     const root = document.documentElement;
     
-    // Set CSS custom properties for maximum visual quality
-    root.style.setProperty('--smooth-transition-duration', '0.6s'); // Longer for better visuals
-    root.style.setProperty('--smooth-animation-duration', '1.5s'); // Longer for better visuals
-    root.style.setProperty('--smooth-particle-density', '1.2'); // Higher density for full effect
-    root.style.setProperty('--smooth-blur-intensity', '6px'); // Higher blur for better effects
-    root.style.setProperty('--smooth-reduce-motion', 'no-preference'); // Always enable motion
-  }, []); // No dependency on performance level
+    if (performanceLevel === 'poor') {
+      root.style.setProperty('--smooth-transition-duration', '0.1s');
+      root.style.setProperty('--smooth-animation-duration', '0.2s');
+      root.style.setProperty('--smooth-particle-density', '0.2');
+      root.style.setProperty('--smooth-blur-intensity', '1px');
+      root.style.setProperty('--smooth-reduce-motion', 'reduce');
+    } else if (performanceLevel === 'fair') {
+      root.style.setProperty('--smooth-transition-duration', '0.2s');
+      root.style.setProperty('--smooth-animation-duration', '0.4s');
+      root.style.setProperty('--smooth-particle-density', '0.5');
+      root.style.setProperty('--smooth-blur-intensity', '2px');
+      root.style.setProperty('--smooth-reduce-motion', 'no-preference');
+    } else {
+      root.style.setProperty('--smooth-transition-duration', '0.3s');
+      root.style.setProperty('--smooth-animation-duration', '0.6s');
+      root.style.setProperty('--smooth-particle-density', '0.8');
+      root.style.setProperty('--smooth-blur-intensity', '3px');
+      root.style.setProperty('--smooth-reduce-motion', 'no-preference');
+    }
+  }, [performanceLevel]);
 
   const contextValue: SmoothFlowContextType = {
-    performanceLevel: 'excellent', // Always excellent for 100% result
-    currentFPS: 60, // Always report 60 FPS for full experience
-    isOptimizing: false, // Never optimizing - show full result
+    performanceLevel: performanceLevel as 'excellent' | 'fair' | 'poor',
+    currentFPS,
+    isOptimizing,
     enabledFeatures
   };
 

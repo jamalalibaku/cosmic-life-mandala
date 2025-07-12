@@ -147,10 +147,10 @@ export const useSmoothFlow = () => {
     // Configuration
     config: SMOOTH_FLOW_CONFIG,
     
-    // Performance metrics - FORCED TO OPTIMAL FOR 100% RESULT
-    currentFPS: 60, // Report optimal FPS for full experience
-    isOptimizing: false, // Never optimizing - show full result
-    frameDrops: 0, // No frame drops reported
+    // Performance metrics - EMERGENCY MODE
+    currentFPS: Math.max(10, metrics?.currentFPS || 10),
+    isOptimizing: true,
+    frameDrops: performanceRef.current.frameDrops,
     
     // Timing utilities
     getTransitionDuration,
@@ -164,7 +164,7 @@ export const useSmoothFlow = () => {
     getSmoothTransition,
     getSmoothMotionProps,
     
-    // Performance state - FORCED TO EXCELLENT
-    performanceLevel: 'excellent' as const // Always excellent for 100% result
+    // Performance state
+    performanceLevel: performanceRef.current.frameDrops > 5 ? 'poor' : 'fair'
   };
 };
