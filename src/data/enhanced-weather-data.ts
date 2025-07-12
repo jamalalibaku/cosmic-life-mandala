@@ -16,130 +16,6 @@ export interface EnhancedWeatherData {
   weatherCondition: 'sunny' | 'cloudy' | 'rainy' | 'windy';
 }
 
-// CSV data processed for visualization
-export const enhancedWeatherData: EnhancedWeatherData[] = [
-  {
-    date: '2025-06-01',
-    temperatureHigh: 23.0,
-    temperatureLow: 13.5,
-    precipitationPercent: 20,
-    windSpeedKmh: 18.0,
-    cloudinessPercent: 43,
-    temperatureGradient: 'linear-gradient(135deg, hsl(210 60% 65%) 0%, hsl(30 70% 70%) 100%)',
-    precipitationOpacity: 0.2,
-    windIntensity: 0.6,
-    weatherCondition: 'cloudy'
-  },
-  {
-    date: '2025-06-02',
-    temperatureHigh: 20.3,
-    temperatureLow: 11.8,
-    precipitationPercent: 0,
-    windSpeedKmh: 19.7,
-    cloudinessPercent: 53,
-    temperatureGradient: 'linear-gradient(135deg, hsl(220 65% 60%) 0%, hsl(35 65% 65%) 100%)',
-    precipitationOpacity: 0.0,
-    windIntensity: 0.65,
-    weatherCondition: 'cloudy'
-  },
-  {
-    date: '2025-06-03',
-    temperatureHigh: 21.8,
-    temperatureLow: 13.1,
-    precipitationPercent: 0,
-    windSpeedKmh: 9.3,
-    cloudinessPercent: 88,
-    temperatureGradient: 'linear-gradient(135deg, hsl(215 60% 62%) 0%, hsl(32 68% 68%) 100%)',
-    precipitationOpacity: 0.0,
-    windIntensity: 0.3,
-    weatherCondition: 'cloudy'
-  },
-  {
-    date: '2025-06-04',
-    temperatureHigh: 22.2,
-    temperatureLow: 15.1,
-    precipitationPercent: 0,
-    windSpeedKmh: 7.2,
-    cloudinessPercent: 22,
-    temperatureGradient: 'linear-gradient(135deg, hsl(210 55% 65%) 0%, hsl(28 75% 72%) 100%)',
-    precipitationOpacity: 0.0,
-    windIntensity: 0.25,
-    weatherCondition: 'sunny'
-  },
-  {
-    date: '2025-06-05',
-    temperatureHigh: 23.5,
-    temperatureLow: 16.7,
-    precipitationPercent: 30,
-    windSpeedKmh: 19.6,
-    cloudinessPercent: 85,
-    temperatureGradient: 'linear-gradient(135deg, hsl(205 60% 67%) 0%, hsl(25 72% 75%) 100%)',
-    precipitationOpacity: 0.3,
-    windIntensity: 0.65,
-    weatherCondition: 'rainy'
-  },
-  {
-    date: '2025-06-06',
-    temperatureHigh: 25.8,
-    temperatureLow: 16.8,
-    precipitationPercent: 100,
-    windSpeedKmh: 8.8,
-    cloudinessPercent: 77,
-    temperatureGradient: 'linear-gradient(135deg, hsl(200 65% 70%) 0%, hsl(20 78% 78%) 100%)',
-    precipitationOpacity: 1.0,
-    windIntensity: 0.3,
-    weatherCondition: 'rainy'
-  },
-  {
-    date: '2025-06-07',
-    temperatureHigh: 26.6,
-    temperatureLow: 18.9,
-    precipitationPercent: 100,
-    windSpeedKmh: 17.3,
-    cloudinessPercent: 56,
-    temperatureGradient: 'linear-gradient(135deg, hsl(195 60% 72%) 0%, hsl(15 80% 80%) 100%)',
-    precipitationOpacity: 1.0,
-    windIntensity: 0.55,
-    weatherCondition: 'rainy'
-  },
-  {
-    date: '2025-06-08',
-    temperatureHigh: 25.3,
-    temperatureLow: 18.1,
-    precipitationPercent: 0,
-    windSpeedKmh: 16.7,
-    cloudinessPercent: 73,
-    temperatureGradient: 'linear-gradient(135deg, hsl(200 65% 70%) 0%, hsl(22 75% 77%) 100%)',
-    precipitationOpacity: 0.0,
-    windIntensity: 0.55,
-    weatherCondition: 'cloudy'
-  },
-  {
-    date: '2025-06-09',
-    temperatureHigh: 21.8,
-    temperatureLow: 14.6,
-    precipitationPercent: 20,
-    windSpeedKmh: 15.2,
-    cloudinessPercent: 66,
-    temperatureGradient: 'linear-gradient(135deg, hsl(215 60% 62%) 0%, hsl(32 68% 68%) 100%)',
-    precipitationOpacity: 0.2,
-    windIntensity: 0.5,
-    weatherCondition: 'cloudy'
-  },
-  {
-    date: '2025-06-10',
-    temperatureHigh: 23.8,
-    temperatureLow: 15.6,
-    precipitationPercent: 80,
-    windSpeedKmh: 14.7,
-    cloudinessPercent: 29,
-    temperatureGradient: 'linear-gradient(135deg, hsl(208 58% 66%) 0%, hsl(26 73% 73%) 100%)',
-    precipitationOpacity: 0.8,
-    windIntensity: 0.48,
-    weatherCondition: 'rainy'
-  }
-];
-
 // Helper functions for visualization
 export const getTemperatureGradient = (tempHigh: number, tempLow: number): string => {
   // Cool blue to warm orange based on temperature range
@@ -148,6 +24,96 @@ export const getTemperatureGradient = (tempHigh: number, tempLow: number): strin
   
   return `linear-gradient(135deg, hsl(${coolHue} 60% ${60 + tempLow}%) 0%, hsl(${warmHue} 70% ${65 + tempHigh}%) 100%)`;
 };
+
+// Real weather data from J
+export const enhancedWeatherData: EnhancedWeatherData[] = [
+  {
+    date: '2025-07-12',
+    temperatureHigh: 18,
+    temperatureLow: 15,
+    precipitationPercent: 94,
+    windSpeedKmh: 30,
+    cloudinessPercent: 90,
+    temperatureGradient: getTemperatureGradient(18, 15),
+    precipitationOpacity: 0.94,
+    windIntensity: 1.0,
+    weatherCondition: 'rainy'
+  },
+  {
+    date: '2025-07-13',
+    temperatureHigh: 22,
+    temperatureLow: 14,
+    precipitationPercent: 30,
+    windSpeedKmh: 16,
+    cloudinessPercent: 60,
+    temperatureGradient: getTemperatureGradient(22, 14),
+    precipitationOpacity: 0.3,
+    windIntensity: 0.53,
+    weatherCondition: 'cloudy'
+  },
+  {
+    date: '2025-07-14',
+    temperatureHigh: 26,
+    temperatureLow: 16,
+    precipitationPercent: 20,
+    windSpeedKmh: 15,
+    cloudinessPercent: 70,
+    temperatureGradient: getTemperatureGradient(26, 16),
+    precipitationOpacity: 0.2,
+    windIntensity: 0.5,
+    weatherCondition: 'cloudy'
+  },
+  {
+    date: '2025-07-15',
+    temperatureHigh: 24,
+    temperatureLow: 14,
+    precipitationPercent: 79,
+    windSpeedKmh: 17,
+    cloudinessPercent: 85,
+    temperatureGradient: getTemperatureGradient(24, 14),
+    precipitationOpacity: 0.79,
+    windIntensity: 0.57,
+    weatherCondition: 'rainy'
+  },
+  {
+    date: '2025-07-16',
+    temperatureHigh: 23,
+    temperatureLow: 15,
+    precipitationPercent: 75,
+    windSpeedKmh: 17,
+    cloudinessPercent: 90,
+    temperatureGradient: getTemperatureGradient(23, 15),
+    precipitationOpacity: 0.75,
+    windIntensity: 0.57,
+    weatherCondition: 'rainy'
+  },
+  {
+    date: '2025-07-17',
+    temperatureHigh: 23,
+    temperatureLow: 14,
+    precipitationPercent: 73,
+    windSpeedKmh: 20,
+    cloudinessPercent: 85,
+    temperatureGradient: getTemperatureGradient(23, 14),
+    precipitationOpacity: 0.73,
+    windIntensity: 0.67,
+    weatherCondition: 'rainy'
+  },
+  {
+    date: '2025-07-18',
+    temperatureHigh: 25,
+    temperatureLow: 16,
+    precipitationPercent: 40,
+    windSpeedKmh: 19,
+    cloudinessPercent: 80,
+    temperatureGradient: getTemperatureGradient(25, 16),
+    precipitationOpacity: 0.4,
+    windIntensity: 0.63,
+    weatherCondition: 'cloudy'
+  }
+];
+
+// Additional helper functions
 
 export const getWindMotionPattern = (windSpeed: number): {
   blur: number;
