@@ -453,7 +453,7 @@ const IndexContent = () => {
 
             {/* Sky Ring - White sunburst rays around groove */}
             <SkyRing
-              radius={350}
+              radius={280}
               center={{ x: centerX, y: centerY }}
               className="sky-gradient-layer cosmic-rays"
             />
