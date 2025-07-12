@@ -17,7 +17,7 @@ import { useUnifiedMotion } from "@/hooks/useUnifiedMotion";
 import { HoverInsightShield } from "@/components/interactions/HoverInsightShield";
 import { useTimeAxis } from "@/contexts/TimeAxisContext";
 import { ThemeOverlayManager } from "@/components/themes/ThemeOverlaySystem";
-import { NowIndicator } from "@/components/time/NowIndicator";
+import { WindWhirlField } from "@/components/enhanced/WindWhirlField";
 import { ThemeHaikuDisplay } from "@/components/themes/ThemeHaikuDisplay";
 import { LayerDataAnimator } from "@/components/layers/LayerDataAnimator";
 import { ThemeSunburst } from "@/components/themes/ThemeSunburst";
@@ -750,12 +750,11 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
             sleepData={layers.find(l => l.name.toLowerCase().includes('sleep'))?.data?.[0]}
           />
           
-          {/* NOW Indicator - Minimal time marker */}
-          <NowIndicator
+          {/* Wind Whirl Field - Dynamic flowing patterns around the main circle */}
+          <WindWhirlField
             centerX={0}
             centerY={0}
             radius={layers[0]?.radius || 200}
-            theme="mandalaExpressive"
           />
           
           {/* Layer Data Animator - Only data-driven visuals */}

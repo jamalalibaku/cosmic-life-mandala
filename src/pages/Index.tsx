@@ -866,8 +866,7 @@ const IndexContent = () => {
       
       {/* Main content */}
       <div className="relative z-10 text-center w-full">
-        {/* Minimalist Time Symbol replacing large title */}
-        <MinimalistTimeSymbol poetryMode={poetryMode} />
+        {/* MinimalistTimeSymbol removed - replaced by dynamic WindWhirlField around mandala */}
 
         {/* Time Scale Column on the left */}
         <TimeScaleColumn
