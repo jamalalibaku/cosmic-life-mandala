@@ -44,6 +44,8 @@ import { LayerPopOutPanel } from '@/components/LayerPopOutPanel';
 import { DataLayerLabels } from '@/components/data-layer-labels';
 import { ReactiveDataBlobRing } from '@/components/enhanced/ReactiveDataBlobRing';
 import { SunCoreMesh } from '@/components/enhanced/SunCoreMesh';
+import { CelestialGlyph } from '@/components/enhanced/CelestialGlyph';
+import { InvisibleDiscoBall } from '@/components/enhanced/InvisibleDiscoBall';
 import { ZoomMenuButton } from '@/components/navigation/ZoomMenuButton';
 import { ToolsMenuButton } from '@/components/navigation/ToolsMenuButton';
 import { SkinsMenuButton } from '@/components/navigation/SkinsMenuButton';
@@ -569,12 +571,43 @@ const IndexContent = () => {
             }}
           />
         )}
+         
+        {/* Invisible Disco Ball - subtle sparkle field */}
+        <InvisibleDiscoBall
+          centerX={centerX}
+          centerY={centerY}
+          radius={250}
+          intensity={0.6 + (currentMood?.intensity || 0) * 0.4}
+          sparkleCount={20}
+          isActive={!reflectiveMode}
+        />
 
         {/* Ripple Consciousness Visualization */}
         <RippleVisualization
           centerX={centerX}
           centerY={centerY}
         />
+
+        {/* Celestial Glyphs for high-intensity data points */}
+        {mockMoodData.slice(0, 6).map((moodPoint, i) => {
+          const angle = (i / 6) * Math.PI * 2;
+          const glyphRadius = 250 * 0.7;
+          const glyphX = centerX + Math.cos(angle) * glyphRadius;
+          const glyphY = centerY + Math.sin(angle) * glyphRadius;
+          
+          return (
+            <CelestialGlyph
+              key={`mood-glyph-${i}`}
+              x={glyphX}
+              y={glyphY}
+              size={4 + moodPoint.intensity * 6}
+              intensity={moodPoint.intensity}
+              type="data"
+              isActive={!reflectiveMode}
+              data={moodPoint}
+            />
+          );
+        })}
 
         {/* Friend Orbit Ring - Social connections */}
         {scale === 'day' && (

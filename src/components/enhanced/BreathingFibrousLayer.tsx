@@ -178,7 +178,7 @@ export const BreathingFibrousLayer: React.FC<BreathingFibrousLayerProps> = ({
         />
       </defs>
 
-      {/* Render breathing fibers */}
+      {/* Render breathing fibers with invisible disco ball shimmer */}
       {fibers.map((fiber) => (
         <motion.path
           key={fiber.id}
@@ -216,9 +216,48 @@ export const BreathingFibrousLayer: React.FC<BreathingFibrousLayerProps> = ({
         />
       ))}
       
-      {/* Celestial breath markers for high-intensity zones */}
+      {/* Invisible disco ball sparkles - subtle flicker throughout the layer */}
+      {Array.from({length: 15}).map((_, i) => {
+        const sparkleAngle = (i / 15) * Math.PI * 2;
+        const sparkleRadius = radius * (0.7 + Math.random() * 0.4);
+        const sparkleX = center.x + Math.cos(sparkleAngle) * sparkleRadius;
+        const sparkleY = center.y + Math.sin(sparkleAngle) * sparkleRadius;
+        
+        return (
+          <motion.circle
+            key={`disco-sparkle-${layerType}-${i}`}
+            cx={sparkleX}
+            cy={sparkleY}
+            r={0.5 + Math.random() * 1}
+            fill="white"
+            opacity={0.1}
+            animate={{
+              opacity: [0.1, 0.4, 0.1],
+              scale: [0.5, 1.5, 0.5],
+              cx: [
+                sparkleX,
+                sparkleX + Math.sin(time.current * 0.5 + i) * 3,
+                sparkleX
+              ],
+              cy: [
+                sparkleY,
+                sparkleY + Math.cos(time.current * 0.3 + i) * 3,
+                sparkleY
+              ]
+            }}
+            transition={{
+              duration: 2 + i * 0.2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.4
+            }}
+          />
+        );
+      })}
+      
+      {/* Hair groove rhythm markers - enhanced breathing points */}
       {fibers
-        .filter(fiber => fiber.densityZone === 'dense' && Math.random() < 0.1)
+        .filter(fiber => fiber.densityZone === 'dense' && Math.random() < 0.15)
         .map((fiber) => {
           const markerRadius = (fiber.startRadius + fiber.endRadius) / 2;
           const markerX = center.x + Math.cos(fiber.angle) * markerRadius;
@@ -226,19 +265,19 @@ export const BreathingFibrousLayer: React.FC<BreathingFibrousLayerProps> = ({
           
           return (
             <motion.circle
-              key={`breath-marker-${fiber.id}`}
+              key={`groove-marker-${fiber.id}`}
               cx={markerX}
               cy={markerY}
               r={2}
               fill={fiber.color}
               opacity={0}
               animate={{
-                opacity: [0, 0.7, 0],
-                scale: [0.3, 1.2, 0.3],
-                r: [1, 3, 1]
+                opacity: [0, 0.8, 0],
+                scale: [0.3, 1.4, 0.3],
+                r: [1, 4, 1]
               }}
               transition={{
-                duration: 3,
+                duration: 3.5,
                 repeat: Infinity,
                 ease: "easeInOut",
                 delay: Math.random() * 6
