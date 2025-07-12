@@ -763,9 +763,9 @@ const IndexContent = () => {
         <NowRecorder
           centerX={centerX}
           centerY={centerY}
-          radius={scale === 'day' ? 350 : 
-                  scale === 'week' ? 300 : 
-                  scale === 'month' ? 320 : 340}
+          radius={scale === 'day' ? 430 : 
+                  scale === 'week' ? 380 : 
+                  scale === 'month' ? 400 : 420}
           timeScale={scale}
           theme={currentTheme}
           dataLayers={[
