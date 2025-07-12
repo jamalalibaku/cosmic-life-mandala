@@ -80,6 +80,7 @@ import { useReactiveTilt } from '@/hooks/use-reactive-tilt';
 import { WalletDisplay } from '@/components/WalletDisplay';
 import { SkyRing } from '@/components/enhanced/SkyRing';
 import { SunburstGrooveField } from '@/components/enhanced/SunburstGrooveField';
+import { LayerButtonMenu } from '@/components/LayerButtonMenu';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -396,14 +397,12 @@ const IndexContent = () => {
             {/* 3. Mobility - Movement and activity layer (230-260px) */}
             <g transform={mobilityTilt.getSVGTiltTransform(centerX, centerY)}>
         <ReactiveDataBlobRing
-                data={mockMobilityData}
+                data={mockMobilityData as any}
                 centerX={centerX}
                 centerY={centerY}
                 innerRadius={230}
                 outerRadius={260}
                 type="mobility"
-                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOBILITY DATA" : undefined}
-                {...currentMetrics}
               />
             </g>
 

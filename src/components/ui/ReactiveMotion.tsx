@@ -26,7 +26,7 @@ export const ReactiveElement = forwardRef<HTMLDivElement, ReactiveElementProps>(
   type = 'glyph'
 }, ref) => {
   const { enabledFeatures, performanceLevel } = useSmoothFlowContext();
-  const motion = useReactiveMotion(center, intensity, maxDistance);
+  const reactiveMotion = useReactiveMotion(center, intensity, maxDistance);
 
   // Skip reactive motion in poor performance mode
   if (performanceLevel === 'poor' || !enabledFeatures.ambientMotion) {
@@ -38,37 +38,37 @@ export const ReactiveElement = forwardRef<HTMLDivElement, ReactiveElementProps>(
     switch (type) {
       case 'glyph':
         return {
-          x: motion.x,
-          y: motion.y,
-          scale: motion.scale,
-          rotate: motion.rotate
+          x: reactiveMotion.x,
+          y: reactiveMotion.y,
+          scale: reactiveMotion.scale,
+          rotate: reactiveMotion.rotate
         };
       case 'arc':
         return {
-          x: motion.x * 0.5,
-          y: motion.y * 0.5,
-          scale: motion.scale,
-          rotateZ: motion.rotate * 0.3
+          x: reactiveMotion.x * 0.5,
+          y: reactiveMotion.y * 0.5,
+          scale: reactiveMotion.scale,
+          rotateZ: reactiveMotion.rotate * 0.3
         };
       case 'bar':
         return {
-          x: motion.x * 0.7,
-          y: motion.y * 0.7,
-          scaleY: motion.scale,
-          skewX: motion.rotate * 0.5
+          x: reactiveMotion.x * 0.7,
+          y: reactiveMotion.y * 0.7,
+          scaleY: reactiveMotion.scale,
+          skewX: reactiveMotion.rotate * 0.5
         };
       case 'blob':
         return {
-          x: motion.x * 0.3,
-          y: motion.y * 0.3,
-          scale: motion.scale,
-          borderRadius: `${50 + motion.intensity * 20}%`
+          x: reactiveMotion.x * 0.3,
+          y: reactiveMotion.y * 0.3,
+          scale: reactiveMotion.scale,
+          borderRadius: `${50 + reactiveMotion.intensity * 20}%`
         };
       default:
         return {
-          x: motion.x,
-          y: motion.y,
-          scale: motion.scale
+          x: reactiveMotion.x,
+          y: reactiveMotion.y,
+          scale: reactiveMotion.scale
         };
     }
   };
@@ -85,7 +85,7 @@ export const ReactiveElement = forwardRef<HTMLDivElement, ReactiveElementProps>(
         mass: 0.5
       }}
       style={{
-        filter: motion.isActive ? `drop-shadow(0 0 ${motion.glow * 10}px hsl(var(--primary) / 0.5))` : 'none',
+        filter: reactiveMotion.isActive ? `drop-shadow(0 0 ${reactiveMotion.glow * 10}px hsl(var(--primary) / 0.5))` : 'none',
         willChange: 'transform'
       }}
     >
@@ -113,7 +113,7 @@ export const ReactiveSVGElement = forwardRef<SVGGElement, ReactiveSVGElementProp
   type = 'path'
 }, ref) => {
   const { enabledFeatures, performanceLevel } = useSmoothFlowContext();
-  const motion = useReactiveMotion(center, intensity, maxDistance);
+  const reactiveMotion = useReactiveMotion(center, intensity, maxDistance);
 
   if (performanceLevel === 'poor' || !enabledFeatures.ambientMotion) {
     return <g ref={ref}>{children}</g>;
@@ -123,10 +123,10 @@ export const ReactiveSVGElement = forwardRef<SVGGElement, ReactiveSVGElementProp
     <motion.g
       ref={ref}
       animate={{
-        x: motion.x,
-        y: motion.y,
-        scale: motion.scale,
-        rotate: motion.rotate
+        x: reactiveMotion.x,
+        y: reactiveMotion.y,
+        scale: reactiveMotion.scale,
+        rotate: reactiveMotion.rotate
       }}
       transition={{
         type: 'spring',
@@ -134,7 +134,7 @@ export const ReactiveSVGElement = forwardRef<SVGGElement, ReactiveSVGElementProp
         damping: 10
       }}
       style={{
-        filter: motion.isActive ? `drop-shadow(0 0 ${motion.glow * 8}px hsl(var(--primary) / 0.3))` : 'none',
+        filter: reactiveMotion.isActive ? `drop-shadow(0 0 ${reactiveMotion.glow * 8}px hsl(var(--primary) / 0.3))` : 'none',
         transformOrigin: 'center'
       }}
     >
@@ -157,7 +157,7 @@ export const ReactiveRipple: React.FC<ReactiveRippleProps> = ({
   radius,
   isVisible
 }) => {
-  const motion = useReactiveMotion(center, 1, radius);
+  const reactiveMotion = useReactiveMotion(center, 1, radius);
 
   if (!isVisible) return null;
 
@@ -170,13 +170,13 @@ export const ReactiveRipple: React.FC<ReactiveRippleProps> = ({
         width: radius * 2,
         height: radius * 2,
         background: `radial-gradient(circle, 
-          hsl(var(--primary) / ${motion.intensity * 0.1}) 0%, 
-          hsl(var(--primary) / ${motion.intensity * 0.05}) 50%, 
+          hsl(var(--primary) / ${reactiveMotion.intensity * 0.1}) 0%, 
+          hsl(var(--primary) / ${reactiveMotion.intensity * 0.05}) 50%, 
           transparent 70%)`
       }}
       animate={{
-        scale: 1 + motion.intensity * 0.1,
-        opacity: motion.isActive ? 0.8 : 0.3
+        scale: 1 + reactiveMotion.intensity * 0.1,
+        opacity: reactiveMotion.isActive ? 0.8 : 0.3
       }}
       transition={{
         type: 'spring',
