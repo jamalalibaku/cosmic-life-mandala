@@ -48,16 +48,16 @@ export const VinylGrooveFilter: React.FC<VinylGrooveFilterProps> = ({
       {/* Primary groove turbulence - creates the "vinyl texture" */}
       <feTurbulence 
         type="fractalNoise" 
-        baseFrequency={`${turbulenceFreq} ${turbulenceFreq * 2}`}
-        numOctaves="3" 
+        baseFrequency={`${turbulenceFreq} ${turbulenceFreq * 2.5}`}
+        numOctaves="4" 
         result="groove-turbulence"
         seed="2"
       >
         {/* Animated groove breathing */}
         <animate
           attributeName="baseFrequency"
-          values={`${turbulenceFreq * 0.8} ${turbulenceFreq * 1.6};${turbulenceFreq * 1.2} ${turbulenceFreq * 2.4};${turbulenceFreq * 0.8} ${turbulenceFreq * 1.6}`}
-          dur={`${8 / (speed + 0.1)}s`}
+          values={`${turbulenceFreq * 0.7} ${turbulenceFreq * 1.8};${turbulenceFreq * 1.4} ${turbulenceFreq * 2.7};${turbulenceFreq * 0.7} ${turbulenceFreq * 1.8}`}
+          dur={`${7 / (speed + 0.1)}s`}
           repeatCount="indefinite"
         />
       </feTurbulence>
@@ -65,49 +65,76 @@ export const VinylGrooveFilter: React.FC<VinylGrooveFilterProps> = ({
       {/* Secondary fine texture - adds micro-variations */}
       <feTurbulence 
         type="turbulence" 
-        baseFrequency={`${turbulenceFreq * 4} ${turbulenceFreq * 6}`}
-        numOctaves="2" 
+        baseFrequency={`${turbulenceFreq * 5} ${turbulenceFreq * 7.5}`}
+        numOctaves="3" 
         result="fine-texture"
         seed="5"
       >
         <animate
           attributeName="baseFrequency"
-          values={`${turbulenceFreq * 3} ${turbulenceFreq * 5};${turbulenceFreq * 5} ${turbulenceFreq * 7};${turbulenceFreq * 3} ${turbulenceFreq * 5}`}
-          dur={`${12 / (speed + 0.1)}s`}
+          values={`${turbulenceFreq * 3.5} ${turbulenceFreq * 6};${turbulenceFreq * 6.5} ${turbulenceFreq * 8.5};${turbulenceFreq * 3.5} ${turbulenceFreq * 6}`}
+          dur={`${10 / (speed + 0.1)}s`}
           repeatCount="indefinite"
         />
       </feTurbulence>
 
-      {/* Combine turbulences for complex texture */}
+      {/* Tertiary ultra-fine details */}
+      <feTurbulence 
+        type="fractalNoise" 
+        baseFrequency={`${turbulenceFreq * 8} ${turbulenceFreq * 12}`}
+        numOctaves="2" 
+        result="ultra-fine"
+        seed="8"
+      />
+
+      {/* Combine all three turbulences for ultra-complex texture */}
       <feComposite
         in="groove-turbulence"
         in2="fine-texture"
         operator="multiply"
+        result="combined-base"
+      />
+      <feComposite
+        in="combined-base"
+        in2="ultra-fine"
+        operator="screen"
         result="combined-texture"
       />
 
-      {/* Create displacement map */}
+      {/* Enhanced displacement with dual layers */}
       <feComponentTransfer in="combined-texture" result="displacement-map">
-        <feFuncA type="discrete" tableValues="0.5 0.6 0.4 0.7 0.3 0.8 0.2 0.9"/>
+        <feFuncA type="discrete" tableValues="0.4 0.7 0.3 0.8 0.2 0.9 0.1 0.95"/>
       </feComponentTransfer>
 
-      {/* Apply displacement to create the groove effect */}
+      {/* Primary displacement */}
       <feDisplacementMap 
         in="SourceGraphic" 
         in2="displacement-map" 
-        scale={displacementScale}
+        scale={displacementScale * 1.25}
         xChannelSelector="R"
         yChannelSelector="G"
         result="grooved-shape"
       />
 
-      {/* Add subtle glow to enhance the organic feel */}
-      <feGaussianBlur in="grooved-shape" stdDeviation="0.5" result="subtle-glow"/>
+      {/* Secondary micro-displacement for detail */}
+      <feDisplacementMap 
+        in="grooved-shape" 
+        in2="ultra-fine" 
+        scale={displacementScale * 0.4}
+        result="ultra-grooved"
+      />
+
+      {/* Enhanced multi-layer glow system */}
+      <feGaussianBlur in="ultra-grooved" stdDeviation="0.8" result="subtle-glow"/>
+      <feGaussianBlur in="ultra-grooved" stdDeviation="0.3" result="sharp-detail"/>
+      <feGaussianBlur in="ultra-grooved" stdDeviation="1.5" result="atmosphere"/>
       
-      {/* Merge for final effect */}
+      {/* Complex merge for final effect */}
       <feMerge>
+        <feMergeNode in="atmosphere"/>
         <feMergeNode in="subtle-glow"/>
-        <feMergeNode in="grooved-shape"/>
+        <feMergeNode in="sharp-detail"/>
+        <feMergeNode in="ultra-grooved"/>
       </feMerge>
 
       {/* Optional: Wave interference effect when ripples are active */}
