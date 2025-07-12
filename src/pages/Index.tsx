@@ -439,23 +439,23 @@ const IndexContent = () => {
               }}
             />
 
-            {/* Sky Gradient Ring - Atmospheric layer beyond all data layers */}
-            <SkyRing
-              radius={420}
-              center={{ x: centerX, y: centerY }}
-              className="sky-gradient-layer"
-            />
-
-            {/* Sunburst Energy Field - Outermost dynamic layer */}
+            {/* Sunburst Groove Field - Violet pulsing groove close to core */}
             <SunburstGrooveField
-              radius={450}
+              radius={320}
               center={{ x: centerX, y: centerY }}
               dataLayers={[
                 { name: 'weather', data: mockWeatherData, radius: 180 },
                 { name: 'mood', data: mockMoodData, radius: 300 },
                 { name: 'sleep', data: mockSleepData, radius: 340 }
               ]}
-              className="sunburst-energy-field"
+              className="sunburst-energy-field groove-close-to-core"
+            />
+
+            {/* Sky Ring - White sunburst rays around groove */}
+            <SkyRing
+              radius={350}
+              center={{ x: centerX, y: centerY }}
+              className="sky-gradient-layer cosmic-rays"
             />
           </>
         )}

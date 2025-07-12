@@ -141,7 +141,7 @@ export const SunburstGrooveField: React.FC<SunburstGrooveFieldProps> = ({
     
     const animate = () => {
       const elapsed = Date.now() - startTime;
-      const phase = (elapsed * 0.0008) % (Math.PI * 2); // 8-second cycle
+      const phase = (elapsed * 0.0004) % (Math.PI * 2); // 16-second cycle (50% slower)
       setAnimationPhase(phase);
       
       animationId = requestAnimationFrame(animate);
