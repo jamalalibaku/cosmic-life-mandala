@@ -12,30 +12,41 @@ interface LayerThrottleConfig {
 }
 
 const LAYER_CONFIGS: LayerThrottleConfig[] = [
-  { layerType: 'mood', updateFrequency: 100, interpolationSteps: 10 },
-  { layerType: 'mobility', updateFrequency: 100, interpolationSteps: 8 },
-  { layerType: 'weather', updateFrequency: 200, interpolationSteps: 5 },
-  { layerType: 'sleep', updateFrequency: 500, interpolationSteps: 3 },
+  { layerType: 'mood', updateFrequency: 1000, interpolationSteps: 10 },
+  { layerType: 'mobility', updateFrequency: 1000, interpolationSteps: 8 },
+  { layerType: 'weather', updateFrequency: 1000, interpolationSteps: 5 },
+  { layerType: 'sleep', updateFrequency: 1000, interpolationSteps: 3 },
   { layerType: 'plans', updateFrequency: 1000, interpolationSteps: 2 }
 ];
 
 export const useThrottledLayerUpdates = () => {
-  const lastUpdateTimes = useRef<Map<string, number>>(new Map());
+  const intervalIds = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const interpolationCache = useRef<Map<string, any[]>>(new Map());
+  const updateCallbacks = useRef<Map<string, () => void>>(new Map());
 
-  const shouldUpdateLayer = useCallback((layerType: string): boolean => {
-    const config = LAYER_CONFIGS.find(c => c.layerType === layerType);
-    if (!config) return true;
-
-    const now = performance.now();
-    const lastUpdate = lastUpdateTimes.current.get(layerType) || 0;
-    
-    if (now - lastUpdate >= config.updateFrequency) {
-      lastUpdateTimes.current.set(layerType, now);
-      return true;
+  const startLayerInterval = useCallback((layerType: string, callback: () => void) => {
+    // Clear existing interval if any
+    const existingInterval = intervalIds.current.get(layerType);
+    if (existingInterval) {
+      clearInterval(existingInterval);
     }
-    
-    return false;
+
+    // Start new event-driven interval
+    const intervalId = setInterval(() => {
+      callback();
+    }, 1000); // 1 second for all layers
+
+    intervalIds.current.set(layerType, intervalId);
+    updateCallbacks.current.set(layerType, callback);
+  }, []);
+
+  const stopLayerInterval = useCallback((layerType: string) => {
+    const intervalId = intervalIds.current.get(layerType);
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalIds.current.delete(layerType);
+      updateCallbacks.current.delete(layerType);
+    }
   }, []);
 
   const getInterpolatedValue = useCallback((
@@ -56,18 +67,22 @@ export const useThrottledLayerUpdates = () => {
   }, []);
 
   const throttleLayerData = useCallback((layerType: string, newData: any[]) => {
-    if (shouldUpdateLayer(layerType)) {
-      interpolationCache.current.set(layerType, newData);
-      return newData;
-    }
+    interpolationCache.current.set(layerType, newData);
+    return newData;
+  }, []);
 
-    // Return cached data with interpolation
-    const cached = interpolationCache.current.get(layerType);
-    return cached || newData;
-  }, [shouldUpdateLayer]);
+  // Cleanup intervals on unmount
+  useEffect(() => {
+    return () => {
+      intervalIds.current.forEach(intervalId => clearInterval(intervalId));
+      intervalIds.current.clear();
+      updateCallbacks.current.clear();
+    };
+  }, []);
 
   return {
-    shouldUpdateLayer,
+    startLayerInterval,
+    stopLayerInterval,
     getInterpolatedValue,
     throttleLayerData
   };
