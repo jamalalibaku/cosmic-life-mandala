@@ -4,7 +4,7 @@
  * Built by ChatGPT & Lovable · MIT Licensed
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TimeAxisProvider } from '@/contexts/TimeAxisContext';
 import WeatherSunburst from '@/components/weather-sunburst';
 import { EnhancedWeatherRing } from '@/components/enhanced/EnhancedWeatherRing';
@@ -825,11 +825,17 @@ const IndexContent = () => {
     );
   }
 
-  console.log('🎨 Current theme check:', { 
-    currentTheme, 
-    isMandalaExpressive: currentTheme === 'mandala',
-    timestamp: new Date().toLocaleTimeString()
-  });
+  // Throttled theme check - only log every 5 seconds
+  const logThemeCheck = React.useRef(0);
+  const now = Date.now();
+  if (now - logThemeCheck.current > 5000) {
+    console.log('🎨 Current theme check:', { 
+      currentTheme, 
+      isMandalaExpressive: currentTheme === 'mandala',
+      timestamp: new Date().toLocaleTimeString()
+    });
+    logThemeCheck.current = now;
+  }
 
   // Render Mandala View for mandala theme
   if (currentTheme === 'mandala') {

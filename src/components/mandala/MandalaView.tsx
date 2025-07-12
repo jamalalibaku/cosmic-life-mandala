@@ -16,6 +16,7 @@ import { mockEnvironmentalData } from "@/data/mock-environmental-data";
 import { format, startOfWeek, eachWeekOfInterval, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
 import mandalaExpressiveTheme from "@/themes/mandala-expressive";
 import { usePerformanceOptimizer } from "@/hooks/usePerformanceOptimizer";
+import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
 import { CosmicFaderTrack } from "@/components/navigation/CosmicFaderTrack";
 import { RadioooLayerTabs } from "@/components/navigation/RadioooLayerTabs";
 import { OrbitalInsightSatellites } from "@/components/insights/OrbitalInsightSatellites";
@@ -204,12 +205,15 @@ const MandalaViewContent = () => {
     playMilestoneSound 
   } = useSoundDesign();
   
+  // Optimized animation management
+  const { queueAnimation, batchAnimations, metrics } = useOptimizedAnimations();
+  
   // Performance optimization for smooth animations
   const { scheduleAnimation, createSmoothEasing, getPerformanceMetrics } = usePerformanceOptimizer({
-    batchSize: 4,
-    staggerDelay: 80,
-    throttleMs: 16,
-    maxConcurrent: 10
+    batchSize: 3,     // Reduced batch size
+    staggerDelay: 200, // Increased delay
+    throttleMs: 33,    // 30fps instead of 60fps
+    maxConcurrent: 5   // Reduced concurrent animations
   });
   
   const layerData = React.useMemo(() => 
@@ -225,37 +229,54 @@ const MandalaViewContent = () => {
   const weatherEffects = getWeatherEffects();
   const memoryEchoes = getMemoryEchoes(currentDate);
 
-  // Sound triggers for meaningful moments
+  // Throttled sound triggers for meaningful moments
+  const lastSoundTrigger = React.useRef(0);
   React.useEffect(() => {
     if (events.length > 0) {
-      const latestEvent = events[events.length - 1];
-      switch (latestEvent.type) {
-        case 'insight-discovery':
-          playInsightSound(latestEvent.intensity);
-          break;
-        case 'phase-transition':
-          playTransitionSound(latestEvent.intensity);
-          break;
-        case 'milestone-reached':
-          playMilestoneSound(latestEvent.intensity);
-          break;
-        case 'correlation-found':
-          playConnectionSound(undefined, latestEvent.intensity);
-          break;
+      const now = Date.now();
+      // Throttle sound effects to every 2 seconds minimum
+      if (now - lastSoundTrigger.current > 2000) {
+        const latestEvent = events[events.length - 1];
+        queueAnimation(`sound-${latestEvent.type}`, () => {
+          switch (latestEvent.type) {
+            case 'insight-discovery':
+              playInsightSound(latestEvent.intensity);
+              break;
+            case 'phase-transition':
+              playTransitionSound(latestEvent.intensity);
+              break;
+            case 'milestone-reached':
+              playMilestoneSound(latestEvent.intensity);
+              break;
+            case 'correlation-found':
+              playConnectionSound(undefined, latestEvent.intensity);
+              break;
+          }
+        }, 1); // Low priority
+        lastSoundTrigger.current = now;
       }
     }
-  }, [events, playInsightSound, playTransitionSound, playMilestoneSound, playConnectionSound]);
+  }, [events, playInsightSound, playTransitionSound, playMilestoneSound, playConnectionSound, queueAnimation]);
 
-  console.log('⏰ MandalaView rendering with:', {
-    zoomLevel,
-    layerCount: layerData.length,
-    timeSliceCount: timeSlices.length,
-    nowAngle,
-    emotionalState: emotionalState.currentMood.emotion,
-    detectedPatterns: detectedPatterns.length,
-    memoryEchoes: memoryEchoes.length,
-    timestamp: new Date().toLocaleTimeString()
-  });
+  // Throttled debug logging
+  const debugLogRef = React.useRef(0);
+  React.useEffect(() => {
+    const now = Date.now();
+    if (now - debugLogRef.current > 10000) { // Only log every 10 seconds
+      console.log('⏰ MandalaView rendering with:', {
+        zoomLevel,
+        layerCount: layerData.length,
+        timeSliceCount: timeSlices.length,
+        nowAngle,
+        emotionalState: emotionalState.currentMood.emotion,
+        detectedPatterns: detectedPatterns.length,
+        memoryEchoes: memoryEchoes.length,
+        animationMetrics: metrics,
+        timestamp: new Date().toLocaleTimeString()
+      });
+      debugLogRef.current = now;
+    }
+  }, [layerData, timeSlices, emotionalState, detectedPatterns, memoryEchoes, metrics]);
 
   return (
     <div 

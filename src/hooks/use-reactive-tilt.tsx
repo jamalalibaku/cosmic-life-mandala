@@ -419,7 +419,7 @@ export const useReactiveTilt = ({
       clearInterval(interactionInterval);
       clearInterval(organicInterval);
     };
-  }, [handleMouseMove, handleScroll, updateTimeData, simulateBiologicalData, updateOrganicMotion, initAudioMonitoring]);
+  }, []);  // Remove problematic dependencies to prevent infinite loops
 
   // Use a ref to track tilt and update it in animation frame without causing re-renders
   const currentTiltRef = useRef(0);
@@ -475,8 +475,8 @@ export const useReactiveTilt = ({
       const finalTilt = combinedTilt * sensitivity * dampening;
       currentTiltRef.current = finalTilt;
       
-      // Only update state occasionally to prevent loops
-      if (Math.abs(finalTilt - tiltAngle) > 0.01) {
+      // Throttle state updates to prevent excessive re-renders
+      if (Math.abs(finalTilt - tiltAngle) > 0.05) {  // Increased threshold
         setTiltAngle(finalTilt);
       }
       
@@ -490,7 +490,7 @@ export const useReactiveTilt = ({
         cancelAnimationFrame(animationFrame);
       }
     };
-  }, [layerType, sensitivity, dampening, baseAmplitude]); // Removed calculateReactiveTilt dependency
+  }, [layerType, baseAmplitude]); // Reduced dependencies
 
   // Generate transform strings
   const getTiltTransform = (additionalTransforms = '') => {
