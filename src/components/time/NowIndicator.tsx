@@ -26,7 +26,7 @@ export const NowIndicator: React.FC<NowIndicatorProps> = ({
   isStable = true
 }) => {
   // NOW is ALWAYS at 0° (North) - Fixed position, perfectly centered
-  const lineLength = radius + 30;
+  const lineLength = radius * 0.97 + 30; // Reduced radius by 3%
   const nowRadian = -Math.PI/2; // FIXED at -π/2 to point exactly North (0°)
   const lineEndX = centerX + lineLength * Math.cos(nowRadian);
   const lineEndY = centerY + lineLength * Math.sin(nowRadian);

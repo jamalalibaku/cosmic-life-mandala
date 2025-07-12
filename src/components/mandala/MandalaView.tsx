@@ -18,6 +18,7 @@ import mandalaExpressiveTheme from "@/themes/mandala-expressive";
 import { usePerformanceOptimizer } from "@/hooks/usePerformanceOptimizer";
 import { CosmicFaderTrack } from "@/components/navigation/CosmicFaderTrack";
 import { RadioooLayerTabs } from "@/components/navigation/RadioooLayerTabs";
+import { AIInsightOrbiter } from "@/components/insights/AIInsightOrbiter";
 
 // Real date-based layer data generator
 const createDateBasedLayerData = (
@@ -273,6 +274,14 @@ const MandalaViewContent = () => {
                 showConstellations={false}
               />
             </motion.g>
+
+            {/* AI Insight Satellite Orbiter - Non-rotating, layered behind UI */}
+            <AIInsightOrbiter 
+              centerX={0}
+              centerY={0}
+              soulCoreRadius={45}
+              quotes={[]}
+            />
 
             {/* Curved Environmental Layer Label */}
             {showEnvironmental && (
