@@ -140,6 +140,70 @@ export const SkyConnectedWeatherRing: React.FC<SkyConnectedWeatherRingProps> = (
     return `M ${startX} ${startY} A ${pathRadius} ${pathRadius} 0 0 0 ${endX} ${endY}`;
   }, [sunData.isDaytime, radius, center]);
 
+  // Neural network connection calculations
+  const connectionLines = useMemo(() => {
+    const lines: Array<{
+      x1: number;
+      y1: number;
+      x2: number;
+      y2: number;
+      strength: number;
+      color: string;
+      type: 'strong' | 'medium' | 'weak';
+    }> = [];
+
+    weatherData.forEach((point1, i) => {
+      const angle1 = (i / weatherData.length) * 2 * Math.PI - Math.PI / 2;
+      const x1 = center.x + Math.cos(angle1) * radius;
+      const y1 = center.y + Math.sin(angle1) * radius;
+
+      // Connect to nearby points and data-related points
+      weatherData.forEach((point2, j) => {
+        if (i >= j) return; // Avoid duplicate lines
+        
+        const angle2 = (j / weatherData.length) * 2 * Math.PI - Math.PI / 2;
+        const x2 = center.x + Math.cos(angle2) * radius;
+        const y2 = center.y + Math.sin(angle2) * radius;
+        
+        // Calculate connection strength based on proximity and data correlation
+        const angleDiff = Math.abs(angle1 - angle2);
+        const proximity = Math.min(angleDiff, 2 * Math.PI - angleDiff);
+        
+        // Mock data correlation (in real app, this would be actual weather correlation)
+        const dataCorrelation = Math.random() * 0.5 + 0.3; // 0.3 to 0.8
+        
+        // Only show connections for nearby points or strongly correlated data
+        if (proximity < Math.PI / 2.5 || dataCorrelation > 0.7) { // Within ~72 degrees or high correlation
+          const proximityFactor = 1 - (proximity / Math.PI);
+          const strength = Math.max(0.1, (proximityFactor * 0.6) + (dataCorrelation * 0.4));
+          
+          let connectionColor: string;
+          let connectionType: 'strong' | 'medium' | 'weak';
+          
+          if (strength > 0.7) {
+            connectionColor = 'hsl(50, 100%, 70%)'; // Golden - strong correlation
+            connectionType = 'strong';
+          } else if (strength > 0.4) {
+            connectionColor = 'hsl(200, 80%, 60%)'; // Blue - medium correlation
+            connectionType = 'medium';
+          } else {
+            connectionColor = 'hsl(280, 60%, 50%)'; // Purple - weak correlation
+            connectionType = 'weak';
+          }
+          
+          lines.push({
+            x1, y1, x2, y2,
+            strength,
+            color: connectionColor,
+            type: connectionType
+          });
+        }
+      });
+    });
+
+    return lines;
+  }, [weatherData, center, radius]);
+
   // Calculate light effects for particles
   const getLightEffect = (particleAngle: number) => {
     if (!sunData.isDaytime) {
@@ -207,6 +271,23 @@ export const SkyConnectedWeatherRing: React.FC<SkyConnectedWeatherRingProps> = (
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
+
+        {/* Neural connection glow filters */}
+        <filter id="connection-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge> 
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        <filter id="node-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+          <feMerge> 
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
 
       {/* Sky background ring with time-based colors */}
@@ -221,6 +302,35 @@ export const SkyConnectedWeatherRing: React.FC<SkyConnectedWeatherRingProps> = (
         filter="url(#soft-glow)"
         style={{ zIndex: 1 }}
       />
+
+      {/* Neural connection lines - glowing interconnections between weather data points */}
+      {connectionLines.map((line, index) => (
+        <motion.line
+          key={`connection-${index}`}
+          x1={line.x1}
+          y1={line.y1}
+          x2={line.x2}
+          y2={line.y2}
+          stroke={line.color}
+          strokeWidth={line.type === 'strong' ? 2 : line.type === 'medium' ? 1.5 : 1}
+          strokeOpacity={line.strength * 0.7}
+          filter="url(#connection-glow)"
+          strokeLinecap="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ 
+            pathLength: 1, 
+            opacity: line.strength * 0.7,
+            strokeWidth: line.type === 'strong' ? [2, 3, 2] : line.type === 'medium' ? [1.5, 2.5, 1.5] : [1, 1.5, 1]
+          }}
+          transition={{ 
+            duration: 3 + Math.random() * 2,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatType: "reverse",
+            delay: index * 0.1
+          }}
+        />
+      ))}
 
       {/* Sun path visualization (only during daylight) */}
       {sunData.isDaytime && (
@@ -299,7 +409,7 @@ export const SkyConnectedWeatherRing: React.FC<SkyConnectedWeatherRingProps> = (
         </motion.g>
       )}
 
-      {/* Weather data points with light/shadow effects */}
+      {/* Enhanced weather data points as neural nodes */}
       {weatherData.map((data, index) => {
         const angle = (index / weatherData.length) * 2 * Math.PI - Math.PI / 2;
         const x = center.x + Math.cos(angle) * radius;
@@ -307,36 +417,95 @@ export const SkyConnectedWeatherRing: React.FC<SkyConnectedWeatherRingProps> = (
         
         const lightEffect = getLightEffect(angle + Math.PI / 2); // Adjust for our coordinate system
         
+        // Node size and color based on data importance and correlation
+        const nodeSize = 5 + ((data.value || 50) / 100) * 3; // 5-8px radius
+        const nodeColors = [
+          'hsl(50, 100%, 70%)',   // Golden
+          'hsl(200, 80%, 60%)',   // Blue  
+          'hsl(120, 60%, 50%)',   // Green
+          'hsl(280, 60%, 50%)',   // Purple
+          'hsl(15, 90%, 60%)',    // Orange
+          'hsl(340, 70%, 60%)'    // Pink
+        ];
+        const nodeColor = nodeColors[index % nodeColors.length];
+        
         return (
-          <motion.g key={`weather-point-${index}`} transform={`translate(${x}, ${y})`}>
-            {/* Light effect halo */}
+          <motion.g key={`weather-node-${index}`} transform={`translate(${x}, ${y})`}>
+            {/* Outer neural glow ring */}
+            <motion.circle
+              r={nodeSize + 3}
+              fill={nodeColor}
+              fillOpacity="0.2"
+              filter="url(#node-glow)"
+              animate={{
+                r: [nodeSize + 3, nodeSize + 6, nodeSize + 3],
+                fillOpacity: [0.2, 0.4, 0.2]
+              }}
+              transition={{
+                duration: 4 + Math.random() * 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+
+            {/* Light effect halo for sunlit nodes */}
             {lightEffect.warmth > 0.3 && (
-              <circle
-                r={8}
+              <motion.circle
+                r={nodeSize + 2}
                 fill={`hsl(45 80% 80%)`}
                 opacity={lightEffect.warmth * 0.3}
                 filter="url(#soft-glow)"
+                animate={{
+                  opacity: [lightEffect.warmth * 0.2, lightEffect.warmth * 0.4, lightEffect.warmth * 0.2]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
               />
             )}
             
-            {/* Main data point */}
+            {/* Main neural node */}
             <motion.circle
-              r={4}
-              fill={themeConfig.colors.accent}
-              opacity={lightEffect.brightness}
+              r={nodeSize}
+              fill={nodeColor}
+              fillOpacity={lightEffect.brightness}
+              filter="url(#node-glow)"
               style={{
                 filter: lightEffect.warmth > 0.5 
-                  ? `drop-shadow(0 0 4px hsl(45 100% 70%))` 
-                  : `drop-shadow(0 0 2px ${themeConfig.colors.glow}40)`
+                  ? `url(#node-glow) drop-shadow(0 0 6px hsl(45 100% 70%))` 
+                  : `url(#node-glow) drop-shadow(0 0 3px ${nodeColor})`
               }}
               initial={{ scale: 0 }}
               animate={{
-                scale: [1, 1.15, 1],
-                opacity: [lightEffect.brightness * 0.7, lightEffect.brightness, lightEffect.brightness * 0.7]
+                scale: [1, 1.2, 1],
+                fillOpacity: [lightEffect.brightness * 0.8, lightEffect.brightness, lightEffect.brightness * 0.8]
               }}
               transition={{
-                duration: 3 + (index * 0.2),
+                duration: 3 + (index * 0.3),
                 delay: index * 0.1,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              whileHover={{ 
+                scale: 1.4,
+                fillOpacity: 1,
+                transition: { duration: 0.2 }
+              }}
+            />
+            
+            {/* Inner sparkle core */}
+            <motion.circle
+              r={nodeSize * 0.3}
+              fill="white"
+              fillOpacity="0.9"
+              animate={{
+                fillOpacity: [0.7, 1, 0.7],
+                r: [nodeSize * 0.2, nodeSize * 0.4, nodeSize * 0.2]
+              }}
+              transition={{
+                duration: 2 + Math.random(),
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
