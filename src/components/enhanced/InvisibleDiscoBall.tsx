@@ -67,14 +67,48 @@ export const InvisibleDiscoBall: React.FC<InvisibleDiscoBallProps> = ({
 
   return (
     <g className="invisible-disco-ball">
+      {/* Rotating luminescent trails */}
+      {Array.from({length: 5}).map((_, i) => (
+        <motion.circle
+          key={`disco-trail-${i}`}
+          cx={centerX}
+          cy={centerY}
+          r={radius * (0.2 + i * 0.15)}
+          fill="none"
+          stroke="white"
+          strokeWidth={0.2}
+          opacity={0.06 - i * 0.01}
+          filter="blur(2px) drop-shadow(0 0 6px white)"
+          animate={{
+            rotate: 360,
+            opacity: [0.06 - i * 0.01, 0.02, 0.06 - i * 0.01]
+          }}
+          transition={{
+            rotate: {
+              duration: 12 + i * 3,
+              repeat: Infinity,
+              ease: "linear"
+            },
+            opacity: {
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.3
+            }
+          }}
+        />
+      ))}
+
       {/* Main disco ball core - very subtle */}
       <motion.circle
         cx={centerX}
         cy={centerY}
         r={radius * 0.1}
         fill="rgba(255,255,255,0.05)"
+        opacity={0.4}
+        filter="blur(1px) drop-shadow(0 0 12px rgba(255,255,255,0.6))"
         animate={{
-          opacity: [0.05, 0.15 + intensity * 0.1, 0.05],
+          opacity: [0.4, 0.6 + intensity * 0.2, 0.4],
           scale: [1, 1.1, 1]
         }}
         transition={{

@@ -91,6 +91,38 @@ export const CelestialGlyph: React.FC<CelestialGlyphProps> = ({
 
   return (
     <g className="celestial-glyph">
+      {/* Luminescent trail system */}
+      {Array.from({length: 8}).map((_, i) => (
+        <motion.circle
+          key={`trail-${i}`}
+          cx={x}
+          cy={y}
+          r={size * (1 + i * 0.1)}
+          fill="none"
+          stroke={glyphColors[type]}
+          strokeWidth={0.3}
+          opacity={0.1 - i * 0.012}
+          filter="blur(1px) drop-shadow(0 0 4px currentColor)"
+          animate={{
+            rotate: 360,
+            opacity: [0.1 - i * 0.012, 0.05 - i * 0.008, 0.1 - i * 0.012]
+          }}
+          transition={{
+            rotate: {
+              duration: 8 + i * 2,
+              repeat: Infinity,
+              ease: "linear"
+            },
+            opacity: {
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.2
+            }
+          }}
+        />
+      ))}
+
       {/* Main glyph core with disco ball effect */}
       <motion.circle
         cx={x}
@@ -99,6 +131,8 @@ export const CelestialGlyph: React.FC<CelestialGlyphProps> = ({
         fill={glyphColors[type]}
         stroke="rgba(255,255,255,0.3)"
         strokeWidth={0.5}
+        opacity={0.7}
+        filter="blur(0.5px) drop-shadow(0 0 8px currentColor)"
         variants={shimmerVariants}
         initial="idle"
         animate={proximity > 0.3 ? "sparkle" : "idle"}

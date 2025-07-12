@@ -146,29 +146,57 @@ export const SunCoreMesh: React.FC<SunCoreMeshProps> = ({
         }}
       />
 
-      {/* Vertical grid lines */}
+      {/* Vertical grid lines with luminescent trails */}
       {verticalWaves.map((wave, i) => (
-        <motion.path
-          key={`vertical-${i}`}
-          d={generateCurvedPath('vertical', i, wave)}
-          stroke="hsl(var(--primary))"
-          strokeWidth={0.5 + proximity * 0.5}
-          strokeOpacity={wave.opacity * intensity}
-          fill="none"
-          filter="url(#sunCoreGlow)"
-          animate={{
-            strokeOpacity: [
-              wave.opacity * intensity,
-              wave.opacity * intensity * 1.3,
-              wave.opacity * intensity
-            ]
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 3 + i * 0.2,
-            ease: "easeInOut"
-          }}
-        />
+        <g key={`vertical-group-${i}`}>
+          {/* Rotating trail effect */}
+          <motion.path
+            d={generateCurvedPath('vertical', i, wave)}
+            stroke="hsl(var(--primary))"
+            strokeWidth={1.5 + proximity * 0.8}
+            strokeOpacity={0.1}
+            fill="none"
+            filter="blur(3px) drop-shadow(0 0 8px hsl(var(--primary)))"
+            animate={{
+              rotate: 360,
+              strokeOpacity: [0.05, 0.15, 0.05]
+            }}
+            transition={{
+              rotate: {
+                duration: 20 + i * 3,
+                repeat: Infinity,
+                ease: "linear"
+              },
+              strokeOpacity: {
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 0.2
+              }
+            }}
+          />
+          {/* Main line */}
+          <motion.path
+            d={generateCurvedPath('vertical', i, wave)}
+            stroke="hsl(var(--primary))"
+            strokeWidth={0.5 + proximity * 0.5}
+            strokeOpacity={wave.opacity * intensity * 0.6}
+            fill="none"
+            filter="blur(1px) url(#sunCoreGlow)"
+            animate={{
+              strokeOpacity: [
+                wave.opacity * intensity * 0.6,
+                wave.opacity * intensity * 1.0,
+                wave.opacity * intensity * 0.6
+              ]
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 3 + i * 0.2,
+              ease: "easeInOut"
+            }}
+          />
+        </g>
       ))}
 
       {/* Horizontal grid lines */}
