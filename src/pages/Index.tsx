@@ -46,6 +46,7 @@ import { ReactiveDataBlobRing } from '@/components/enhanced/ReactiveDataBlobRing
 import { SunCoreMesh } from '@/components/enhanced/SunCoreMesh';
 import { CelestialGlyph } from '@/components/enhanced/CelestialGlyph';
 import { InvisibleDiscoBall } from '@/components/enhanced/InvisibleDiscoBall';
+import { GlitterMoteField } from '@/components/enhanced/GlitterMoteField';
 import { ZoomMenuButton } from '@/components/navigation/ZoomMenuButton';
 import { ToolsMenuButton } from '@/components/navigation/ToolsMenuButton';
 import { SkinsMenuButton } from '@/components/navigation/SkinsMenuButton';
@@ -580,6 +581,14 @@ const IndexContent = () => {
           intensity={0.6 + (currentMood?.intensity || 0) * 0.4}
           sparkleCount={20}
           isActive={!reflectiveMode}
+        />
+        
+        <GlitterMoteField
+          centerX={centerX}
+          centerY={centerY}
+          fieldRadius={300}
+          moteCount={40}
+          currentHour={new Date().getHours()}
         />
 
         {/* Ripple Consciousness Visualization */}
