@@ -34,6 +34,7 @@ import { CosmicRadialTicks } from "@/components/cosmic/CosmicRadialTicks";
 import { MysticalSoulCore } from "@/components/enhanced/MysticalSoulCore";
 import { NorthPoleMoon } from "@/components/enhanced/NorthPoleMoon";
 import { SkyRing } from "@/components/enhanced/SkyRing";
+import { AirLayer } from "@/components/atmosphere/AirLayer";
 import { SunburstGrooveField } from "@/components/enhanced/SunburstGrooveField";
 import { useZoomCompensation } from "@/hooks/useZoomCompensation";
 import { useInteractionTracking } from "@/hooks/useInteractionTracking";
@@ -639,6 +640,14 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           transition={{ duration: 1 }}
           style={{ transformOrigin: "center" }}
         >
+          {/* Air Layer - Atmospheric presence, outermost */}
+          <AirLayer 
+            center={{ x: 0, y: 0 }} 
+            outerRadius={Math.max(...layers.map(l => l.radius)) + 100}
+            timeOfDay={new Date()}
+            visible={true}
+          />
+          
           {/* Sunburst Groove Field - Living plasma corona */}
           <SunburstGrooveField
             radius={Math.max(...layers.map(l => l.radius)) + 80}
