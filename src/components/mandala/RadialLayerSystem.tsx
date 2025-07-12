@@ -32,6 +32,7 @@ import { CosmicBackgroundPulse } from "@/components/cosmic/CosmicBackgroundPulse
 import { CosmicRadialTicks } from "@/components/cosmic/CosmicRadialTicks";
 import { MysticalSoulCore } from "@/components/enhanced/MysticalSoulCore";
 import { NorthPoleMoon } from "@/components/enhanced/NorthPoleMoon";
+import { SkyRing } from "@/components/enhanced/SkyRing";
 import { useZoomCompensation } from "@/hooks/useZoomCompensation";
 import { useInteractionTracking } from "@/hooks/useInteractionTracking";
 import { findRecurringSlices, getConstellationColors } from "@/utils/constellation-engine";
@@ -636,6 +637,13 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           transition={{ duration: 1 }}
           style={{ transformOrigin: "center" }}
         >
+          {/* Sky Ring - Celestial canvas surrounding everything */}
+          <SkyRing
+            radius={Math.max(...layers.map(l => l.radius)) + 60}
+            center={{ x: 0, y: 0 }}
+            className="celestial-sky-ring"
+          />
+
           {/* Sky Connected Weather Ring with revolutionary time-based effects */}
           {layers.find(l => l.layerType === 'weather') && (
             <SkyConnectedWeatherRing
