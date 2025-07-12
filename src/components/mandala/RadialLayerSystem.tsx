@@ -30,6 +30,8 @@ import { KandinskyDataMarbles } from "@/components/enhanced/KandinskyDataMarbles
 import { RippleTrails } from "@/components/enhanced/RippleTrails";
 import { CosmicBackgroundPulse } from "@/components/cosmic/CosmicBackgroundPulse";
 import { CosmicRadialTicks } from "@/components/cosmic/CosmicRadialTicks";
+import { MysticalSoulCore } from "@/components/enhanced/MysticalSoulCore";
+import { NorthPoleMoon } from "@/components/enhanced/NorthPoleMoon";
 import { useZoomCompensation } from "@/hooks/useZoomCompensation";
 import { useInteractionTracking } from "@/hooks/useInteractionTracking";
 import { findRecurringSlices, getConstellationColors } from "@/utils/constellation-engine";
@@ -628,6 +630,16 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
             />
           )}
 
+          {/* North Pole Moon - relocated from center */}
+          {layers.find(l => l.layerType === 'moon') && (
+            <NorthPoleMoon
+              center={{ x: 0, y: 0 }}
+              radius={Math.max(...layers.map(l => l.radius))}
+              moonPhase={layers.find(l => l.layerType === 'moon')?.data?.[0]?.phase || 0.3}
+              className="north-pole-moon"
+            />
+          )}
+
           {/* Render layers from outside to inside with clickable interaction */}
           {layers.slice().reverse().map((layer, index) => (
             <ClickableLayer
@@ -696,10 +708,12 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
             className="mandala-ripples"
           />
 
-          {/* Glowing center with living heartbeat */}
-          <GlowingCore 
+          {/* Mystical Soul Core - replaces static center */}
+          <MysticalSoulCore 
             radius={centerRadius} 
-            motionTransform={getMotionTransform()}
+            center={{ x: 0, y: 0 }}
+            moodData={layers.find(l => l.layerType === 'mood')?.data?.[0]}
+            sleepData={layers.find(l => l.name.toLowerCase().includes('sleep'))?.data?.[0]}
           />
           
           {/* NOW Indicator - Minimal time marker */}

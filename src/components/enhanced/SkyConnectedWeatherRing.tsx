@@ -345,6 +345,41 @@ export const SkyConnectedWeatherRing: React.FC<SkyConnectedWeatherRingProps> = (
         );
       })}
 
+      {/* Temperature display positioned near sun arc */}
+      {sunData.isDaytime && (
+        <motion.g
+          transform={`translate(${sunData.sunX + 25}, ${sunData.sunY - 10})`}
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, delay: 0.5 }}
+        >
+          {/* Temperature background glow */}
+          <circle
+            r={18}
+            fill="url(#sun-glow-gradient)"
+            opacity={0.6}
+            filter="url(#soft-glow)"
+          />
+          
+          {/* Temperature value */}
+          <text
+            textAnchor="middle"
+            dominantBaseline="central"
+            className="text-sm font-semibold"
+            fill="hsl(45 100% 95%)"
+            style={{ 
+              filter: 'drop-shadow(0 0 2px hsl(25 100% 50%))',
+              fontSize: '14px'
+            }}
+          >
+            {weatherData.length > 0 && weatherData[0].temperature ? 
+              `${Math.round(weatherData[0].temperature)}°` : 
+              '23°'
+            }
+          </text>
+        </motion.g>
+      )}
+
       {/* Inner glow that reflects skylight into inner layers */}
       <motion.circle
         cx={center.x}
