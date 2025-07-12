@@ -39,23 +39,33 @@ export const SunburstGrooveField: React.FC<SunburstGrooveFieldProps> = ({
   const energyData = useMemo(() => {
     const allDataPoints: number[] = [];
     
-    dataLayers.forEach(layer => {
-      if (layer.data && Array.isArray(layer.data)) {
-        layer.data.forEach((point: any) => {
-          let intensity = 0.5; // default
-          
-          if (point.intensity) intensity = point.intensity;
-          else if (point.value) intensity = point.value;
-          else if (point.mood) intensity = point.mood;
-          else if (point.energy) intensity = point.energy;
-          else if (typeof point === 'number') intensity = point;
-          
-          // Normalize to 0-1 range
-          intensity = Math.max(0, Math.min(1, intensity));
-          allDataPoints.push(intensity);
-        });
+    // Add null/undefined check for dataLayers
+    if (dataLayers && Array.isArray(dataLayers)) {
+      dataLayers.forEach(layer => {
+        if (layer && layer.data && Array.isArray(layer.data)) {
+          layer.data.forEach((point: any) => {
+            let intensity = 0.5; // default
+            
+            if (point.intensity) intensity = point.intensity;
+            else if (point.value) intensity = point.value;
+            else if (point.mood) intensity = point.mood;
+            else if (point.energy) intensity = point.energy;
+            else if (point.quality === 'good') intensity = 0.8;
+            else if (point.quality === 'poor') intensity = 0.2;
+            
+            allDataPoints.push(Math.max(0, Math.min(1, intensity)));
+          });
+        }
+      });
+    }
+    
+    // Fallback data if no valid data layers provided
+    if (allDataPoints.length === 0) {
+      // Generate some default energy data for visual fallback
+      for (let i = 0; i < 24; i++) {
+        allDataPoints.push(0.3 + Math.random() * 0.4); // Random values between 0.3-0.7
       }
-    });
+    }
     
     // If no data, create gentle baseline energy pattern
     if (allDataPoints.length === 0) {
