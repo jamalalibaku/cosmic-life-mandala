@@ -4,9 +4,8 @@
  * Built by ChatGPT & Lovable · MIT Licensed
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useOrganicOrbitMotion } from '@/hooks/useOrganicOrbitMotion';
 
 interface SkyRingProps {
   radius: number;
@@ -14,144 +13,120 @@ interface SkyRingProps {
   className?: string;
 }
 
+interface Ray {
+  angle: number;
+  length: number;
+  curvature: number;
+  brightness: number;
+  sunInfluence: number;
+}
+
 export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) => {
+  const [animationPhase, setAnimationPhase] = useState(0);
   const currentHour = new Date().getHours();
   const minutes = new Date().getMinutes();
   const timeOfDay = currentHour + minutes / 60;
-
-  // Organic motion for the sky ring - gentle, celestial breathing
-  const skyMotion = useOrganicOrbitMotion({
-    layerType: 'sky',
-    baseRadius: radius,
-    dataPoints: [],
-    moodVolatility: 0.3,
-    isNightTime: currentHour < 6 || currentHour > 20
-  });
-
-  // Calculate sky colors based on time of day
-  const getSkyGradient = useMemo(() => {
-    let primaryColor: string;
-    let secondaryColor: string;
-    let tertiaryColor: string;
-    
-    if (timeOfDay >= 5 && timeOfDay < 7) {
-      // Dawn: rose gold to soft orange
-      primaryColor = 'hsl(25, 70%, 65%)';
-      secondaryColor = 'hsl(15, 60%, 55%)';
-      tertiaryColor = 'hsl(35, 80%, 75%)';
-    } else if (timeOfDay >= 7 && timeOfDay < 11) {
-      // Morning: golden to light blue
-      primaryColor = 'hsl(45, 60%, 70%)';
-      secondaryColor = 'hsl(200, 40%, 80%)';
-      tertiaryColor = 'hsl(210, 50%, 85%)';
-    } else if (timeOfDay >= 11 && timeOfDay < 16) {
-      // Midday: bright blue
-      primaryColor = 'hsl(210, 70%, 75%)';
-      secondaryColor = 'hsl(220, 60%, 80%)';
-      tertiaryColor = 'hsl(200, 80%, 85%)';
-    } else if (timeOfDay >= 16 && timeOfDay < 19) {
-      // Afternoon: warm blue to gold
-      primaryColor = 'hsl(200, 60%, 70%)';
-      secondaryColor = 'hsl(35, 70%, 65%)';
-      tertiaryColor = 'hsl(25, 60%, 60%)';
-    } else if (timeOfDay >= 19 && timeOfDay < 21) {
-      // Sunset: orange to deep purple
-      primaryColor = 'hsl(15, 80%, 60%)';
-      secondaryColor = 'hsl(280, 50%, 45%)';
-      tertiaryColor = 'hsl(300, 60%, 55%)';
-    } else {
-      // Night: deep indigo to black
-      primaryColor = 'hsl(240, 30%, 20%)';
-      secondaryColor = 'hsl(250, 40%, 15%)';
-      tertiaryColor = 'hsl(260, 20%, 10%)';
-    }
-
-    return { primaryColor, secondaryColor, tertiaryColor };
-  }, [timeOfDay]);
-
-  // Generate flowing sky path with organic deformation
-  const skyPath = skyMotion.generateOrbitPath(center.x, center.y);
   
-  // Create a wider, flowing ring by generating inner and outer boundaries
-  const innerRadius = radius * 0.95;
-  const outerRadius = radius * 1.1;
+  // Sun position based on time
+  const sunAngle = (timeOfDay / 24) * Math.PI * 2 - Math.PI / 2; // Start at top (noon)
+
+  // Generate 1440 rays (one per minute of day) for ultra-dense field
+  const rayCount = 1440;
   
-  const innerPath = useMemo(() => {
-    const points = [];
-    for (let i = 0; i < 72; i++) {
-      const angle = (i / 72) * Math.PI * 2;
-      const deformedRadius = skyMotion.getRadiusAtAngle(angle) * 0.95;
-      const x = center.x + Math.cos(angle) * deformedRadius;
-      const y = center.y + Math.sin(angle) * deformedRadius;
-      points.push({ x, y });
-    }
-    return points;
-  }, [skyMotion, center, innerRadius]);
-
-  const outerPath = useMemo(() => {
-    const points = [];
-    for (let i = 0; i < 72; i++) {
-      const angle = (i / 72) * Math.PI * 2;
-      const deformedRadius = skyMotion.getRadiusAtAngle(angle) * 1.1;
-      const x = center.x + Math.cos(angle) * deformedRadius;
-      const y = center.y + Math.sin(angle) * deformedRadius;
-      points.push({ x, y });
-    }
-    return points;
-  }, [skyMotion, center, outerRadius]);
-
-  // Create flowing path between inner and outer boundaries
-  const createFlowingRingPath = () => {
-    if (innerPath.length === 0 || outerPath.length === 0) return '';
+  // Generate ray array with enhanced frequency and bending
+  const rays = useMemo(() => {
+    const rays: Ray[] = [];
     
-    let pathData = `M ${outerPath[0].x} ${outerPath[0].y}`;
-    
-    // Outer arc
-    for (let i = 1; i < outerPath.length; i++) {
-      const current = outerPath[i];
-      const next = outerPath[(i + 1) % outerPath.length];
-      const controlX = (current.x + next.x) / 2;
-      const controlY = (current.y + next.y) / 2;
-      pathData += ` Q ${current.x} ${current.y} ${controlX} ${controlY}`;
-    }
-    
-    // Connect to inner arc (reverse order)
-    pathData += ` L ${innerPath[innerPath.length - 1].x} ${innerPath[innerPath.length - 1].y}`;
-    
-    // Inner arc (reverse)
-    for (let i = innerPath.length - 2; i >= 0; i--) {
-      const current = innerPath[i];
-      const next = innerPath[i === 0 ? innerPath.length - 1 : i - 1];
-      const controlX = (current.x + next.x) / 2;
-      const controlY = (current.y + next.y) / 2;
-      pathData += ` Q ${current.x} ${current.y} ${controlX} ${controlY}`;
-    }
-    
-    pathData += ' Z';
-    return pathData;
-  };
-
-  const ringPath = createFlowingRingPath();
-
-  // Generate scattered stars for night time
-  const generateStars = useMemo(() => {
-    if (timeOfDay >= 6 && timeOfDay <= 20) return [];
-    
-    const stars = [];
-    const starCount = Math.floor(Math.random() * 8) + 4;
-    
-    for (let i = 0; i < starCount; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const starRadius = innerRadius + Math.random() * (outerRadius - innerRadius);
-      const x = center.x + Math.cos(angle) * starRadius;
-      const y = center.y + Math.sin(angle) * starRadius;
-      const size = Math.random() * 1.5 + 0.5;
+    for (let i = 0; i < rayCount; i++) {
+      const angle = (i / rayCount) * Math.PI * 2;
       
-      stars.push({ x, y, size, opacity: Math.random() * 0.6 + 0.4 });
+      // Calculate sun influence - rays near sun position shine brighter
+      const sunDistance = Math.abs(angle - sunAngle);
+      const normalizedSunDistance = Math.min(sunDistance, Math.PI * 2 - sunDistance);
+      const sunInfluence = Math.max(0, 1 - (normalizedSunDistance / (Math.PI * 0.3))); // Influence within 54 degrees
+      
+      // Base length with variation
+      const baseLength = 15 + Math.random() * 20;
+      const sunEnhancement = sunInfluence * 25; // Extra length when near sun
+      const length = baseLength + sunEnhancement;
+      
+      // Curvature increases with sun influence and neighboring rays
+      const curvature = sunInfluence * 0.8 + Math.random() * 0.3;
+      
+      // Brightness enhanced by sun influence
+      const brightness = 0.3 + sunInfluence * 0.7 + Math.random() * 0.2;
+      
+      rays.push({
+        angle,
+        length,
+        curvature,
+        brightness,
+        sunInfluence
+      });
     }
     
-    return stars;
-  }, [timeOfDay, innerRadius, outerRadius, center]);
+    return rays;
+  }, [rayCount, sunAngle]);
+
+  // Animation loop for organic movement
+  useEffect(() => {
+    let animationId: number;
+    let startTime = Date.now();
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const phase = (elapsed * 0.0003) % (Math.PI * 2); // Slow, organic cycle
+      setAnimationPhase(phase);
+      
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    animationId = requestAnimationFrame(animate);
+    
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, []);
+
+  // Generate dynamic ray path with enhanced curvature
+  const generateRayPath = (ray: Ray, index: number): string => {
+    const { angle, length, curvature, sunInfluence } = ray;
+    
+    // Add breathing animation and sun pulsing
+    const breathingScale = 1 + 0.15 * Math.sin(animationPhase + index * 0.003);
+    const sunPulse = 1 + sunInfluence * 0.3 * Math.sin(animationPhase * 3);
+    const dynamicLength = length * breathingScale * sunPulse;
+    
+    // Start point at ring edge
+    const startX = center.x + Math.cos(angle) * radius;
+    const startY = center.y + Math.sin(angle) * radius;
+    
+    if (curvature < 0.2) {
+      // Straight ray
+      const endX = center.x + Math.cos(angle) * (radius + dynamicLength);
+      const endY = center.y + Math.sin(angle) * (radius + dynamicLength);
+      
+      return `M ${startX} ${startY} L ${endX} ${endY}`;
+    } else {
+      // Curved ray with enhanced bending
+      const midLength = dynamicLength * 0.7;
+      const endLength = dynamicLength;
+      
+      // Enhanced wave-like curvature influenced by sun and neighbors
+      const waveOffset = curvature * 20 * Math.sin(animationPhase * 2 + angle * 12);
+      const sunWave = sunInfluence * 10 * Math.sin(animationPhase * 4 + angle * 6);
+      
+      const midX = center.x + Math.cos(angle) * (radius + midLength) + Math.cos(angle + Math.PI/2) * (waveOffset + sunWave);
+      const midY = center.y + Math.sin(angle) * (radius + midLength) + Math.sin(angle + Math.PI/2) * (waveOffset + sunWave);
+      
+      const endX = center.x + Math.cos(angle) * (radius + endLength);
+      const endY = center.y + Math.sin(angle) * (radius + endLength);
+      
+      return `M ${startX} ${startY} Q ${midX} ${midY} ${endX} ${endY}`;
+    }
+  };
 
   return (
     <motion.g 
@@ -161,23 +136,27 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
       transition={{ duration: 2 }}
     >
       <defs>
-        {/* Sky gradient definitions */}
-        <radialGradient id="skyGradient" cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stopColor={getSkyGradient.tertiaryColor} stopOpacity={0.3} />
-          <stop offset="50%" stopColor={getSkyGradient.primaryColor} stopOpacity={0.6} />
-          <stop offset="100%" stopColor={getSkyGradient.secondaryColor} stopOpacity={0.8} />
-        </radialGradient>
-        
-        {/* Flowing shimmer gradient */}
-        <linearGradient id="skyShimmer" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={getSkyGradient.primaryColor} stopOpacity={0.2} />
-          <stop offset="50%" stopColor={getSkyGradient.tertiaryColor} stopOpacity={0.4} />
-          <stop offset="100%" stopColor={getSkyGradient.secondaryColor} stopOpacity={0.2} />
+        {/* Enhanced gradient for ray glow */}
+        <linearGradient id="rayGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="hsl(45, 90%, 85%)" stopOpacity={0.3} />
+          <stop offset="50%" stopColor="hsl(50, 95%, 95%)" stopOpacity={0.9} />
+          <stop offset="100%" stopColor="hsl(55, 100%, 100%)" stopOpacity={0.2} />
         </linearGradient>
-
-        {/* Glow filter for celestial effects */}
-        <filter id="skyGlow" x="-50%" y="-50%" width="200%" height="200%">
+        
+        {/* Sun-influenced glow filter */}
+        <filter id="sunGlow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+          <feColorMatrix type="matrix" values="1.3 0 0 0 0  0 1.2 0 0 0  0 0 1.1 0 0  0 0 0 1 0"/>
+          <feMerge> 
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        
+        {/* Intense solar flare filter */}
+        <filter id="solarFlare" x="-150%" y="-150%" width="400%" height="400%">
           <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+          <feColorMatrix type="matrix" values="1.5 0 0 0 0  0 1.4 0 0 0  0 0 1.2 0 0  0 0 0 1 0"/>
           <feMerge> 
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
@@ -185,119 +164,96 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
         </filter>
       </defs>
 
-      {/* Main sky ring */}
-      <motion.path
-        d={ringPath}
-        fill="url(#skyGradient)"
-        stroke="none"
-        opacity={0.4}
-        filter="url(#skyGlow)"
-        animate={{
-          opacity: [0.4, 0.6, 0.4],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-
-      {/* Flowing shimmer overlay */}
-      <motion.path
-        d={ringPath}
-        fill="url(#skyShimmer)"
-        stroke="none"
-        opacity={0.2}
-        animate={{
-          opacity: [0.2, 0.4, 0.2],
-          rotate: [0, 5, 0]
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        style={{
-          transformOrigin: `${center.x}px ${center.y}px`
-        }}
-      />
-
-      {/* Celestial border outline */}
-      <motion.path
-        d={skyPath}
-        fill="none"
-        stroke={getSkyGradient.primaryColor}
-        strokeWidth={0.5}
-        strokeOpacity={0.6}
-        strokeDasharray="4,8"
-        animate={{
-          strokeDashoffset: [0, 12, 0],
-          strokeOpacity: [0.6, 0.8, 0.6]
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-
-      {/* Stars for night time */}
-      {generateStars.map((star, index) => (
-        <motion.circle
-          key={`star-${index}`}
-          cx={star.x}
-          cy={star.y}
-          r={star.size}
-          fill="hsl(45, 70%, 85%)"
-          opacity={star.opacity}
-          filter="url(#skyGlow)"
-          animate={{
-            opacity: [star.opacity * 0.5, star.opacity, star.opacity * 0.5],
-            scale: [0.8, 1.2, 0.8]
-          }}
-          transition={{
-            duration: 3 + Math.random() * 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: Math.random() * 2
-          }}
-        />
-      ))}
-
-      {/* Atmospheric wisps - flowing cloud-like elements */}
-      {[...Array(3)].map((_, index) => {
-        const wispAngle = (index / 3) * Math.PI * 2 + Math.random();
-        const wispRadius = innerRadius + Math.random() * (outerRadius - innerRadius);
-        const wispX = center.x + Math.cos(wispAngle) * wispRadius;
-        const wispY = center.y + Math.sin(wispAngle) * wispRadius;
+      {/* Render all rays with enhanced frequency and bending */}
+      {rays.map((ray, index) => {
+        const path = generateRayPath(ray, index);
+        const isSunInfluenced = ray.sunInfluence > 0.3;
+        const isHighlySunInfluenced = ray.sunInfluence > 0.7;
+        
+        // Color shifts from white to golden based on sun influence
+        const hue = 45 + ray.sunInfluence * 15; // 45-60 range
+        const saturation = 70 + ray.sunInfluence * 25; // More saturated near sun
+        const lightness = 85 + ray.sunInfluence * 15; // Brighter near sun
+        const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         
         return (
-          <motion.ellipse
-            key={`wisp-${index}`}
-            cx={wispX}
-            cy={wispY}
-            rx={8 + Math.random() * 4}
-            ry={3 + Math.random() * 2}
-            fill={getSkyGradient.tertiaryColor}
-            opacity={0.1}
+          <motion.path
+            key={`ray-${index}`}
+            d={path}
+            stroke={color}
+            strokeWidth={isSunInfluenced ? 1.2 : 0.6}
+            strokeOpacity={ray.brightness}
+            fill="none"
+            strokeLinecap="round"
+            filter={isHighlySunInfluenced ? "url(#solarFlare)" : "url(#sunGlow)"}
             animate={{
-              cx: [wispX, wispX + (Math.random() - 0.5) * 20, wispX],
-              cy: [wispY, wispY + (Math.random() - 0.5) * 10, wispY],
-              opacity: [0.1, 0.3, 0.1],
-              rotate: [0, 360]
+              strokeOpacity: [
+                ray.brightness * 0.6, 
+                ray.brightness * (1 + ray.sunInfluence * 0.5), 
+                ray.brightness * 0.6
+              ],
+              strokeWidth: isSunInfluenced ? [1.2, 1.8, 1.2] : [0.6, 0.9, 0.6]
             }}
             transition={{
-              duration: 15 + Math.random() * 10,
+              duration: 3 + Math.random() * 2,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: index * 2
-            }}
-            style={{
-              transformOrigin: `${wispX}px ${wispY}px`
+              delay: index * 0.002
             }}
           />
         );
       })}
+
+      {/* Solar corona effects for highly sun-influenced rays */}
+      {rays
+        .filter(ray => ray.sunInfluence > 0.8)
+        .map((ray, index) => {
+          const coronaRadius = radius + ray.length * 1.3;
+          const coronaX = center.x + Math.cos(ray.angle) * coronaRadius;
+          const coronaY = center.y + Math.sin(ray.angle) * coronaRadius;
+          
+          return (
+            <motion.circle
+              key={`corona-${index}`}
+              cx={coronaX}
+              cy={coronaY}
+              r={2.5}
+              fill="hsl(55, 100%, 95%)"
+              opacity={0.4}
+              filter="url(#solarFlare)"
+              animate={{
+                r: [2, 4.5, 2],
+                opacity: [0.4, 0.8, 0.4],
+                scale: [0.8, 1.4, 0.8]
+              }}
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: index * 0.1
+              }}
+            />
+          );
+        })}
+
+      {/* Sun position marker - subtle indicator */}
+      <motion.circle
+        cx={center.x + Math.cos(sunAngle) * (radius * 0.9)}
+        cy={center.y + Math.sin(sunAngle) * (radius * 0.9)}
+        r={3}
+        fill="hsl(50, 100%, 90%)"
+        opacity={0.6}
+        filter="url(#solarFlare)"
+        animate={{
+          r: [2.5, 4, 2.5],
+          opacity: [0.6, 0.9, 0.6]
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
     </motion.g>
   );
 };

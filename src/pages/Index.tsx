@@ -441,7 +441,7 @@ const IndexContent = () => {
 
             {/* Sunburst Groove Field - Violet pulsing groove close to core */}
             <SunburstGrooveField
-              radius={320}
+              radius={112}
               center={{ x: centerX, y: centerY }}
               dataLayers={[
                 { name: 'weather', data: mockWeatherData, radius: 180 },
