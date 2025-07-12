@@ -12,6 +12,7 @@ import { VanGoghEmotionalRibbon } from "./VanGoghEmotionalRibbon";
 import { VanGoghSleepRing } from "./VanGoghSleepRing";
 import { VanGoghMobilityComet } from "./VanGoghMobilityComet";
 import { VanGoghStarryBackground } from "./VanGoghStarryBackground";
+import { RadialUIDemo } from "../ui/RadialUIDemo";
 
 // Structured data following mandala pattern
 const moodSegments = [
@@ -196,6 +197,9 @@ export const VanGoghMandalaView = () => {
           </motion.g>
         </motion.g>
       </motion.svg>
+      
+      {/* Radial UI Demo Layer - Interactive circular elements */}
+      <RadialUIDemo className="absolute inset-0 pointer-events-auto z-30" />
     </div>
   );
 };
