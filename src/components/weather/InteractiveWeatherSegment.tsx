@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { CircularModal } from '../ui/CircularModal';
+import { WeatherCanvasView } from './WeatherCanvasView';
 import { Cloud, Sun, CloudRain, Zap, CloudSnow, Moon } from 'lucide-react';
 import { WeatherCondition } from '../weather-sunburst-ring';
 
@@ -83,58 +84,14 @@ export const InteractiveWeatherSegment: React.FC<InteractiveWeatherSegmentProps>
         }}
       />
 
-      {/* Weather Modal */}
+      {/* Weather Canvas Modal */}
       <CircularModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         triggerPosition={clickPosition}
-        size="md"
+        size="lg"
       >
-        <div className="space-y-4 p-4">
-          <div className="text-center">
-            <WeatherIcon 
-              className="h-12 w-12 mx-auto mb-4" 
-              style={{ color: colors.primary }}
-            />
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              {formatTime(hour)}
-            </h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              {weatherDescriptions[condition]}
-            </p>
-          </div>
-          
-          <div className="space-y-3">
-            {temperature && (
-              <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
-                <span className="text-sm font-medium">Temperature:</span>
-                <span className="text-sm font-bold" style={{ color: colors.primary }}>
-                  {temperature}°C
-                </span>
-              </div>
-            )}
-            
-            <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
-              <span className="text-sm font-medium">Condition:</span>
-              <span className="text-sm capitalize" style={{ color: colors.primary }}>
-                {condition.replace('-', ' ')}
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
-              <span className="text-sm font-medium">Hour:</span>
-              <span className="text-sm" style={{ color: colors.primary }}>
-                {formatTime(hour)}
-              </span>
-            </div>
-          </div>
-          
-          <div className="text-center pt-2">
-            <p className="text-xs text-muted-foreground italic">
-              Weather shapes the mood of time
-            </p>
-          </div>
-        </div>
+        <WeatherCanvasView className="h-full" />
       </CircularModal>
     </>
   );
