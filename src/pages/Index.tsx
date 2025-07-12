@@ -40,9 +40,9 @@ import { RadialYearSeasons } from '@/components/radial-year-seasons';
 import { RadialFractalView } from '@/components/radial-fractal-view';
 import { InsightOrbitRing } from '@/components/insight-orbit-ring';
 import { MoonPhaseMarker } from '@/components/moon-phase-marker';
-import { DataLayerLabels } from '@/components/data-layer-labels';
 import { LayerPopOutPanel } from '@/components/LayerPopOutPanel';
-import { LayerButtonMenu } from '@/components/LayerButtonMenu';
+import { DataLayerLabels } from '@/components/data-layer-labels';
+import { ReactiveDataBlobRing } from '@/components/enhanced/ReactiveDataBlobRing';
 import { ZoomMenuButton } from '@/components/navigation/ZoomMenuButton';
 import { ToolsMenuButton } from '@/components/navigation/ToolsMenuButton';
 import { SkinsMenuButton } from '@/components/navigation/SkinsMenuButton';
@@ -395,7 +395,7 @@ const IndexContent = () => {
 
             {/* 3. Mobility - Movement and activity layer (230-260px) */}
             <g transform={mobilityTilt.getSVGTiltTransform(centerX, centerY)}>
-              <DataBlobRing
+        <ReactiveDataBlobRing
                 data={mockMobilityData}
                 centerX={centerX}
                 centerY={centerY}
