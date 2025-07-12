@@ -27,6 +27,8 @@ import { SupernovaBurst } from "@/components/SupernovaBurst";
 import { analyzeMoodForSupernovas, SupernovaTrigger } from "@/utils/supernova-engine";
 import { DebugSupernova } from "@/components/DebugSupernova";
 import { useUltimateAnimationFlow } from "@/hooks/useUltimateAnimationFlow";
+import { EnhancedPlansLayer } from "@/components/enhanced/EnhancedPlansLayer";
+import { WaterFlowVisuals } from "@/components/enhanced/WaterFlowVisuals";
 import { useVisualSkin } from "@/components/visual-skin-provider";
 import { getThemeGeometry } from "@/utils/day4-dynamics";
 import { SkyConnectedWeatherRing } from "@/components/enhanced/SkyConnectedWeatherRing";
@@ -872,6 +874,30 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
               )}
             </React.Fragment>
           ))}
+
+          {/* Enhanced Plans Layer - Day 4 completion */}
+          {layers.find(l => l.layerType === 'plans') && (
+            <EnhancedPlansLayer
+              plansData={layers.find(l => l.layerType === 'plans')?.data || []}
+              centerX={0}
+              centerY={0}
+              radius={layers.find(l => l.layerType === 'plans')?.radius || 180}
+              theme={currentTheme}
+              onPlanClick={(plan: any) => console.log('Plan clicked:', plan)}
+              showDetails={false}
+            />
+          )}
+          
+          {/* Water Flow Visuals - Day 4 completion */}
+          <WaterFlowVisuals
+            centerX={0}
+            centerY={0}
+            radius={Math.max(...layers.map(l => l.radius)) * 0.6}
+            flow="tidal"
+            intensity={0.3}
+            color="hsl(200 60% 50%)"
+            theme={currentTheme}
+          />
 
           {/* Atmospheric Aurora Layer - Appears only during meaningful moments */}
           <AtmosphericAuroraLayer

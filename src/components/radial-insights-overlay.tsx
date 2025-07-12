@@ -70,16 +70,23 @@ export const RadialInsightsOverlay: React.FC<RadialInsightsOverlayProps> = ({
 
   useEffect(() => {
     if (visible) {
+      setAnimatedInsights([]);
       // Stagger animation of insights
+      const timeouts: NodeJS.Timeout[] = [];
       insights.forEach((_, index) => {
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
           setAnimatedInsights(prev => [...prev, index]);
         }, index * 300);
+        timeouts.push(timeout);
       });
+      
+      return () => {
+        timeouts.forEach(clearTimeout);
+      };
     } else {
       setAnimatedInsights([]);
     }
-  }, [visible, insights]);
+  }, [visible, insights.length]); // Only depend on length, not full array
 
   if (!visible) return null;
 

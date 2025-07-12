@@ -16,7 +16,7 @@ import { mockEnvironmentalData } from "@/data/mock-environmental-data";
 import { motion } from "framer-motion";
 import { OptimizedMotion, OptimizedSVGMotion } from "@/components/ui/OptimizedMotion";
 import { PerformanceMonitor } from "@/components/debug/PerformanceMonitor";
-import { useUltimateAnimationFlow } from "@/hooks/useUltimateAnimationFlow";
+import { useAnimationOrchestrator } from '@/hooks/useAnimationOrchestrator';
 import { usePerformanceOptimizer } from "@/hooks/usePerformanceOptimizer";
 import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
 import { CosmicFaderTrack } from "@/components/navigation/CosmicFaderTrack";
@@ -208,7 +208,7 @@ const MandalaViewContent = () => {
   } = useSoundDesign();
   
   // Ultimate animation flow management
-  const { registerAnimation, getOptimizedMotionProps, isEmergencyMode, metrics } = useUltimateAnimationFlow();
+  const { getAnimationProps, metrics, isEmergencyMode } = useAnimationOrchestrator();
   
   // Optimized animation management
   const { queueAnimation, batchAnimations } = useOptimizedAnimations();
