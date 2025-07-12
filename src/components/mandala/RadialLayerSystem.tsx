@@ -36,6 +36,7 @@ import { useZoomCompensation } from "@/hooks/useZoomCompensation";
 import { useInteractionTracking } from "@/hooks/useInteractionTracking";
 import { findRecurringSlices, getConstellationColors } from "@/utils/constellation-engine";
 import { ConstellationArcs } from "@/components/interactions/ConstellationArcs";
+import { useOrganicOrbitMotion } from "@/hooks/useOrganicOrbitMotion";
 
 interface LayerData {
   name: string;
@@ -94,6 +95,20 @@ const Layer: React.FC<{
   onDataPointClick: (expandedData: any, burstData: any) => void;
   layer: any; // Pass the full layer object to access isWeek property
 }> = ({ name, data, radius, color, zoomLevel, layerIndex, totalLayers, layerType, onTooltipShow, onTooltipHide, onDataPointClick, layer }) => {
+  
+  // Get mood volatility from layer data for motion calculation
+  const moodVolatility = layerType === 'mood' ? 
+    (data.reduce((sum: number, point: any) => sum + (point.intensity || 0.5), 0) / data.length) : 0.5;
+  
+  const isNightTime = new Date().getHours() > 20 || new Date().getHours() < 6;
+  
+  const organicMotion = useOrganicOrbitMotion({
+    layerType: layerType || 'mood',
+    baseRadius: radius,
+    dataPoints: data,
+    moodVolatility,
+    isNightTime
+  });
   const getDetailLevel = () => {
     switch (zoomLevel) {
       case "year": return "outline";
@@ -125,18 +140,18 @@ const Layer: React.FC<{
         }}
       />
       
-      {/* Ring outline */}
-      <motion.circle
-        cx={0}
-        cy={0}
-        r={radius}
+      {/* Organic deformed layer outline */}
+      <motion.path
+        d={organicMotion.generateOrbitPath(0, 0)}
+        fill="none"
         stroke={color}
         strokeWidth={detailLevel === "outline" ? 0.8 : 1.2}
-        fill="none"
         opacity={0.75}
         style={{
           filter: `drop-shadow(0 0 3px ${color}30)`,
-          strokeLinecap: "round"
+          strokeLinecap: "round",
+          transform: `rotate(${organicMotion.rotationOffset}deg)`,
+          transformOrigin: "center"
         }}
         animate={{ 
           strokeDasharray: detailLevel === "outline" ? "3,6" : "none",
@@ -151,8 +166,9 @@ const Layer: React.FC<{
       {/* Interactive data visualization based on zoom level */}
       {detailLevel !== "outline" && data.map((item, index) => {
         const angle = (index / data.length) * 2 * Math.PI;
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
+        const deformedRadius = organicMotion.getRadiusAtAngle(angle);
+        const x = Math.cos(angle + organicMotion.rotationOffset * Math.PI / 180) * deformedRadius;
+        const y = Math.sin(angle + organicMotion.rotationOffset * Math.PI / 180) * deformedRadius;
 
         return (
           <motion.g key={index}>
