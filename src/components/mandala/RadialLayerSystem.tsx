@@ -7,6 +7,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { OptimizedMotion, OptimizedSVGMotion, OptimizedPresence } from "@/components/ui/OptimizedMotion";
+import { mockEssenceData } from '../../data/mock-essence-data';
+import EssenceLayer from '../enhanced/EssenceLayer';
 import { RadialTooltip } from "@/components/interactions/RadialTooltip";
 import { InteractiveDataPoint } from "@/components/interactions/InteractiveDataPoint";
 import { ExpandedCard } from "@/components/interactions/ExpandedCard";
@@ -946,6 +948,16 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           <RippleTrails
             center={{ x: 0, y: 0 }}
             className="mandala-ripples"
+          />
+
+          {/* Essence Layer - Well-Being Flow (positioned between Sleep and core) */}
+          <EssenceLayer
+            essenceData={mockEssenceData}
+            centerX={0}
+            centerY={0}
+            innerRadius={centerRadius + 20}
+            outerRadius={centerRadius + 35}
+            currentDate={new Date()}
           />
 
           {/* Mystical Soul Core - replaces static center */}
