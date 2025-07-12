@@ -26,7 +26,8 @@ import { PoetryOverlay } from '@/components/poetry-overlay';
 import { SunAuraRing } from '@/components/sun-aura-ring';
 import { SmoothFlowProvider } from '@/components/performance/SmoothFlowProvider';
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
-import { NowIndicator } from '@/components/now-indicator';
+import { MusicalNowIndicator } from '@/components/interactions/MusicalNowIndicator';
+import { VinylGrooveFilter, EnhancedVinylGrooveFilter } from '@/components/interactions/VinylGrooveFilter';
 import { SideView } from '@/components/mandala/SideView';
 import { RotatableSideView } from '@/components/mandala/RotatableSideView';
 import { useTimeDrift } from '@/hooks/use-time-drift';
@@ -375,43 +376,73 @@ const IndexContent = () => {
             
             {/* 1. Sleep - Innermost rest and recovery layer (150-180px) */}
             <g transform={sleepTilt.getSVGTiltTransform(centerX, centerY)}>
-              <DataBlobRing
-                data={mockSleepData}
-                centerX={centerX}
-                centerY={centerY}
-                innerRadius={150}
-                outerRadius={180}
-                type="sleep"
-                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
-                {...currentMetrics}
-              />
+              <defs>
+                <EnhancedVinylGrooveFilter
+                  filterId="sleep-groove-filter"
+                  intensity={0.4}
+                  speed={0.3}
+                  ringType="sleep"
+                />
+              </defs>
+              <g filter="url(#sleep-groove-filter)">
+                <DataBlobRing
+                  data={mockSleepData}
+                  centerX={centerX}
+                  centerY={centerY}
+                  innerRadius={150}
+                  outerRadius={180}
+                  type="sleep"
+                  label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
+                  {...currentMetrics}
+                />
+              </g>
             </g>
 
             {/* 2. Mood - Emotional expression layer (190-220px) */}
             <g transform={moodTilt.getSVGTiltTransform(centerX, centerY)}>
-              <DataBlobRing
-                data={mockMoodData}
-                centerX={centerX}
-                centerY={centerY}
-                innerRadius={190}
-                outerRadius={220}
-                type="mood"
-                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
-                {...currentMetrics}
-                onMoodChange={setCurrentMood}
-              />
+              <defs>
+                <EnhancedVinylGrooveFilter
+                  filterId="mood-groove-filter"
+                  intensity={0.6}
+                  speed={0.5}
+                  ringType="mood"
+                />
+              </defs>
+              <g filter="url(#mood-groove-filter)">
+                <DataBlobRing
+                  data={mockMoodData}
+                  centerX={centerX}
+                  centerY={centerY}
+                  innerRadius={190}
+                  outerRadius={220}
+                  type="mood"
+                  label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
+                  {...currentMetrics}
+                  onMoodChange={setCurrentMood}
+                />
+              </g>
             </g>
 
             {/* 3. Mobility - Movement and activity layer (230-260px) */}
             <g transform={mobilityTilt.getSVGTiltTransform(centerX, centerY)}>
-        <ReactiveDataBlobRing
-                data={mockMobilityData as any}
-                centerX={centerX}
-                centerY={centerY}
-                innerRadius={230}
-                outerRadius={260}
-                type="mobility"
-              />
+              <defs>
+                <EnhancedVinylGrooveFilter
+                  filterId="mobility-groove-filter"
+                  intensity={0.7}
+                  speed={0.8}
+                  ringType="mobility"
+                />
+              </defs>
+              <g filter="url(#mobility-groove-filter)">
+                <ReactiveDataBlobRing
+                  data={mockMobilityData as any}
+                  centerX={centerX}
+                  centerY={centerY}
+                  innerRadius={230}
+                  outerRadius={260}
+                  type="mobility"
+                />
+              </g>
             </g>
 
             {/* 4. Plans - Intentional structure layer (270-300px) */}
@@ -772,8 +803,8 @@ const IndexContent = () => {
         />
 
 
-        {/* NOW Indicator - appears at appropriate position for each scale */}
-        <NowIndicator
+        {/* Musical NOW Indicator - The Cosmic Stylus that plays the rings */}
+        <MusicalNowIndicator
           centerX={centerX}
           centerY={centerY}
           radius={scale === 'day' ? 350 : 
@@ -781,6 +812,22 @@ const IndexContent = () => {
                   scale === 'month' ? 320 : 340}
           timeScale={scale}
           theme={currentTheme}
+          moodData={mockMoodData}
+          sleepData={mockSleepData}
+          mobilityData={mockMobilityData}
+          moodRingRadius={205}
+          sleepRingRadius={165}
+          mobilityRingRadius={245}
+          weatherRingRadius={325}
+          enableCollisions={true}
+          onGlyphPlayed={(glyph) => {
+            console.log('🎵 Glyph played:', glyph.type, 'intensity:', glyph.intensity);
+            // Future: Add sound feedback here
+          }}
+          onMoodDetected={(mood) => {
+            console.log('🌟 Mood detected:', mood);
+            // Future: Update global mood state here
+          }}
         />
 
         {/* Poetry Overlay - floating poetic lines in poetry mode */}
