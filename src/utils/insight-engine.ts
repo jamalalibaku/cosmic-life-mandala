@@ -47,7 +47,7 @@ export interface InsightResponse {
  * Trigger insight generation for a clicked slice
  * Uses progressive learning system that builds depth over time
  */
-export const triggerInsightPrompt = (sliceData: SliceInsightData, timeSlices?: any[]): InsightResponse => {
+export const triggerInsightPrompt = (sliceData: SliceInsightData, timeSlices?: any[], aiCharacter?: any): InsightResponse => {
   console.log('🧠 Insight Engine triggered:', sliceData);
   
   const { layerType, dataValue, timestamp } = sliceData;
@@ -77,6 +77,12 @@ export const triggerInsightPrompt = (sliceData: SliceInsightData, timeSlices?: a
   console.log('🧠 Progressive insight generated:', progressiveInsight);
   console.log('🧠 User sophistication level:', updatedProfile.sophisticationLevel);
   
+  // Apply AI character transformation if provided
+  let transformedMessage = progressiveInsight.message;
+  if (aiCharacter?.transformInsight) {
+    transformedMessage = aiCharacter.transformInsight(progressiveInsight.message);
+  }
+  
   // Convert to InsightResponse format
   const relatedLayers = Object.keys(correlations)
     .filter(key => key.startsWith(layerType))
@@ -85,7 +91,7 @@ export const triggerInsightPrompt = (sliceData: SliceInsightData, timeSlices?: a
   
   const insights: InsightResponse = {
     type: updatedProfile.sophisticationLevel >= 3 ? 'pattern' : 'correlation',
-    message: progressiveInsight.message,
+    message: transformedMessage,
     confidence: progressiveInsight.confidence,
     relatedLayers,
     actionSuggestion: progressiveInsight.actionSuggestions[0] || 'Continue exploring patterns'
