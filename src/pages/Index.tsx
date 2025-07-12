@@ -24,6 +24,7 @@ import { VisualSkinProvider, useVisualSkin } from '@/components/visual-skin-prov
 import { ThemeHaikuDisplay } from '@/components/theme-haiku-display';
 import { PoetryOverlay } from '@/components/poetry-overlay';
 import { SunAuraRing } from '@/components/sun-aura-ring';
+import { SmoothFlowProvider } from '@/components/performance/SmoothFlowProvider';
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
 import { NowIndicator } from '@/components/now-indicator';
 import { SideView } from '@/components/mandala/SideView';
@@ -1098,20 +1099,22 @@ const IndexContent = () => {
 // Main Index component with theme provider
 const Index = () => {
   return (
-    <VisualSkinProvider defaultTheme="cosmic">
-      <TimeAxisProvider>
-        <PhaseTransitionManager 
-          userProfile={{ totalInteractions: 0, discoveredCorrelations: [], layerPreferences: {}, behaviorPatterns: { explorationStyle: 'gentle' }, lastActiveDate: new Date().toISOString() }}
-          recentInteractions={[
-            { layerType: 'mood', timestamp: new Date().toISOString(), dataValue: 0.7 },
-            { layerType: 'sleep', timestamp: new Date().toISOString(), dataValue: 0.8 }
-          ]}
-        >
-          <IndexContent />
-        </PhaseTransitionManager>
-        <ThemeHaikuDisplay />
-      </TimeAxisProvider>
-    </VisualSkinProvider>
+    <SmoothFlowProvider showPerformanceMonitor={process.env.NODE_ENV === 'development'}>
+      <VisualSkinProvider defaultTheme="cosmic">
+        <TimeAxisProvider>
+          <PhaseTransitionManager 
+            userProfile={{ totalInteractions: 0, discoveredCorrelations: [], layerPreferences: {}, behaviorPatterns: { explorationStyle: 'gentle' }, lastActiveDate: new Date().toISOString() }}
+            recentInteractions={[
+              { layerType: 'mood', timestamp: new Date().toISOString(), dataValue: 0.7 },
+              { layerType: 'sleep', timestamp: new Date().toISOString(), dataValue: 0.8 }
+            ]}
+          >
+            <IndexContent />
+          </PhaseTransitionManager>
+          <ThemeHaikuDisplay />
+        </TimeAxisProvider>
+      </VisualSkinProvider>
+    </SmoothFlowProvider>
   );
 };
 
