@@ -8,7 +8,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { goldenRatio, PHI } from '../utils/golden-ratio';
 import { DollyZoomTransition } from './cinematic/DollyZoomTransition';
 
-export type TimeScale = 'day' | 'week' | 'month' | 'year';
+export type TimeScale = 'day' | 'week' | 'month' | 'year' | 'side';
 
 interface FractalTimeZoomManagerProps {
   currentScale: TimeScale;

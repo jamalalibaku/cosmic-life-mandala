@@ -16,7 +16,7 @@ interface PlaybackState {
 }
 
 interface PlaybackReflectorProps {
-  timespan: 'day' | 'week' | 'month' | 'year';
+  timespan: 'day' | 'week' | 'month' | 'year' | 'side';
   centerX: number;
   centerY: number;
   radius: number;
@@ -29,14 +29,16 @@ const timespanDurations = {
   day: 24,    // 24 hours
   week: 7,    // 7 days  
   month: 30,  // 30 days
-  year: 12    // 12 months
+  year: 12,   // 12 months
+  side: 24    // 24 layers for side view
 };
 
 const timespanLabels = {
   day: 'Reflect My Day',
   week: 'Replay My Week', 
   month: 'Review My Month',
-  year: 'Revisit My Year'
+  year: 'Revisit My Year',
+  side: 'Explore Side View'
 };
 
 export const PlaybackReflector: React.FC<PlaybackReflectorProps> = ({

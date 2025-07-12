@@ -30,7 +30,8 @@ const timeScaleOptions: { value: TimeScale; label: string; icon: string }[] = [
   { value: 'day', label: 'Day', icon: '📅' },
   { value: 'week', label: 'Week', icon: '📊' },
   { value: 'month', label: 'Month', icon: '🗓️' },
-  { value: 'year', label: 'Year', icon: '📆' }
+  { value: 'year', label: 'Year', icon: '📆' },
+  { value: 'side', label: 'Side', icon: '📐' }
 ];
 
 export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({

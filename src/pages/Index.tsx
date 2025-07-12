@@ -26,6 +26,7 @@ import { PoetryOverlay } from '@/components/poetry-overlay';
 import { SunAuraRing } from '@/components/sun-aura-ring';
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
 import { NowIndicator } from '@/components/now-indicator';
+import { SideView } from '@/components/mandala/SideView';
 import { useTimeDrift } from '@/hooks/use-time-drift';
 import { FractalTimeZoomManager, TimeScale } from '@/components/fractal-time-zoom-manager';
 import { RadialWeekView } from '@/components/radial-week-view';
@@ -244,6 +245,20 @@ const IndexContent = () => {
     const centerX = 350;
     const centerY = 350;
     
+    // Render Side View for 'side' scale
+    if (scale === 'side') {
+      return (
+        <foreignObject x="0" y="0" width="700" height="700">
+          <SideView
+            currentDate={currentDate}
+            theme={currentTheme}
+            centerX={centerX}
+            centerY={centerY}
+            radius={250}
+          />
+        </foreignObject>
+      );
+    }
     
     return (
       <g transform={mainTilt.getSVGTiltTransform(centerX, centerY, timeDrift.getDriftTransform(centerX, centerY))}>

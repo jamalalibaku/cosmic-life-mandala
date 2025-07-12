@@ -25,7 +25,7 @@ interface ScaleToolProps {
   onScaleGesture: (gesture: ScaleGesture) => void;
   centerX: number;
   centerY: number;
-  currentScale: 'day' | 'week' | 'month' | 'year';
+  currentScale: 'day' | 'week' | 'month' | 'year' | 'side';
 }
 
 export const ScaleTool: React.FC<ScaleToolProps> = ({

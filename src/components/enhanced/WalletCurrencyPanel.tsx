@@ -12,7 +12,7 @@ interface WalletCurrencyPanelProps {
   isVisible: boolean;
   onClose: () => void;
   position: { x: number; y: number };
-  timeScale?: 'day' | 'week' | 'month' | 'year';
+  timeScale?: 'day' | 'week' | 'month' | 'year' | 'side';
 }
 
 export const WalletCurrencyPanel: React.FC<WalletCurrencyPanelProps> = ({
@@ -39,7 +39,8 @@ export const WalletCurrencyPanel: React.FC<WalletCurrencyPanelProps> = ({
     day: 1,
     week: 7,
     month: 30,
-    year: 365
+    year: 365,
+    side: 1
   };
 
   const scaledWealth = totalWealth * scaleMultipliers[timeScale];
