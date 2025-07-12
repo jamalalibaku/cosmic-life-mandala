@@ -421,12 +421,65 @@ export const useReactiveTilt = ({
     };
   }, [handleMouseMove, handleScroll, updateTimeData, simulateBiologicalData, updateOrganicMotion, initAudioMonitoring]);
 
-  // Calculate tilt in animation frame
+  // Use a ref to track tilt and update it in animation frame without causing re-renders
+  const currentTiltRef = useRef(0);
+  
+  // Calculate tilt in animation frame without setState loops
   useEffect(() => {
     let animationFrame: number;
     
     const updateTilt = () => {
-      calculateReactiveTilt();
+      const now = Date.now() / 1000;
+      let combinedTilt = 0;
+      
+      const layerFrequencies: Record<string, Record<string, number>> = {
+        core: { heartbeat: 0.3, breathing: 0.4, earthRotation: 0.6, timeOfDay: 0.2 },
+        weather: { temperature: 0.4, atmosphericPressure: 0.3, soundLevel: 0.2, seasonalCycle: 0.3 },
+        plans: { flowState: 0.4, timeOfDay: 0.3, minute: 0.2, hour: 0.3 },
+        mobility: { mouseVelocity: 0.3, scrollVelocity: 0.2, activityIntensity: 0.4, heartbeat: 0.2 },
+        mood: { stressLevel: 0.4, flowState: 0.3, moonPhase: 0.3, soundLevel: 0.2 },
+        sleep: { breathing: 0.5, moonPhase: 0.3, timeOfDay: 0.4, stressLevel: -0.2 },
+        ui: { mouseVelocity: 0.2, interactionFrequency: 0.3, second: 0.1 }
+      };
+      
+      const preferences = layerFrequencies[layerType] || layerFrequencies.core;
+      
+      // Calculate all frequency components without setState
+      if (frequencyData.heartRate && preferences.heartbeat) {
+        const heartFreq = (frequencyData.heartRate / 60) / MOTION_SLOWDOWN;
+        combinedTilt += Math.sin(now * heartFreq * 2 * Math.PI) * 
+                       baseAmplitude * 0.15 * preferences.heartbeat;
+      }
+      
+      if (frequencyData.breathingRate && preferences.breathing) {
+        const breathFreq = (frequencyData.breathingRate / 60) / MOTION_SLOWDOWN;
+        combinedTilt += Math.sin(now * breathFreq * 2 * Math.PI) * 
+                       baseAmplitude * 0.25 * preferences.breathing;
+      }
+      
+      if (preferences.earthRotation) {
+        combinedTilt += Math.sin(frequencyData.timeOfDay * 2 * Math.PI) * 
+                       baseAmplitude * 0.1 * preferences.earthRotation;
+      }
+      
+      if (preferences.moonPhase) {
+        combinedTilt += Math.sin(frequencyData.moonPhase * 2 * Math.PI) * 
+                       baseAmplitude * 0.08 * preferences.moonPhase;
+      }
+      
+      // Add organic motion without setState
+      combinedTilt += windOffset * baseAmplitude * 0.3;
+      combinedTilt += gravityMomentum * baseAmplitude * 0.4;
+      combinedTilt += organicNoise * baseAmplitude * 0.5;
+      
+      const finalTilt = combinedTilt * sensitivity * dampening;
+      currentTiltRef.current = finalTilt;
+      
+      // Only update state occasionally to prevent loops
+      if (Math.abs(finalTilt - tiltAngle) > 0.01) {
+        setTiltAngle(finalTilt);
+      }
+      
       animationFrame = requestAnimationFrame(updateTilt);
     };
     
@@ -437,7 +490,7 @@ export const useReactiveTilt = ({
         cancelAnimationFrame(animationFrame);
       }
     };
-  }, [calculateReactiveTilt]);
+  }, [layerType, sensitivity, dampening, baseAmplitude]); // Removed calculateReactiveTilt dependency
 
   // Generate transform strings
   const getTiltTransform = (additionalTransforms = '') => {
