@@ -230,74 +230,94 @@ const MandalaViewContent = () => {
         <div className="absolute inset-0 bg-gradient-radial from-background-subtle via-background to-background-vignette" />
       </div>
       
-      <div className="flex-1 flex items-center justify-center">
-        <motion.svg
-          viewBox="-320 -320 640 640"
-          width="85%"
-          height="85%"
-          className="max-w-5xl max-h-screen relative z-10"
-          style={{
-            filter: "drop-shadow(0 0 40px rgba(0, 0, 0, 0.3))"
-          }}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-        >
-          {/* Environmental Layer (beneath other layers) */}
-          <EnvironmentalLayer 
-            radius={320}
-            center={{ x: 0, y: 0 }}
-            environmentalData={mockEnvironmentalData}
-            isVisible={showEnvironmental}
-          />
-          
-          {/* Full radial system rotation to keep NOW at top with enhanced smoothing */}
-          <motion.g
-            animate={{ rotate: rotationAngle }}
-            transition={{ 
-              type: "tween", 
-              duration: 4, 
-              ease: [0.25, 0.46, 0.45, 0.94] // Cosmic easing for celestial motion
+      <div className="flex-1 flex items-center justify-center relative">
+        {/* Expanded Canvas Container */}
+        <div className="relative w-full h-full max-w-[95vw] max-h-[95vh] flex items-center justify-center">
+          <motion.svg
+            viewBox="-320 -320 640 640"
+            width="100%"
+            height="100%"
+            className="relative z-10"
+            style={{
+              filter: "drop-shadow(0 0 40px rgba(0, 0, 0, 0.3))",
+              maxWidth: "min(95vw, 95vh)",
+              maxHeight: "min(95vw, 95vh)"
             }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
           >
-            {/* Real Date-Based Radial Layer Architecture System */}
-            <RadialLayerSystem 
-              layers={layerData}
-              currentZoom={zoomLevel}
-              centerRadius={45}
-              layerSpacing={60}
-              showConstellations={false}
+            {/* Environmental Layer (beneath other layers) */}
+            <EnvironmentalLayer 
+              radius={320}
+              center={{ x: 0, y: 0 }}
+              environmentalData={mockEnvironmentalData}
+              isVisible={showEnvironmental}
             />
-          </motion.g>
-
-          {/* Curved Environmental Layer Label */}
-          {showEnvironmental && (
+            
+            {/* Full radial system rotation to keep NOW at top with enhanced smoothing */}
             <motion.g
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
+              animate={{ rotate: rotationAngle }}
+              transition={{ 
+                type: "tween", 
+                duration: 4, 
+                ease: [0.25, 0.46, 0.45, 0.94] // Cosmic easing for celestial motion
+              }}
             >
-              <defs>
-                <path
-                  id="environmentalCurve"
-                  d={`M ${-280 * Math.cos(Math.PI/6)} ${-280 * Math.sin(Math.PI/6)} 
-                      A 280 280 0 0 1 ${280 * Math.cos(Math.PI/6)} ${-280 * Math.sin(Math.PI/6)}`}
-                />
-              </defs>
-              <text
-                fontSize="12"
-                fill="hsl(160, 60%, 70%)"
-                opacity={0.8}
-                fontWeight="300"
-                letterSpacing="3px"
-              >
-                <textPath href="#environmentalCurve" startOffset="50%">
-                  NATURE · CONNECTION · SENSORY · EXPERIENCE
-                </textPath>
-              </text>
+              {/* Real Date-Based Radial Layer Architecture System */}
+              <RadialLayerSystem 
+                layers={layerData}
+                currentZoom={zoomLevel}
+                centerRadius={45}
+                layerSpacing={60}
+                showConstellations={false}
+              />
             </motion.g>
-          )}
-        </motion.svg>
+
+            {/* Curved Environmental Layer Label */}
+            {showEnvironmental && (
+              <motion.g
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+              >
+                <defs>
+                  <path
+                    id="environmentalCurve"
+                    d={`M ${-280 * Math.cos(Math.PI/6)} ${-280 * Math.sin(Math.PI/6)} 
+                        A 280 280 0 0 1 ${280 * Math.cos(Math.PI/6)} ${-280 * Math.sin(Math.PI/6)}`}
+                  />
+                </defs>
+                <text
+                  fontSize="12"
+                  fill="hsl(160, 60%, 70%)"
+                  opacity={0.8}
+                  fontWeight="300"
+                  letterSpacing="3px"
+                >
+                  <textPath href="#environmentalCurve" startOffset="50%">
+                    NATURE · CONNECTION · SENSORY · EXPERIENCE
+                  </textPath>
+                </text>
+              </motion.g>
+            )}
+          </motion.svg>
+          
+          {/* Circular Vignette Overlay */}
+          <div className="absolute inset-0 pointer-events-none z-20">
+            <div 
+              className="w-full h-full rounded-full"
+              style={{
+                background: `radial-gradient(circle at center, 
+                  transparent 45%, 
+                  hsla(var(--background) / 0.1) 60%, 
+                  hsla(var(--background) / 0.3) 75%, 
+                  hsla(var(--background) / 0.6) 85%, 
+                  hsla(var(--background) / 0.9) 95%)`
+              }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
