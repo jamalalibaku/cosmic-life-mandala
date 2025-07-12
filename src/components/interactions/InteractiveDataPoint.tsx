@@ -14,7 +14,7 @@ interface InteractiveDataPointProps {
   color: string;
   size: number;
   data: any;
-  layerType: "mood" | "places" | "mobility" | "plans" | "weather" | "moon";
+  layerType: "mood" | "places" | "mobility" | "plans" | "weather" | "moon" | "sleep";
   onHover: (tooltipData: any) => void;
   onLeave: () => void;
   onClick: (expandedData: any, burstData: any) => void;
@@ -70,6 +70,12 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
       case "moon":
         return ["🌙", "✨", "🌟", "💫", "🌌"];
       
+      case "sleep":
+        if (data.quality === "deep") return ["😴", "🌙", "💤", "🛌", "💙"];
+        if (data.quality === "light") return ["😌", "🌸", "☁️", "✨", "💫"];
+        if (data.quality === "rem") return ["🌈", "💭", "🎭", "🌟", "✨"];
+        return ["💤", "🌙", "😴"];
+      
       default:
         return ["✨", "💫", "🌟"];
     }
@@ -100,6 +106,7 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
       case "plans": return data.event?.charAt(0).toUpperCase() + data.event?.slice(1);
       case "weather": return "Current Conditions";
       case "moon": return data.phase?.charAt(0).toUpperCase() + data.phase?.slice(1);
+      case "sleep": return data.quality?.charAt(0).toUpperCase() + data.quality?.slice(1) || "Sleep Session";
       default: return "";
     }
   };
@@ -128,6 +135,11 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
         return "📅";
       case "weather": return "🌤️";
       case "moon": return "🌙";
+      case "sleep":
+        if (data.quality === "deep") return "😴";
+        if (data.quality === "light") return "😌";
+        if (data.quality === "rem") return "💭";
+        return "💤";
       default: return "✨";
     }
   };
@@ -195,6 +207,15 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
           value: data.phase?.toUpperCase() || "UNKNOWN",
           emoji: "🌙",
           description: dateInfo + (data.luminosity ? ` · ${Math.round(data.luminosity * 100)}% visible` : ""),
+        };
+      
+      case "sleep":
+        return {
+          ...baseTooltip,
+          title: `SLEEP${weekInfo || dayInfo}`,
+          value: data.quality ? `${data.quality.toUpperCase()} · ${data.durationHours ? `${Math.round(data.durationHours * 60)}min` : '0min'}` : "No sleep data",
+          emoji: data.quality === "deep" ? "😴" : data.quality === "light" ? "😌" : data.quality === "rem" ? "💭" : "💤",
+          description: dateInfo + (data.intensity ? ` · Quality: ${Math.round(data.intensity * 100)}%` : ""),
         };
       
       default:

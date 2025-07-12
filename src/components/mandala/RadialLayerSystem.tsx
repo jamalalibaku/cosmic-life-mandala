@@ -42,6 +42,8 @@ import { useInteractionTracking } from "@/hooks/useInteractionTracking";
 import { findRecurringSlices, getConstellationColors } from "@/utils/constellation-engine";
 import { ConstellationArcs } from "@/components/interactions/ConstellationArcs";
 import { useOrganicOrbitMotion } from "@/hooks/useOrganicOrbitMotion";
+import { FibrousRingLayer } from "@/components/layers/FibrousRingLayer";
+import { AtmosphericAuroraLayer, useAuroraEvents } from "@/components/layers/AtmosphericAuroraLayer";
 
 interface LayerData {
   name: string;
@@ -49,7 +51,7 @@ interface LayerData {
   color: string;
   radius: number;
   zoomLevel?: "year" | "month" | "week" | "day" | "hour";
-  layerType?: "mood" | "places" | "mobility" | "plans" | "weather" | "moon";
+  layerType?: "mood" | "places" | "mobility" | "plans" | "weather" | "moon" | "sleep";
   isWeek?: boolean;
 }
 
@@ -94,7 +96,7 @@ const Layer: React.FC<{
   zoomLevel: string;
   layerIndex: number;
   totalLayers: number;
-  layerType?: "mood" | "places" | "mobility" | "plans" | "weather" | "moon";
+  layerType?: "mood" | "places" | "mobility" | "plans" | "weather" | "moon" | "sleep";
   onTooltipShow: (tooltipData: any) => void;
   onTooltipHide: () => void;
   onDataPointClick: (expandedData: any, burstData: any) => void;
@@ -436,7 +438,16 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   // Constellation states
   const [constellations, setConstellations] = useState<any[]>([]);
   
-  // Analyze mood data for emotional peaks on mount and data changes
+  // Aurora events for meaningful moments
+  const { 
+    events: auroraEvents, 
+    triggerPhaseTransition, 
+    triggerInsightDiscovery, 
+    triggerMilestone,
+    triggerCorrelation 
+  } = useAuroraEvents();
+  
+  // Analyze mood data for emotional peaks and trigger meaningful aurora events
   useEffect(() => {
     console.log('🔍 RadialLayerSystem checking for mood data...', { 
       totalLayers: layers.length,
@@ -459,15 +470,23 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
         setTimeout(() => {
           if (trigger.shouldTrigger) {
             setActiveSupernovas(prev => [...prev, { ...trigger, id: supernovaCounter + index }]);
+            
+            // Trigger aurora for high intensity emotional moments
+            if (trigger.intensity > 0.7) {
+              setTimeout(() => {
+                triggerInsightDiscovery();
+                console.log('🌌 Aurora triggered for emotional insight');
+              }, 1000);
+            }
           }
         }, index * 1500); // 1.5 second stagger between bursts
       });
       
       setSupernovaCounter(prev => prev + triggers.length);
     }
-  }, [layers, supernovaCounter]);
+  }, [layers, supernovaCounter, triggerInsightDiscovery]);
 
-  // Generate constellations when enabled
+  // Generate constellations and trigger correlation auroras when patterns are found
   useEffect(() => {
     if (showConstellations && layers.length > 0) {
       const allSlices = layers.flatMap(layer => 
@@ -485,11 +504,19 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
         compareAcross: 'months'
       });
       
+      // Trigger aurora when significant correlations are discovered
+      if (matches.length > constellations.length && matches.length > 2) {
+        setTimeout(() => {
+          triggerCorrelation();
+          console.log('🌌 Aurora triggered for constellation correlation discovery');
+        }, 800);
+      }
+      
       setConstellations(matches);
     } else {
       setConstellations([]);
     }
-  }, [showConstellations, layers]);
+  }, [showConstellations, layers, constellations.length, triggerCorrelation]);
 
   const handleTooltipShow = (data: any) => {
     setTooltipData(data);
@@ -527,6 +554,14 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
     // Trigger emoji burst
     setEmojiBurstData(burstData);
     setEmojiBurstActive(true);
+    
+    // Trigger milestone aurora for significant data discoveries
+    if (expandedData.intensity > 0.8 || expandedData.value > 0.9) {
+      setTimeout(() => {
+        triggerMilestone();
+        console.log('🌌 Aurora triggered for milestone data point discovery');
+      }, 1200);
+    }
   };
 
   const handleExpandedCardClose = () => {
@@ -696,42 +731,66 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
             />
           )}
 
-          {/* Render layers from outside to inside with clickable interaction */}
+          {/* Fibrous Ring Layers - Transform data into organic, thread-like textures */}
           {layers.slice().reverse().map((layer, index) => (
-            <ClickableLayer
-              key={layer.name}
-              radius={layer.radius}
-              color={layer.color}
-              name={layer.name}
-              layerType={layer.layerType}
-              onClick={handleLayerClick}
-            >
-              <Layer
-                name={layer.name}
-                data={layer.data}
+            <React.Fragment key={`fibrous-${layer.name}`}>
+              {/* Traditional layer structure */}
+              <ClickableLayer
                 radius={layer.radius}
                 color={layer.color}
-                zoomLevel={currentZoom}
-                layerIndex={index}
-                totalLayers={layers.length}
+                name={layer.name}
                 layerType={layer.layerType}
-                onTooltipShow={handleTooltipShow}
-                onTooltipHide={handleTooltipHide}
-                onDataPointClick={handleDataPointClick}
-                layer={layer}
-              />
-            </ClickableLayer>
+                onClick={handleLayerClick}
+              >
+                <Layer
+                  name={layer.name}
+                  data={layer.data}
+                  radius={layer.radius}
+                  color={layer.color}
+                  zoomLevel={currentZoom}
+                  layerIndex={index}
+                  totalLayers={layers.length}
+                  layerType={layer.layerType}
+                  onTooltipShow={handleTooltipShow}
+                  onTooltipHide={handleTooltipHide}
+                  onDataPointClick={handleDataPointClick}
+                  layer={layer}
+                />
+              </ClickableLayer>
+              
+              {/* Fibrous texture overlay for organic, painterly feel */}
+              {layer.data.length > 0 && (
+                <FibrousRingLayer
+                  radius={layer.radius}
+                  center={{ x: 0, y: 0 }}
+                  data={layer.data}
+                  layerType={layer.layerType as any}
+                  baseColor={layer.color}
+                  thickness={8 + (layers.length - index) * 2}
+                  threadDensity={layer.layerType === 'sleep' ? 8 : 12}
+                  className={`fibrous-${layer.layerType || 'default'}`}
+                />
+              )}
+            </React.Fragment>
           ))}
 
+          {/* Atmospheric Aurora Layer - Appears only during meaningful moments */}
+          <AtmosphericAuroraLayer
+            center={{ x: 0, y: 0 }}
+            radius={Math.max(...layers.map(l => l.radius)) + 40}
+            events={auroraEvents}
+            className="aurora-celebrations"
+          />
+
           {/* Constellation Arcs */}
-          {showConstellations && constellations.length > 0 && (
+          {/* {showConstellations && constellations.length > 0 && (
             <ConstellationArcs
               constellations={constellations}
               layers={layers}
               centerRadius={centerRadius}
               layerSpacing={layerSpacing}
             />
-          )}
+          )} */}
 
           {/* Cosmic background elements (z-depth 0) */}
           <CosmicBackgroundPulse
@@ -777,7 +836,7 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
           <LayerDataAnimator
             centerX={0}
             centerY={0}
-            isActive={true}
+            isActive={false}
           />
           
           {/* Theme Haiku - Background only, minimal */}
