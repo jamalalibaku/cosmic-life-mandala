@@ -26,7 +26,7 @@ import { PoetryOverlay } from '@/components/poetry-overlay';
 import { SunAuraRing } from '@/components/sun-aura-ring';
 import { SmoothFlowProvider } from '@/components/performance/SmoothFlowProvider';
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
-import { NowRecorder } from '@/components/enhanced/NowRecorder';
+import { NowIndicator } from '@/components/now-indicator';
 import { SideView } from '@/components/mandala/SideView';
 import { RotatableSideView } from '@/components/mandala/RotatableSideView';
 import { useTimeDrift } from '@/hooks/use-time-drift';
@@ -759,8 +759,8 @@ const IndexContent = () => {
         />
 
 
-        {/* NOW RECORDER - 24 divided recorder lines with resonance ripples */}
-        <NowRecorder
+        {/* NOW Indicator - appears at appropriate position for each scale */}
+        <NowIndicator
           centerX={centerX}
           centerY={centerY}
           radius={scale === 'day' ? 350 : 
@@ -768,13 +768,6 @@ const IndexContent = () => {
                   scale === 'month' ? 320 : 340}
           timeScale={scale}
           theme={currentTheme}
-          dataLayers={[
-            { name: 'weather', data: mockWeatherData, radius: 180, layerType: 'weather' },
-            { name: 'plans', data: mockPlansData, radius: 205, layerType: 'plans' },
-            { name: 'mobility', data: mockMobilityData, radius: 245, layerType: 'mobility' },
-            { name: 'mood', data: mockMoodData, radius: 285, layerType: 'mood' },
-            { name: 'sleep', data: mockSleepData, radius: 325, layerType: 'sleep' }
-          ]}
         />
 
         {/* Poetry Overlay - floating poetic lines in poetry mode */}
