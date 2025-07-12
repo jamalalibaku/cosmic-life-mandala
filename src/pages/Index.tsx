@@ -370,31 +370,34 @@ const IndexContent = () => {
               outerRadius={140}
             />
             
-            {/* INVERTED LAYER HIERARCHY: Weather (innermost) → Plans → Mobility → Mood → Sleep → Self → Wallet (outermost) */}
+            {/* INVERTED LAYER HIERARCHY: Sleep (innermost) → Mood → Mobility → Plans → Weather (outermost) */}
             
-            {/* 1. Weather - Innermost cosmic influence (150-180px) */}
-            <g transform={weatherTilt.getSVGTiltTransform(centerX, centerY)}>
-              <EnhancedWeatherRing
+            {/* 1. Sleep - Innermost rest and recovery layer (150-180px) */}
+            <g transform={sleepTilt.getSVGTiltTransform(centerX, centerY)}>
+              <DataBlobRing
+                data={mockSleepData}
                 centerX={centerX}
                 centerY={centerY}
                 innerRadius={150}
                 outerRadius={180}
-                theme={currentTheme as any}
-                className="enhanced-weather-layer"
+                type="sleep"
+                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
+                {...currentMetrics}
               />
             </g>
 
-            {/* 2. Plans - Intentional structure layer (190-220px) */}
-            <g transform={plansTilt.getSVGTiltTransform(centerX, centerY)}>
-              <PlansLayerRing
-                plansData={mockPlansData}
+            {/* 2. Mood - Emotional expression layer (190-220px) */}
+            <g transform={moodTilt.getSVGTiltTransform(centerX, centerY)}>
+              <DataBlobRing
+                data={mockMoodData}
                 centerX={centerX}
                 centerY={centerY}
-                radius={205}
-                theme={currentTheme}
-                onPlanClick={(plan) => {
-                  console.log('Plan clicked:', plan);
-                }}
+                innerRadius={190}
+                outerRadius={220}
+                type="mood"
+                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
+                {...currentMetrics}
+                onMoodChange={setCurrentMood}
               />
             </g>
 
@@ -410,32 +413,29 @@ const IndexContent = () => {
               />
             </g>
 
-            {/* 4. Mood - Emotional expression layer (270-300px) */}
-            <g transform={moodTilt.getSVGTiltTransform(centerX, centerY)}>
-              <DataBlobRing
-                data={mockMoodData}
+            {/* 4. Plans - Intentional structure layer (270-300px) */}
+            <g transform={plansTilt.getSVGTiltTransform(centerX, centerY)}>
+              <PlansLayerRing
+                plansData={mockPlansData}
                 centerX={centerX}
                 centerY={centerY}
-                innerRadius={270}
-                outerRadius={300}
-                type="mood"
-                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
-                {...currentMetrics}
-                onMoodChange={setCurrentMood}
+                radius={285}
+                theme={currentTheme}
+                onPlanClick={(plan) => {
+                  console.log('Plan clicked:', plan);
+                }}
               />
             </g>
 
-            {/* 5. Sleep - Rest and recovery layer (310-340px) */}
-            <g transform={sleepTilt.getSVGTiltTransform(centerX, centerY)}>
-              <DataBlobRing
-                data={mockSleepData}
+            {/* 5. Weather - Outermost cosmic influence (310-340px) */}
+            <g transform={weatherTilt.getSVGTiltTransform(centerX, centerY)}>
+              <EnhancedWeatherRing
                 centerX={centerX}
                 centerY={centerY}
                 innerRadius={310}
                 outerRadius={340}
-                type="sleep"
-                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
-                {...currentMetrics}
+                theme={currentTheme as any}
+                className="enhanced-weather-layer"
               />
             </g>
 
