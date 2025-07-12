@@ -43,6 +43,7 @@ import { MoonPhaseMarker } from '@/components/moon-phase-marker';
 import { LayerPopOutPanel } from '@/components/LayerPopOutPanel';
 import { DataLayerLabels } from '@/components/data-layer-labels';
 import { ReactiveDataBlobRing } from '@/components/enhanced/ReactiveDataBlobRing';
+import { SunCoreMesh } from '@/components/enhanced/SunCoreMesh';
 import { ZoomMenuButton } from '@/components/navigation/ZoomMenuButton';
 import { ToolsMenuButton } from '@/components/navigation/ToolsMenuButton';
 import { SkinsMenuButton } from '@/components/navigation/SkinsMenuButton';
@@ -538,6 +539,17 @@ const IndexContent = () => {
           </g>
         )}
         
+         {/* Sun Core Mesh - Data-reactive light field */}
+        <SunCoreMesh
+          centerX={centerX}
+          centerY={centerY}
+          radius={reflectiveMode ? 60 : 80}
+          verticalData={[...mockWeatherData.map(w => w.temperature / 30), ...mockPlansData.map(p => p.intensity)]}
+          horizontalData={[...mockMobilityData.map(m => m.intensity), ...mockMoodData.map(m => m.intensity)]}
+          intensity={0.7 + (currentMood?.intensity || 0) * 0.3}
+          isActive={!reflectiveMode}
+        />
+
         {/* User Core - Central identity with mood integration */}
         {scale === 'day' && (
           <UserCore
