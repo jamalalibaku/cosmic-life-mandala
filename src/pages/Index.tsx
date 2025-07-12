@@ -73,6 +73,9 @@ import { MinimalistTimeSymbol } from '@/components/MinimalistTimeSymbol';
 import { TimeScaleColumn } from '@/components/TimeScaleColumn';
 import { HoverBasedInsights } from '@/components/HoverBasedInsights';
 import { useReactiveTilt } from '@/hooks/use-reactive-tilt';
+import { WalletDisplay } from '@/components/WalletDisplay';
+import { SkyRing } from '@/components/enhanced/SkyRing';
+import { SunburstGrooveField } from '@/components/enhanced/SunburstGrooveField';
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -354,37 +357,35 @@ const IndexContent = () => {
               outerRadius={140}
             />
             
-            {/* Data rings in proper hierarchy (inner → outer) */}
-            {/* 5. Sleep - Innermost data ring */}
-            <g transform={sleepTilt.getSVGTiltTransform(centerX, centerY)}>
-              <DataBlobRing
-                data={mockSleepData}
+            {/* INVERTED LAYER HIERARCHY: Weather (innermost) → Plans → Mobility → Mood → Sleep → Self → Wallet (outermost) */}
+            
+            {/* 1. Weather - Innermost cosmic influence (150-180px) */}
+            <g transform={weatherTilt.getSVGTiltTransform(centerX, centerY)}>
+              <EnhancedWeatherRing
                 centerX={centerX}
                 centerY={centerY}
                 innerRadius={150}
                 outerRadius={180}
-                type="sleep"
-                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
-                {...currentMetrics}
+                theme={currentTheme as any}
+                className="enhanced-weather-layer"
               />
             </g>
-            
-            {/* 4. Mood */}
-            <g transform={moodTilt.getSVGTiltTransform(centerX, centerY)}>
-              <DataBlobRing
-                data={mockMoodData}
+
+            {/* 2. Plans - Intentional structure layer (190-220px) */}
+            <g transform={plansTilt.getSVGTiltTransform(centerX, centerY)}>
+              <PlansLayerRing
+                plansData={mockPlansData}
                 centerX={centerX}
                 centerY={centerY}
-                innerRadius={190}
-                outerRadius={220}
-                type="mood"
-                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
-                {...currentMetrics}
-                onMoodChange={setCurrentMood}
+                radius={205}
+                theme={currentTheme}
+                onPlanClick={(plan) => {
+                  console.log('Plan clicked:', plan);
+                }}
               />
             </g>
-            
-            {/* 3. Mobility */}
+
+            {/* 3. Mobility - Movement and activity layer (230-260px) */}
             <g transform={mobilityTilt.getSVGTiltTransform(centerX, centerY)}>
               <DataBlobRing
                 data={mockMobilityData}
@@ -397,33 +398,65 @@ const IndexContent = () => {
                 {...currentMetrics}
               />
             </g>
-            
-            {/* 2. Plans - Data-driven ring with curved ribbons */}
-            <g transform={plansTilt.getSVGTiltTransform(centerX, centerY)}>
-              <PlansLayerRing
-                plansData={mockPlansData}
+
+            {/* 4. Mood - Emotional expression layer (270-300px) */}
+            <g transform={moodTilt.getSVGTiltTransform(centerX, centerY)}>
+              <DataBlobRing
+                data={mockMoodData}
                 centerX={centerX}
                 centerY={centerY}
-                radius={285}
-                theme={currentTheme}
-                onPlanClick={(plan) => {
-                  console.log('Plan clicked:', plan);
-                  // Could trigger plan details panel
-                }}
+                innerRadius={270}
+                outerRadius={300}
+                type="mood"
+                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
+                {...currentMetrics}
+                onMoodChange={setCurrentMood}
               />
             </g>
-            
-            {/* 1. Weather - Enhanced CSV Data Visualization */}
-            <g transform={weatherTilt.getSVGTiltTransform(centerX, centerY)}>
-              <EnhancedWeatherRing
+
+            {/* 5. Sleep - Rest and recovery layer (310-340px) */}
+            <g transform={sleepTilt.getSVGTiltTransform(centerX, centerY)}>
+              <DataBlobRing
+                data={mockSleepData}
                 centerX={centerX}
                 centerY={centerY}
-                innerRadius={295}
-                outerRadius={325}
-                theme={currentTheme as any}
-                className="enhanced-weather-layer"
+                innerRadius={310}
+                outerRadius={340}
+                type="sleep"
+                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
+                {...currentMetrics}
               />
             </g>
+
+            {/* 6. Self - Core identity layer (around UserCore radius 350px) */}
+            {/* UserCore is rendered separately at lines 501-518 */}
+
+            {/* 7. Wallet - Outermost material layer */}
+            <WalletDisplay
+              isVisible={true}
+              onActivityTrack={(type: any, value?: number, description?: string) => {
+                console.log('Activity tracked:', type, value, description);
+              }}
+            />
+
+            {/* Sky Gradient Ring - Atmospheric layer beyond all data layers */}
+            <SkyRing
+              radius={420}
+              center={{ x: centerX, y: centerY }}
+              className="sky-gradient-layer"
+            />
+
+            {/* Sunburst Energy Field - Outermost dynamic layer */}
+            <SunburstGrooveField
+              radius={450}
+              center={{ x: centerX, y: centerY }}
+              dataLayers={[
+                { name: 'weather', data: mockWeatherData, radius: 180 },
+                { name: 'mood', data: mockMoodData, radius: 300 },
+                { name: 'sleep', data: mockSleepData, radius: 340 }
+              ]}
+              className="sunburst-energy-field"
+            />
           </>
         )}
         
