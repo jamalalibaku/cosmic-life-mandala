@@ -28,8 +28,9 @@ import { SmoothFlowProvider } from '@/components/performance/SmoothFlowProvider'
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
 import { NowIndicator } from '@/components/now-indicator';
 import { SideView } from '@/components/mandala/SideView';
+import { RotatableSideView } from '@/components/mandala/RotatableSideView';
+import { PerformanceOptimizer } from '@/components/performance/PerformanceOptimizer';
 import { useTimeDrift } from '@/hooks/use-time-drift';
-import { FractalTimeZoomManager, TimeScale } from '@/components/fractal-time-zoom-manager';
 import { RadialWeekView } from '@/components/radial-week-view';
 import { RadialMonthView } from '@/components/radial-month-view';
 import { RadialMonthConstellation } from '@/components/radial-month-constellation';
@@ -250,7 +251,7 @@ const IndexContent = () => {
     if (scale === 'side') {
       return (
         <foreignObject x="0" y="0" width="700" height="700">
-          <SideView
+          <RotatableSideView
             currentDate={currentDate}
             theme={currentTheme}
             centerX={centerX}
@@ -1100,20 +1101,22 @@ const IndexContent = () => {
 const Index = () => {
   return (
     <SmoothFlowProvider showPerformanceMonitor={process.env.NODE_ENV === 'development'}>
-      <VisualSkinProvider defaultTheme="cosmic">
-        <TimeAxisProvider>
-          <PhaseTransitionManager 
-            userProfile={{ totalInteractions: 0, discoveredCorrelations: [], layerPreferences: {}, behaviorPatterns: { explorationStyle: 'gentle' }, lastActiveDate: new Date().toISOString() }}
-            recentInteractions={[
-              { layerType: 'mood', timestamp: new Date().toISOString(), dataValue: 0.7 },
-              { layerType: 'sleep', timestamp: new Date().toISOString(), dataValue: 0.8 }
-            ]}
-          >
-            <IndexContent />
-          </PhaseTransitionManager>
-          <ThemeHaikuDisplay />
-        </TimeAxisProvider>
-      </VisualSkinProvider>
+      <PerformanceOptimizer>
+        <VisualSkinProvider defaultTheme="cosmic">
+          <TimeAxisProvider>
+            <PhaseTransitionManager 
+              userProfile={{ totalInteractions: 0, discoveredCorrelations: [], layerPreferences: {}, behaviorPatterns: { explorationStyle: 'gentle' }, lastActiveDate: new Date().toISOString() }}
+              recentInteractions={[
+                { layerType: 'mood', timestamp: new Date().toISOString(), dataValue: 0.7 },
+                { layerType: 'sleep', timestamp: new Date().toISOString(), dataValue: 0.8 }
+              ]}
+            >
+              <IndexContent />
+            </PhaseTransitionManager>
+            <ThemeHaikuDisplay />
+          </TimeAxisProvider>
+        </VisualSkinProvider>
+      </PerformanceOptimizer>
     </SmoothFlowProvider>
   );
 };
