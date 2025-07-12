@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { Calendar, Settings, MapPin, Clock } from 'lucide-react';
 import { TimeScale } from '@/components/fractal-time-zoom-manager';
 import { InsightIntelligenceTrigger } from '@/components/InsightIntelligenceTrigger';
+import { InsightTriggerButton } from '@/components/insights/InsightTriggerButton';
 
 export interface UnifiedNavigationProps {
   currentTimeScale: TimeScale;
@@ -121,6 +122,9 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
         currentTimeSlices={currentTimeSlices}
         recentInteractions={recentInteractions}
       />
+      
+      {/* Behavioral Correlation Engine */}
+      <InsightTriggerButton />
     </motion.div>
   );
 };
