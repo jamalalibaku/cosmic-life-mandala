@@ -6,15 +6,17 @@
  */
 
 import React from "react";
-import { motion } from "framer-motion";
 import { RadialLayerSystem } from "@/components/mandala/RadialLayerSystem";
 import { EnvironmentalLayer } from "@/components/layers/EnvironmentalLayer";
 import { DateNavigationProvider, useDateNavigation } from "@/contexts/DateNavigationContext";
 import { useTimeAxis } from "@/contexts/TimeAxisContext";
+import { format, startOfWeek, eachWeekOfInterval, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
 import { generateRealDateData, getWeekData, getDayData, type DateBasedData } from "@/utils/real-date-data";
 import { mockEnvironmentalData } from "@/data/mock-environmental-data";
-import { format, startOfWeek, eachWeekOfInterval, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
-import mandalaExpressiveTheme from "@/themes/mandala-expressive";
+import { motion } from "framer-motion";
+import { OptimizedMotion, OptimizedSVGMotion } from "@/components/ui/OptimizedMotion";
+import { PerformanceMonitor } from "@/components/debug/PerformanceMonitor";
+import { useUltimateAnimationFlow } from "@/hooks/useUltimateAnimationFlow";
 import { usePerformanceOptimizer } from "@/hooks/usePerformanceOptimizer";
 import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
 import { CosmicFaderTrack } from "@/components/navigation/CosmicFaderTrack";
@@ -205,15 +207,18 @@ const MandalaViewContent = () => {
     playMilestoneSound 
   } = useSoundDesign();
   
-  // Optimized animation management
-  const { queueAnimation, batchAnimations, metrics } = useOptimizedAnimations();
+  // Ultimate animation flow management
+  const { registerAnimation, getOptimizedMotionProps, isEmergencyMode, metrics } = useUltimateAnimationFlow();
   
-  // Performance optimization for smooth animations
+  // Optimized animation management
+  const { queueAnimation, batchAnimations } = useOptimizedAnimations();
+  
+  // Performance optimization for smooth animations - reduced in emergency mode
   const { scheduleAnimation, createSmoothEasing, getPerformanceMetrics } = usePerformanceOptimizer({
-    batchSize: 3,     // Reduced batch size
-    staggerDelay: 200, // Increased delay
-    throttleMs: 33,    // 30fps instead of 60fps
-    maxConcurrent: 5   // Reduced concurrent animations
+    batchSize: isEmergencyMode ? 1 : 3,
+    staggerDelay: isEmergencyMode ? 400 : 200,
+    throttleMs: isEmergencyMode ? 50 : 33,
+    maxConcurrent: isEmergencyMode ? 3 : 5
   });
   
   const layerData = React.useMemo(() => 
@@ -305,46 +310,60 @@ const MandalaViewContent = () => {
         </h2>
       </div>
 
-      {/* Enhanced Environmental Toggle with mood colors */}
+      {/* Enhanced Environmental Toggle with performance awareness */}
       <div className="absolute top-20 left-1/2 -translate-x-1/2 z-20">
-        <motion.button
-          onClick={() => {
-            setShowEnvironmental(!showEnvironmental);
-            playConnectionSound();
-          }}
-          className={`px-4 py-2 rounded-lg backdrop-blur-sm border transition-all duration-300`}
-          style={{
-            backgroundColor: showEnvironmental ? moodColors.accent + '20' : 'rgba(0,0,0,0.4)',
-            borderColor: showEnvironmental ? moodColors.accent + '40' : 'rgba(255,255,255,0.2)',
-            color: showEnvironmental ? moodColors.accent : 'rgba(255,255,255,0.6)'
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <OptimizedMotion
+          priority="medium"
+          whileHover={!isEmergencyMode ? { scale: 1.05 } : {}}
+          whileTap={!isEmergencyMode ? { scale: 0.95 } : {}}
         >
-          🌿 Nature Connection
-        </motion.button>
+          <button
+            onClick={() => {
+              setShowEnvironmental(!showEnvironmental);
+              if (!isEmergencyMode) {
+                queueAnimation('env-toggle-sound', () => playConnectionSound(), 1);
+              }
+            }}
+            className={`px-4 py-2 rounded-lg backdrop-blur-sm border transition-all duration-300`}
+            style={{
+              backgroundColor: showEnvironmental ? moodColors.accent + '20' : 'rgba(0,0,0,0.4)',
+              borderColor: showEnvironmental ? moodColors.accent + '40' : 'rgba(255,255,255,0.2)',
+              color: showEnvironmental ? moodColors.accent : 'rgba(255,255,255,0.6)'
+            }}
+          >
+            🌿 Nature Connection
+          </button>
+        </OptimizedMotion>
       </div>
 
-      {/* Legend and Filter Controls */}
+      {/* Legend and Filter Controls with performance optimization */}
       <div className="absolute top-20 right-6 z-20 flex flex-col gap-2">
-        <motion.button
-          onClick={() => setShowLegend(true)}
-          className="p-3 rounded-lg backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          title="Show visual guide"
+        <OptimizedMotion
+          priority="low"
+          whileHover={!isEmergencyMode ? { scale: 1.05 } : {}}
+          whileTap={!isEmergencyMode ? { scale: 0.95 } : {}}
         >
-          ❓
-        </motion.button>
-        <motion.button
-          onClick={() => setShowLayerFilter(true)}
-          className="p-3 rounded-lg backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          title="Toggle layer visibility"
+          <button
+            onClick={() => setShowLegend(true)}
+            className="p-3 rounded-lg backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300"
+            title="Show visual guide"
+          >
+            ❓
+          </button>
+        </OptimizedMotion>
+        <OptimizedMotion
+          priority="low"
+          whileHover={!isEmergencyMode ? { scale: 1.05 } : {}}
+          whileTap={!isEmergencyMode ? { scale: 0.95 } : {}}
         >
-          👁️
-        </motion.button>
+          <button
+            onClick={() => setShowLayerFilter(true)}
+            className="p-3 rounded-lg backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300"
+            title="Toggle layer visibility"
+          >
+            👁️
+          </button>
+        </OptimizedMotion>
       </div>
 
       {/* Dynamic seasonal background */}
@@ -358,32 +377,40 @@ const MandalaViewContent = () => {
       </div>
       
       <div className="flex-1 flex items-center justify-center relative">
-        {/* Expanded Canvas Container */}
+        {/* Expanded Canvas Container with performance monitoring */}
         <div className="relative w-full h-full max-w-[95vw] max-h-[95vh] flex items-center justify-center">
-          <motion.svg
-            viewBox="-320 -320 640 640"
-            width="100%"
-            height="100%"
-            className="relative z-10"
-            style={{
-              filter: "drop-shadow(0 0 40px rgba(0, 0, 0, 0.3))",
-              maxWidth: "min(95vw, 95vh)",
-              maxHeight: "min(95vw, 95vh)"
-            }}
+          {/* Performance Monitor */}
+          <PerformanceMonitor />
+          
+          <OptimizedSVGMotion
+            priority="critical"
             initial={{ opacity: 0, scale: 0.8, rotateX: -15 }}
             animate={{ opacity: 1, scale: 1, rotateX: 0 }}
             transition={{ 
-              duration: 2.5, 
-              ease: [0.175, 0.885, 0.32, 1.275], // Dramatic back-ease
-              delay: 0.2
+              duration: isEmergencyMode ? 1.0 : 2.5, 
+              ease: isEmergencyMode ? "easeOut" : [0.175, 0.885, 0.32, 1.275],
+              delay: isEmergencyMode ? 0 : 0.2
             }}
           >
-            {/* Atmospheric Aurora Layer - Sacred sky celebrations */}
-            <AtmosphericAuroraLayer 
-              center={{ x: 0, y: 0 }}
-              radius={150}
-              events={events}
-            />
+            <svg
+              viewBox="-320 -320 640 640"
+              width="100%"
+              height="100%"
+              className="relative z-10"
+              style={{
+                filter: isEmergencyMode ? "none" : "drop-shadow(0 0 40px rgba(0, 0, 0, 0.3))",
+                maxWidth: "min(95vw, 95vh)",
+                maxHeight: "min(95vw, 95vh)"
+              }}
+            >
+            {/* Atmospheric Aurora Layer - Simplified in emergency mode */}
+            {!isEmergencyMode && (
+              <AtmosphericAuroraLayer 
+                center={{ x: 0, y: 0 }}
+                radius={150}
+                events={events}
+              />
+            )}
             
             {/* Environmental Layer (beneath other layers) */}
             <EnvironmentalLayer 
@@ -393,32 +420,35 @@ const MandalaViewContent = () => {
               isVisible={showEnvironmental}
             />
             
-              {/* Enhanced radial system with emotional breathing */}
-              <motion.g
-                animate={{ 
-                  rotate: rotationAngle,
-                  scale: [1, 1 + intensityModifiers.pulseStrength * 0.05, 1]
-                }}
-                transition={{ 
-                  rotate: {
-                    type: "spring", 
-                    stiffness: 20 * seasonalAnimations.flowSpeed,
-                    damping: 30 * seasonalAnimations.gentleness,
-                    mass: 1.5,
-                    duration: 6 / seasonalAnimations.flowSpeed
-                  },
-                  scale: {
-                    duration: breathingParams.duration,
-                    repeat: Infinity,
-                    ease: breathingParams.erratic ? "easeInOut" : "linear"
-                  }
-                }}
-                onHoverStart={(event) => {
+            {/* Enhanced radial system with adaptive performance */}
+            <OptimizedSVGMotion
+              priority="critical"
+              animate={{ 
+                rotate: rotationAngle,
+                scale: isEmergencyMode ? 1 : [1, 1 + intensityModifiers.pulseStrength * 0.05, 1]
+              }}
+              transition={{ 
+                rotate: {
+                  type: "spring", 
+                  stiffness: isEmergencyMode ? 50 : 20 * seasonalAnimations.flowSpeed,
+                  damping: isEmergencyMode ? 50 : 30 * seasonalAnimations.gentleness,
+                  mass: 1.5,
+                  duration: isEmergencyMode ? 3 : 6 / seasonalAnimations.flowSpeed
+                },
+                scale: isEmergencyMode ? {} : {
+                  duration: breathingParams.duration,
+                  repeat: Infinity,
+                  ease: breathingParams.erratic ? "easeInOut" : "linear"
+                }
+              }}
+              onHoverStart={(event) => {
+                if (!isEmergencyMode) {
                   const rect = (event.target as SVGElement).getBoundingClientRect();
                   handleElementHover('mandala-core', emotionalState, { x: rect.left, y: rect.top });
-                }}
-                onHoverEnd={handleElementLeave}
-              >
+                }
+              }}
+              onHoverEnd={handleElementLeave}
+            >
                 {/* Enhanced Radial Layer System with emotional intelligence and filtering */}
                 <RadialLayerSystem 
                   layers={layerData.filter(layer => activeLayers.includes(layer.name.toLowerCase()))}
@@ -427,7 +457,7 @@ const MandalaViewContent = () => {
                   layerSpacing={60}
                   showConstellations={false}
                 />
-              </motion.g>
+            </OptimizedSVGMotion>
 
             {/* Connection visualization for micro-interactions */}
             {hoverState.elementId && (
@@ -484,7 +514,8 @@ const MandalaViewContent = () => {
                 </text>
               </motion.g>
             )}
-          </motion.svg>
+            </svg>
+          </OptimizedSVGMotion>
           
           {/* Circular Vignette Overlay */}
           <div className="absolute inset-0 pointer-events-none z-20">

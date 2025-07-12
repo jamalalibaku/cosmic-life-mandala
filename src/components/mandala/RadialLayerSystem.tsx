@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { OptimizedMotion, OptimizedSVGMotion, OptimizedPresence } from "@/components/ui/OptimizedMotion";
 import { RadialTooltip } from "@/components/interactions/RadialTooltip";
 import { InteractiveDataPoint } from "@/components/interactions/InteractiveDataPoint";
 import { ExpandedCard } from "@/components/interactions/ExpandedCard";
@@ -25,6 +26,7 @@ import { ThemeSunburst } from "@/components/themes/ThemeSunburst";
 import { SupernovaBurst } from "@/components/SupernovaBurst";
 import { analyzeMoodForSupernovas, SupernovaTrigger } from "@/utils/supernova-engine";
 import { DebugSupernova } from "@/components/DebugSupernova";
+import { useUltimateAnimationFlow } from "@/hooks/useUltimateAnimationFlow";
 import { useVisualSkin } from "@/components/visual-skin-provider";
 import { getThemeGeometry } from "@/utils/day4-dynamics";
 import { SkyConnectedWeatherRing } from "@/components/enhanced/SkyConnectedWeatherRing";
@@ -131,7 +133,8 @@ const Layer: React.FC<{
   const detailLevel = getDetailLevel();
 
   return (
-    <motion.g
+    <OptimizedSVGMotion
+      priority="high"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1.2, delay: 0.1 * (totalLayers - layerIndex), ease: "easeOut" }}
@@ -277,7 +280,7 @@ const Layer: React.FC<{
       >
         ✦ {name.toUpperCase()} ✦
       </motion.text>
-    </motion.g>
+    </OptimizedSVGMotion>
   );
 };
 
