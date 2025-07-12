@@ -19,6 +19,8 @@ import { usePerformanceOptimizer } from "@/hooks/usePerformanceOptimizer";
 import { CosmicFaderTrack } from "@/components/navigation/CosmicFaderTrack";
 import { RadioooLayerTabs } from "@/components/navigation/RadioooLayerTabs";
 import { OrbitalInsightSatellites } from "@/components/insights/OrbitalInsightSatellites";
+import { LayerLegendPanel } from "@/components/navigation/LayerLegendPanel";
+import { LayerFilterPanel } from "@/components/navigation/LayerFilterPanel";
 import { AtmosphericAuroraLayer, useAuroraEvents } from "@/components/layers/AtmosphericAuroraLayer";
 import { useEmotionalIntelligence } from "@/hooks/useEmotionalIntelligence";
 import { useMemoryPatterns } from "@/hooks/useMemoryPatterns";
@@ -170,6 +172,9 @@ const MandalaViewContent = () => {
   const { timeSlices, nowAngle } = useTimeAxis();
   const rotationAngle = getCurrentTimeAngle();
   const [showEnvironmental, setShowEnvironmental] = React.useState(true);
+  const [showLegend, setShowLegend] = React.useState(false);
+  const [showLayerFilter, setShowLayerFilter] = React.useState(false);
+  const [activeLayers, setActiveLayers] = React.useState(['moon', 'plans', 'weather', 'mobility', 'places', 'mood']);
   const { events, triggerInsightDiscovery, triggerMilestone, triggerCorrelation } = useAuroraEvents();
   
   // Enhanced intelligence systems
@@ -299,6 +304,28 @@ const MandalaViewContent = () => {
         </motion.button>
       </div>
 
+      {/* Legend and Filter Controls */}
+      <div className="absolute top-20 right-6 z-20 flex flex-col gap-2">
+        <motion.button
+          onClick={() => setShowLegend(true)}
+          className="p-3 rounded-lg backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          title="Show visual guide"
+        >
+          ❓
+        </motion.button>
+        <motion.button
+          onClick={() => setShowLayerFilter(true)}
+          className="p-3 rounded-lg backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          title="Toggle layer visibility"
+        >
+          👁️
+        </motion.button>
+      </div>
+
       {/* Dynamic seasonal background */}
       <div className="absolute inset-0 opacity-30">
         <div 
@@ -345,41 +372,41 @@ const MandalaViewContent = () => {
               isVisible={showEnvironmental}
             />
             
-            {/* Enhanced radial system with emotional breathing */}
-            <motion.g
-              animate={{ 
-                rotate: rotationAngle,
-                scale: [1, 1 + intensityModifiers.pulseStrength * 0.05, 1]
-              }}
-              transition={{ 
-                rotate: {
-                  type: "spring", 
-                  stiffness: 20 * seasonalAnimations.flowSpeed,
-                  damping: 30 * seasonalAnimations.gentleness,
-                  mass: 1.5,
-                  duration: 6 / seasonalAnimations.flowSpeed
-                },
-                scale: {
-                  duration: breathingParams.duration,
-                  repeat: Infinity,
-                  ease: breathingParams.erratic ? "easeInOut" : "linear"
-                }
-              }}
-              onHoverStart={(event) => {
-                const rect = (event.target as SVGElement).getBoundingClientRect();
-                handleElementHover('mandala-core', emotionalState, { x: rect.left, y: rect.top });
-              }}
-              onHoverEnd={handleElementLeave}
-            >
-              {/* Enhanced Radial Layer System with emotional intelligence */}
-              <RadialLayerSystem 
-                layers={layerData}
-                currentZoom={zoomLevel}
-                centerRadius={45}
-                layerSpacing={60}
-                showConstellations={false}
-              />
-            </motion.g>
+              {/* Enhanced radial system with emotional breathing */}
+              <motion.g
+                animate={{ 
+                  rotate: rotationAngle,
+                  scale: [1, 1 + intensityModifiers.pulseStrength * 0.05, 1]
+                }}
+                transition={{ 
+                  rotate: {
+                    type: "spring", 
+                    stiffness: 20 * seasonalAnimations.flowSpeed,
+                    damping: 30 * seasonalAnimations.gentleness,
+                    mass: 1.5,
+                    duration: 6 / seasonalAnimations.flowSpeed
+                  },
+                  scale: {
+                    duration: breathingParams.duration,
+                    repeat: Infinity,
+                    ease: breathingParams.erratic ? "easeInOut" : "linear"
+                  }
+                }}
+                onHoverStart={(event) => {
+                  const rect = (event.target as SVGElement).getBoundingClientRect();
+                  handleElementHover('mandala-core', emotionalState, { x: rect.left, y: rect.top });
+                }}
+                onHoverEnd={handleElementLeave}
+              >
+                {/* Enhanced Radial Layer System with emotional intelligence and filtering */}
+                <RadialLayerSystem 
+                  layers={layerData.filter(layer => activeLayers.includes(layer.name.toLowerCase()))}
+                  currentZoom={zoomLevel}
+                  centerRadius={45}
+                  layerSpacing={60}
+                  showConstellations={false}
+                />
+              </motion.g>
 
             {/* Connection visualization for micro-interactions */}
             {hoverState.elementId && (
@@ -453,6 +480,26 @@ const MandalaViewContent = () => {
             />
           </div>
         </div>
+
+        {/* Layer Legend Panel */}
+        <LayerLegendPanel 
+          isVisible={showLegend}
+          onClose={() => setShowLegend(false)}
+        />
+
+        {/* Layer Filter Panel */}
+        <LayerFilterPanel 
+          isVisible={showLayerFilter}
+          onClose={() => setShowLayerFilter(false)}
+          onLayerToggle={(layerId, visible) => {
+            if (visible) {
+              setActiveLayers(prev => [...prev, layerId]);
+            } else {
+              setActiveLayers(prev => prev.filter(id => id !== layerId));
+            }
+          }}
+          activeLayers={activeLayers}
+        />
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import { ClickableSlice } from "@/components/interactions/ClickableSlice";
 import { InfoPanelSystem, PanelData } from "@/components/interactions/InfoPanelSystem";
 import { useUnifiedMotion } from "@/hooks/useUnifiedMotion";
 import { HoverInsightShield } from "@/components/interactions/HoverInsightShield";
+import { InsightTooltip } from "@/components/interactions/InsightTooltip";
 import { useTimeAxis } from "@/contexts/TimeAxisContext";
 import { ThemeOverlayManager } from "@/components/themes/ThemeOverlaySystem";
 import { WindWhirlField } from "@/components/enhanced/WindWhirlField";
@@ -444,8 +445,11 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   });
 
 
+  // Enhanced tooltip and insight system
   const [tooltipData, setTooltipData] = useState<any>(null);
   const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [insightTooltipData, setInsightTooltipData] = useState<any>(null);
+  const [insightTooltipVisible, setInsightTooltipVisible] = useState(false);
   const [expandedCardData, setExpandedCardData] = useState<any>(null);
   const [expandedCardVisible, setExpandedCardVisible] = useState(false);
   const [emojiBurstData, setEmojiBurstData] = useState<any>(null);
@@ -550,6 +554,74 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
   const handleTooltipHide = () => {
     setTooltipVisible(false);
     setTimeout(() => setTooltipData(null), 200);
+  };
+
+  // Enhanced insight tooltip handlers
+  const handleInsightTooltipShow = (data: any) => {
+    // Generate contextual insights for the data point
+    const insights = generateDataPointInsights(data);
+    setInsightTooltipData({
+      ...data,
+      insights,
+      confidence: Math.floor(Math.random() * 40) + 60, // 60-100% confidence
+      timestamp: new Date().toLocaleTimeString(),
+      layerType: data.layerType || 'unknown'
+    });
+    setInsightTooltipVisible(true);
+  };
+
+  const handleInsightTooltipHide = () => {
+    setInsightTooltipVisible(false);
+    setTimeout(() => setInsightTooltipData(null), 200);
+  };
+
+  // Generate contextual insights based on data type and patterns
+  const generateDataPointInsights = (data: any) => {
+    const insights: string[] = [];
+    
+    if (data.layerType === 'mood' && data.intensity) {
+      if (data.intensity > 0.7) {
+        insights.push("High emotional intensity detected");
+        insights.push("Consider breathing exercises");
+      } else if (data.intensity < 0.3) {
+        insights.push("Low energy pattern observed");
+        insights.push("Movement might boost mood");
+      }
+    }
+    
+    if (data.layerType === 'sleep' && data.value) {
+      const hours = parseFloat(data.value);
+      if (hours < 6) {
+        insights.push("Sleep debt accumulating");
+        insights.push("Affects mood & cognition");
+      } else if (hours > 9) {
+        insights.push("Extended sleep detected");
+        insights.push("Check sleep quality metrics");
+      }
+    }
+    
+    if (data.layerType === 'mobility' && data.intensity) {
+      if (data.intensity > 0.6) {
+        insights.push("Active movement day");
+        insights.push("Positive mood correlation");
+      } else {
+        insights.push("Low activity period");
+        insights.push("Consider gentle movement");
+      }
+    }
+
+    if (data.layerType === 'weather' && data.value) {
+      const condition = data.value.toLowerCase();
+      if (condition.includes('rain') || condition.includes('storm')) {
+        insights.push("Weather affects mood patterns");
+        insights.push("Indoor activities recommended");
+      } else if (condition.includes('sunny') || condition.includes('clear')) {
+        insights.push("Natural light available");
+        insights.push("Optimize outdoor time");
+      }
+    }
+    
+    return insights.length > 0 ? insights : ["Patterns emerging...", "Long-term correlation building"];
   };
 
   const handleDataPointClick = (expandedData: any, burstData: any) => {
@@ -882,7 +954,14 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
         timeAccumulator={timeAccumulator}
       />
 
-      {/* Enhanced Hover Insight Shield System */}
+      {/* Enhanced Insight Tooltip System */}
+      <InsightTooltip
+        data={insightTooltipData}
+        isVisible={insightTooltipVisible}
+        onClose={handleInsightTooltipHide}
+      />
+
+      {/* Enhanced Hover Insight Shield System - for detailed analysis */}
       <HoverInsightShield
         data={tooltipData}
         isVisible={tooltipVisible}
@@ -892,7 +971,7 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
       {/* Legacy tooltip for fallback compatibility */}
       <RadialTooltip 
         data={tooltipData} 
-        isVisible={false} // Disabled in favor of insight shield
+        isVisible={false} // Disabled in favor of insight systems
       />
 
       {/* Expanded card system */}
