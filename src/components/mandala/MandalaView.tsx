@@ -16,6 +16,8 @@ import { mockEnvironmentalData } from "@/data/mock-environmental-data";
 import { format, startOfWeek, eachWeekOfInterval, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
 import mandalaExpressiveTheme from "@/themes/mandala-expressive";
 import { usePerformanceOptimizer } from "@/hooks/usePerformanceOptimizer";
+import { CosmicFaderTrack } from "@/components/navigation/CosmicFaderTrack";
+import { RadioooLayerTabs } from "@/components/navigation/RadioooLayerTabs";
 
 // Real date-based layer data generator
 const createDateBasedLayerData = (
@@ -187,18 +189,28 @@ const MandalaViewContent = () => {
 
   return (
     <div className="w-full h-full min-h-screen flex flex-col relative overflow-hidden">
-      {/* Date Navigation Header */}
-      <div className="absolute top-4 left-4 z-20 bg-black/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
-        <h2 className="text-white font-light text-lg tracking-wide">
+      {/* Cosmic Fader Navigation */}
+      <CosmicFaderTrack />
+      
+      {/* Radiooooo Layer Tabs */}
+      <RadioooLayerTabs 
+        onLayerToggle={(layerId, active) => {
+          console.log(`Layer ${layerId} toggled to:`, active);
+        }}
+        onLayerSelect={(layerId) => {
+          console.log(`Layer ${layerId} selected`);
+        }}
+      />
+
+      {/* Date Navigation Header - Simplified since we have fader */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
+        <h2 className="text-white font-light text-lg tracking-wide text-center">
           {getDisplayTitle()}
         </h2>
-        <p className="text-white/60 text-sm">
-          {zoomLevel.charAt(0).toUpperCase() + zoomLevel.slice(1)} View
-        </p>
       </div>
 
       {/* Environmental Layer Toggle */}
-      <div className="absolute top-20 left-4 z-20">
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 z-20">
         <motion.button
           onClick={() => setShowEnvironmental(!showEnvironmental)}
           className={`px-4 py-2 rounded-lg backdrop-blur-sm border transition-all duration-300 ${
