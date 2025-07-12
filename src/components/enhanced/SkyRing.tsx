@@ -6,6 +6,7 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { enhancedWeatherData } from '../../data/enhanced-weather-data';
 
 interface SkyRingProps {
   radius: number;
@@ -19,6 +20,8 @@ interface Ray {
   curvature: number;
   brightness: number;
   sunInfluence: number;
+  windSway: number;
+  temperatureGlow: number;
 }
 
 export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) => {
@@ -33,7 +36,17 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
   // Generate 1440 rays (one per minute of day) for ultra-dense field
   const rayCount = 1440;
   
-  // Generate ray array with enhanced frequency and bending
+  // Weather data for current day (mock for now)
+  const currentWeather = enhancedWeatherData[0]; // Use first entry as current
+  const windDirection = Math.PI * 0.25; // 45 degrees (northeast)
+  const solarFlareIntensity = 0.3 + Math.sin(Date.now() * 0.0001) * 0.4; // 0.3-0.7 range
+  
+  // Calculate sunlight hours (sunrise to sunset effect)
+  const isDaytime = currentHour >= 6 && currentHour <= 20;
+  const sunlightFactor = isDaytime ? 
+    Math.sin((currentHour - 6) / 14 * Math.PI) : 0.1; // Peak at noon, dimmer at dawn/dusk
+  
+  // Generate ray array with enhanced weather-driven properties
   const rays = useMemo(() => {
     const rays: Ray[] = [];
     
@@ -45,37 +58,57 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
       const normalizedSunDistance = Math.min(sunDistance, Math.PI * 2 - sunDistance);
       const sunInfluence = Math.max(0, 1 - (normalizedSunDistance / (Math.PI * 0.3))); // Influence within 54 degrees
       
-      // Base length with variation
-      const baseLength = 15 + Math.random() * 20;
-      const sunEnhancement = sunInfluence * 25; // Extra length when near sun
-      const length = baseLength + sunEnhancement;
+      // Wind influence - rays align with wind direction
+      const windDistance = Math.abs(angle - windDirection);
+      const normalizedWindDistance = Math.min(windDistance, Math.PI * 2 - windDistance);
+      const windSway = Math.max(0, 1 - (normalizedWindDistance / (Math.PI * 0.5))) * currentWeather.windIntensity;
       
-      // Curvature increases with sun influence and neighboring rays
-      const curvature = sunInfluence * 0.8 + Math.random() * 0.3;
+      // Temperature-based length and glow
+      const temperatureRatio = (currentWeather.temperatureHigh - 10) / 30; // Normalize 10-40°C to 0-1
+      const temperatureGlow = Math.max(0.2, temperatureRatio);
       
-      // Brightness enhanced by sun influence
-      const brightness = 0.3 + sunInfluence * 0.7 + Math.random() * 0.2;
+      // Base length influenced by temperature and sunlight
+      const baseLength = 12 + Math.random() * 15;
+      const temperatureLength = temperatureRatio * 20;
+      const sunEnhancement = sunInfluence * 30 * sunlightFactor;
+      const rainReduction = currentWeather.precipitationOpacity * 15; // Rain makes rays shorter
+      const length = Math.max(8, baseLength + temperatureLength + sunEnhancement - rainReduction);
+      
+      // Enhanced curvature with wind and solar activity
+      const baseCurvature = sunInfluence * 0.6 + Math.random() * 0.3;
+      const windCurvature = windSway * 0.4;
+      const solarFlare = solarFlareIntensity > 0.6 ? 0.3 : 0;
+      const curvature = baseCurvature + windCurvature + solarFlare;
+      
+      // Brightness enhanced by multiple factors
+      const baseBrightness = 0.2 + sunInfluence * 0.6 + Math.random() * 0.2;
+      const temperatureBrightness = temperatureGlow * 0.3;
+      const sunlightBoost = sunlightFactor * 0.4;
+      const rainDimming = currentWeather.precipitationOpacity * 0.3;
+      const brightness = Math.max(0.1, baseBrightness + temperatureBrightness + sunlightBoost - rainDimming);
       
       rays.push({
         angle,
         length,
         curvature,
         brightness,
-        sunInfluence
+        sunInfluence,
+        windSway,
+        temperatureGlow
       });
     }
     
     return rays;
-  }, [rayCount, sunAngle]);
+  }, [rayCount, sunAngle, currentWeather, sunlightFactor, solarFlareIntensity, windDirection]);
 
-  // Animation loop for organic movement
+  // Animation loop for organic movement (reduced speed by 50%)
   useEffect(() => {
     let animationId: number;
     let startTime = Date.now();
     
     const animate = () => {
       const elapsed = Date.now() - startTime;
-      const phase = (elapsed * 0.0003) % (Math.PI * 2); // Slow, organic cycle
+      const phase = (elapsed * 0.00015) % (Math.PI * 2); // Slower, more dreamlike cycle
       setAnimationPhase(phase);
       
       animationId = requestAnimationFrame(animate);
@@ -90,36 +123,44 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
     };
   }, []);
 
-  // Generate dynamic ray path with enhanced curvature
+  // Generate dynamic ray path with weather-driven curvature
   const generateRayPath = (ray: Ray, index: number): string => {
-    const { angle, length, curvature, sunInfluence } = ray;
+    const { angle, length, curvature, sunInfluence, windSway, temperatureGlow } = ray;
     
-    // Add breathing animation and sun pulsing
-    const breathingScale = 1 + 0.15 * Math.sin(animationPhase + index * 0.003);
-    const sunPulse = 1 + sunInfluence * 0.3 * Math.sin(animationPhase * 3);
-    const dynamicLength = length * breathingScale * sunPulse;
+    // Enhanced breathing animation with weather influence
+    const breathingScale = 1 + 0.1 * Math.sin(animationPhase + index * 0.002); // Slower breathing
+    const sunPulse = 1 + sunInfluence * 0.25 * Math.sin(animationPhase * 2);
+    const solarFlareVibration = solarFlareIntensity > 0.6 ? 
+      1 + 0.15 * Math.sin(animationPhase * 8 + index * 0.1) : 1; // Irregular vibration during high solar activity
+    const dynamicLength = length * breathingScale * sunPulse * solarFlareVibration;
     
     // Start point at ring edge
     const startX = center.x + Math.cos(angle) * radius;
     const startY = center.y + Math.sin(angle) * radius;
     
-    if (curvature < 0.2) {
-      // Straight ray
-      const endX = center.x + Math.cos(angle) * (radius + dynamicLength);
-      const endY = center.y + Math.sin(angle) * (radius + dynamicLength);
+    if (curvature < 0.15) {
+      // Straight ray with slight wind sway
+      const windOffset = windSway * 5 * Math.sin(animationPhase + angle * 3);
+      const endX = center.x + Math.cos(angle) * (radius + dynamicLength) + Math.cos(angle + Math.PI/2) * windOffset;
+      const endY = center.y + Math.sin(angle) * (radius + dynamicLength) + Math.sin(angle + Math.PI/2) * windOffset;
       
       return `M ${startX} ${startY} L ${endX} ${endY}`;
     } else {
-      // Curved ray with enhanced bending
-      const midLength = dynamicLength * 0.7;
+      // Curved ray with enhanced wind and solar bending
+      const midLength = dynamicLength * 0.6;
       const endLength = dynamicLength;
       
-      // Enhanced wave-like curvature influenced by sun and neighbors
-      const waveOffset = curvature * 20 * Math.sin(animationPhase * 2 + angle * 12);
-      const sunWave = sunInfluence * 10 * Math.sin(animationPhase * 4 + angle * 6);
+      // Wave-like propagation influenced by wind, sun, and temperature
+      const windWave = windSway * 25 * Math.sin(animationPhase * 1.5 + angle * 8); // Wind flow like tall grass
+      const sunWave = sunInfluence * 15 * Math.sin(animationPhase * 3 + angle * 6);
+      const temperatureShimmer = temperatureGlow * 8 * Math.sin(animationPhase * 4 + angle * 10);
+      const solarFlareWarp = solarFlareIntensity > 0.6 ? 
+        20 * Math.sin(animationPhase * 12 + angle * 15) : 0; // Chaotic warping during solar flares
       
-      const midX = center.x + Math.cos(angle) * (radius + midLength) + Math.cos(angle + Math.PI/2) * (waveOffset + sunWave);
-      const midY = center.y + Math.sin(angle) * (radius + midLength) + Math.sin(angle + Math.PI/2) * (waveOffset + sunWave);
+      const totalWave = windWave + sunWave + temperatureShimmer + solarFlareWarp;
+      
+      const midX = center.x + Math.cos(angle) * (radius + midLength) + Math.cos(angle + Math.PI/2) * totalWave;
+      const midY = center.y + Math.sin(angle) * (radius + midLength) + Math.sin(angle + Math.PI/2) * totalWave;
       
       const endX = center.x + Math.cos(angle) * (radius + endLength);
       const endY = center.y + Math.sin(angle) * (radius + endLength);
@@ -133,30 +174,46 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
       className={className}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 2 }}
+      transition={{ duration: 3 }}
     >
       <defs>
-        {/* Enhanced gradient for ray glow */}
-        <linearGradient id="rayGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="hsl(45, 90%, 85%)" stopOpacity={0.3} />
-          <stop offset="50%" stopColor="hsl(50, 95%, 95%)" stopOpacity={0.9} />
-          <stop offset="100%" stopColor="hsl(55, 100%, 100%)" stopOpacity={0.2} />
+        {/* Deep sky blue background gradient */}
+        <radialGradient id="skyBackground" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stopColor="hsl(210, 70%, 25%)" stopOpacity={0.1} />
+          <stop offset="100%" stopColor="hsl(220, 80%, 15%)" stopOpacity={0.3} />
+        </radialGradient>
+        
+        {/* Golden ray gradient */}
+        <linearGradient id="goldenRayGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="hsl(45, 95%, 75%)" stopOpacity={0.2} />
+          <stop offset="40%" stopColor="hsl(50, 100%, 85%)" stopOpacity={0.8} />
+          <stop offset="100%" stopColor="hsl(60, 100%, 95%)" stopOpacity={0.1} />
         </linearGradient>
         
-        {/* Sun-influenced glow filter */}
-        <filter id="sunGlow" x="-100%" y="-100%" width="300%" height="300%">
-          <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-          <feColorMatrix type="matrix" values="1.3 0 0 0 0  0 1.2 0 0 0  0 0 1.1 0 0  0 0 0 1 0"/>
+        {/* Enhanced sun glow with golden tones */}
+        <filter id="goldenSunGlow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feColorMatrix type="matrix" values="1.4 0.3 0 0 0  0.2 1.3 0 0 0  0 0 1.1 0 0  0 0 0 1 0"/>
           <feMerge> 
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
         
-        {/* Intense solar flare filter */}
-        <filter id="solarFlare" x="-150%" y="-150%" width="400%" height="400%">
-          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-          <feColorMatrix type="matrix" values="1.5 0 0 0 0  0 1.4 0 0 0  0 0 1.2 0 0  0 0 0 1 0"/>
+        {/* Intense golden solar flare filter */}
+        <filter id="goldenSolarFlare" x="-150%" y="-150%" width="400%" height="400%">
+          <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+          <feColorMatrix type="matrix" values="1.6 0.4 0 0 0  0.3 1.5 0 0 0  0 0 1.2 0 0  0 0 0 1 0"/>
+          <feMerge> 
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        
+        {/* Radial glow for aurora effect */}
+        <filter id="auroraGlow" x="-200%" y="-200%" width="500%" height="500%">
+          <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+          <feColorMatrix type="matrix" values="1.2 0.2 0 0 0  0.1 1.1 0 0 0  0 0 1.3 0 0  0 0 0 0.8 0"/>
           <feMerge> 
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
@@ -164,96 +221,161 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
         </filter>
       </defs>
 
-      {/* Render all rays with enhanced frequency and bending */}
+      {/* Deep sky blue background circle */}
+      <motion.circle
+        cx={center.x}
+        cy={center.y}
+        r={radius + 50}
+        fill="url(#skyBackground)"
+        opacity={0.4}
+        animate={{
+          opacity: [0.3, 0.5, 0.3]
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+
+      {/* Render all golden rays with weather and solar activity */}
       {rays.map((ray, index) => {
         const path = generateRayPath(ray, index);
         const isSunInfluenced = ray.sunInfluence > 0.3;
         const isHighlySunInfluenced = ray.sunInfluence > 0.7;
+        const isWindInfluenced = ray.windSway > 0.4;
+        const isSolarFlareActive = solarFlareIntensity > 0.6;
         
-        // Color shifts from white to golden based on sun influence
-        const hue = 45 + ray.sunInfluence * 15; // 45-60 range
-        const saturation = 70 + ray.sunInfluence * 25; // More saturated near sun
-        const lightness = 85 + ray.sunInfluence * 15; // Brighter near sun
-        const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        // Enhanced golden color palette with weather influence
+        const baseHue = 45 + ray.sunInfluence * 15 + ray.temperatureGlow * 10; // 45-70 range
+        const saturation = 75 + ray.sunInfluence * 20 + ray.temperatureGlow * 15; // Rich golden saturation
+        const lightness = 80 + ray.sunInfluence * 20 + sunlightFactor * 15; // Brighter during day and near sun
+        const color = `hsl(${baseHue}, ${saturation}%, ${lightness}%)`;
+        
+        // Dynamic stroke width based on multiple factors
+        const baseWidth = 0.4;
+        const sunWidth = isSunInfluenced ? 0.8 : 0;
+        const temperatureWidth = ray.temperatureGlow * 0.4;
+        const flareWidth = isSolarFlareActive && isHighlySunInfluenced ? 0.6 : 0;
+        const strokeWidth = baseWidth + sunWidth + temperatureWidth + flareWidth;
+        
+        // Filter selection based on intensity
+        let filter = "url(#goldenSunGlow)";
+        if (isSolarFlareActive && isHighlySunInfluenced) {
+          filter = "url(#goldenSolarFlare)";
+        } else if (ray.temperatureGlow > 0.7) {
+          filter = "url(#auroraGlow)";
+        }
         
         return (
           <motion.path
             key={`ray-${index}`}
             d={path}
             stroke={color}
-            strokeWidth={isSunInfluenced ? 1.2 : 0.6}
+            strokeWidth={strokeWidth}
             strokeOpacity={ray.brightness}
             fill="none"
             strokeLinecap="round"
-            filter={isHighlySunInfluenced ? "url(#solarFlare)" : "url(#sunGlow)"}
+            filter={filter}
             animate={{
               strokeOpacity: [
-                ray.brightness * 0.6, 
-                ray.brightness * (1 + ray.sunInfluence * 0.5), 
-                ray.brightness * 0.6
+                ray.brightness * 0.5, 
+                ray.brightness * (1 + ray.sunInfluence * 0.6 + ray.temperatureGlow * 0.3), 
+                ray.brightness * 0.5
               ],
-              strokeWidth: isSunInfluenced ? [1.2, 1.8, 1.2] : [0.6, 0.9, 0.6]
+              strokeWidth: [
+                strokeWidth * 0.8, 
+                strokeWidth * (1 + (isSolarFlareActive ? 0.5 : 0.2)), 
+                strokeWidth * 0.8
+              ]
             }}
             transition={{
-              duration: 3 + Math.random() * 2,
+              duration: isSolarFlareActive ? 1.5 + Math.random() : 4 + Math.random() * 3, // Faster during solar flares
               repeat: Infinity,
-              ease: "easeInOut",
-              delay: index * 0.002
+              ease: isSolarFlareActive ? "easeInOut" : "linear",
+              delay: index * 0.001
             }}
           />
         );
       })}
 
-      {/* Solar corona effects for highly sun-influenced rays */}
+      {/* Enhanced solar corona effects with golden aurora */}
       {rays
-        .filter(ray => ray.sunInfluence > 0.8)
+        .filter(ray => ray.sunInfluence > 0.8 || (solarFlareIntensity > 0.6 && ray.sunInfluence > 0.5))
         .map((ray, index) => {
-          const coronaRadius = radius + ray.length * 1.3;
+          const coronaRadius = radius + ray.length * 1.2;
           const coronaX = center.x + Math.cos(ray.angle) * coronaRadius;
           const coronaY = center.y + Math.sin(ray.angle) * coronaRadius;
+          
+          const isFlareCorona = solarFlareIntensity > 0.6 && ray.sunInfluence > 0.5;
+          const coronaSize = isFlareCorona ? 3.5 : 2.5;
+          const coronaHue = 50 + ray.temperatureGlow * 15;
           
           return (
             <motion.circle
               key={`corona-${index}`}
               cx={coronaX}
               cy={coronaY}
-              r={2.5}
-              fill="hsl(55, 100%, 95%)"
-              opacity={0.4}
-              filter="url(#solarFlare)"
+              r={coronaSize}
+              fill={`hsl(${coronaHue}, 100%, 92%)`}
+              opacity={0.5}
+              filter="url(#goldenSolarFlare)"
               animate={{
-                r: [2, 4.5, 2],
-                opacity: [0.4, 0.8, 0.4],
-                scale: [0.8, 1.4, 0.8]
+                r: isFlareCorona ? [3, 6, 3] : [2, 4.5, 2],
+                opacity: [0.3, 0.8, 0.3],
+                scale: isFlareCorona ? [0.6, 1.8, 0.6] : [0.8, 1.4, 0.8]
               }}
               transition={{
-                duration: 2.5,
+                duration: isFlareCorona ? 1.5 : 3,
                 repeat: Infinity,
                 ease: "easeInOut",
-                delay: index * 0.1
+                delay: index * (isFlareCorona ? 0.05 : 0.1)
               }}
             />
           );
         })}
 
-      {/* Sun position marker - subtle indicator */}
+      {/* Enhanced sun position marker with solar activity */}
       <motion.circle
         cx={center.x + Math.cos(sunAngle) * (radius * 0.9)}
         cy={center.y + Math.sin(sunAngle) * (radius * 0.9)}
-        r={3}
-        fill="hsl(50, 100%, 90%)"
-        opacity={0.6}
-        filter="url(#solarFlare)"
+        r={4}
+        fill={`hsl(50, 100%, ${85 + sunlightFactor * 15}%)`}
+        opacity={0.7 + sunlightFactor * 0.3}
+        filter="url(#goldenSolarFlare)"
         animate={{
-          r: [2.5, 4, 2.5],
-          opacity: [0.6, 0.9, 0.6]
+          r: solarFlareIntensity > 0.6 ? [3, 7, 3] : [3, 5, 3],
+          opacity: [0.6, 1, 0.6],
+          scale: solarFlareIntensity > 0.6 ? [0.8, 1.6, 0.8] : [0.9, 1.2, 0.9]
         }}
         transition={{
-          duration: 4,
+          duration: solarFlareIntensity > 0.6 ? 2 : 5,
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: solarFlareIntensity > 0.6 ? "easeInOut" : "linear"
         }}
       />
+      
+      {/* Wind direction indicator - subtle flowing lines */}
+      {currentWeather.windIntensity > 0.3 && (
+        <motion.path
+          d={`M ${center.x + Math.cos(windDirection) * (radius * 0.7)} ${center.y + Math.sin(windDirection) * (radius * 0.7)} 
+              L ${center.x + Math.cos(windDirection) * (radius * 0.9)} ${center.y + Math.sin(windDirection) * (radius * 0.9)}`}
+          stroke="hsl(200, 60%, 80%)"
+          strokeWidth={2 * currentWeather.windIntensity}
+          strokeOpacity={0.4}
+          strokeLinecap="round"
+          filter="url(#goldenSunGlow)"
+          animate={{
+            strokeOpacity: [0.2, 0.6, 0.2],
+            strokeWidth: [1.5 * currentWeather.windIntensity, 3 * currentWeather.windIntensity, 1.5 * currentWeather.windIntensity]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      )}
     </motion.g>
   );
 };
