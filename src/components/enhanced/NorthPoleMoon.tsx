@@ -3,22 +3,30 @@
  * Replaces center moon with elegant north pole positioning
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { calculateMoonPhase } from '../../utils/moon-phase-calendar';
 
 interface NorthPoleMoonProps {
   center: { x: number; y: number };
   radius: number;
   moonPhase?: number; // 0-1, where 0 is new moon, 0.5 is full moon
   className?: string;
+  showTooltip?: boolean;
 }
 
 export const NorthPoleMoon: React.FC<NorthPoleMoonProps> = ({
   center,
   radius,
-  moonPhase = 0.3,
-  className = ''
+  moonPhase,
+  className = '',
+  showTooltip = false
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  // Get current moon phase if not provided
+  const currentMoonData = useMemo(() => calculateMoonPhase(new Date()), []);
+  const actualMoonPhase = moonPhase ?? currentMoonData.phase;
   // Calculate moon position (north pole with slight hover)
   const moonPosition = useMemo(() => {
     const northAngle = -Math.PI / 2; // North pole
@@ -71,7 +79,7 @@ export const NorthPoleMoon: React.FC<NorthPoleMoonProps> = ({
   };
 
   const moonRadius = 12;
-  const moonPaths = getMoonPath(moonPhase, moonRadius);
+  const moonPaths = getMoonPath(actualMoonPhase, moonRadius);
 
   return (
     <motion.g
@@ -145,6 +153,9 @@ export const NorthPoleMoon: React.FC<NorthPoleMoonProps> = ({
           repeat: Infinity,
           ease: "easeInOut"
         }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+        style={{ cursor: showTooltip ? 'pointer' : 'default' }}
       >
         {/* Moon shadow (dark side) */}
         <path
@@ -215,6 +226,47 @@ export const NorthPoleMoon: React.FC<NorthPoleMoonProps> = ({
           />
         );
       })}
+      
+      {/* Moon phase tooltip */}
+      {showTooltip && isHovered && (
+        <motion.g
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ duration: 0.2 }}
+        >
+          <motion.rect
+            x={moonPosition.x + 20}
+            y={moonPosition.y - 25}
+            width={120}
+            height={40}
+            rx={6}
+            fill="hsl(220, 15%, 10%)"
+            fillOpacity={0.95}
+            stroke="hsl(220, 20%, 25%)"
+            strokeWidth={1}
+          />
+          <motion.text
+            x={moonPosition.x + 80}
+            y={moonPosition.y - 15}
+            textAnchor="middle"
+            fill="hsl(220, 10%, 90%)"
+            fontSize={10}
+            fontWeight="500"
+          >
+            {currentMoonData.phaseName}
+          </motion.text>
+          <motion.text
+            x={moonPosition.x + 80}
+            y={moonPosition.y - 5}
+            textAnchor="middle"
+            fill="hsl(220, 10%, 70%)"
+            fontSize={9}
+          >
+            {currentMoonData.illumination}% illuminated
+          </motion.text>
+        </motion.g>
+      )}
     </motion.g>
   );
 };

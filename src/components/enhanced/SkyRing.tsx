@@ -7,6 +7,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { enhancedWeatherData } from '../../data/enhanced-weather-data';
+import { createHarmonicField, calculateHarmonicInfluence, createDataWaveSources } from '../../utils/cosmic-wave-harmonics';
 
 interface SkyRingProps {
   radius: number;
@@ -20,12 +21,13 @@ interface Ray {
   curvature: number;
   brightness: number;
   sunInfluence: number;
-  windSway: number;
+  harmonicDisplacement: number;
   temperatureGlow: number;
+  dominantWaveType: string;
 }
 
 export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) => {
-  const [animationPhase, setAnimationPhase] = useState(0);
+  const [harmonicTime, setHarmonicTime] = useState(Date.now());
   const currentHour = new Date().getHours();
   const minutes = new Date().getMinutes();
   const timeOfDay = currentHour + minutes / 60;
@@ -33,22 +35,39 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
   // Sun position based on time
   const sunAngle = (timeOfDay / 24) * Math.PI * 2 - Math.PI / 2; // Start at top (noon)
 
-  // Generate 1440 rays (one per minute of day) for ultra-dense field
-  const rayCount = 1440;
+  // Reduced ray count for smoother performance and less chaos
+  const rayCount = 720; // One ray per 2 minutes for smoother performance
   
   // Weather data for current day (mock for now)
   const currentWeather = enhancedWeatherData[0]; // Use first entry as current
   const windDirection = Math.PI * 0.25; // 45 degrees (northeast)
-  const solarFlareIntensity = 0.3 + Math.sin(Date.now() * 0.0001) * 0.4; // 0.3-0.7 range
+  const solarFlareIntensity = 0.3 + Math.sin(harmonicTime * 0.00005) * 0.4; // Much slower solar variation
   
   // Calculate sunlight hours (sunrise to sunset effect)
   const isDaytime = currentHour >= 6 && currentHour <= 20;
   const sunlightFactor = isDaytime ? 
     Math.sin((currentHour - 6) / 14 * Math.PI) : 0.1; // Peak at noon, dimmer at dawn/dusk
   
-  // Generate ray array with enhanced weather-driven properties
+  // Create harmonic field for smooth wave motion
+  const harmonicField = useMemo(() => {
+    return createHarmonicField(
+      solarFlareIntensity,
+      currentWeather.windIntensity,
+      windDirection,
+      harmonicTime
+    );
+  }, [solarFlareIntensity, currentWeather.windIntensity, windDirection, harmonicTime]);
+
+  // Generate ray array with harmonic-driven properties
   const rays = useMemo(() => {
     const rays: Ray[] = [];
+    
+    // Add data-driven wave sources (mock mobility and mood spikes)
+    const dataWaveSources = createDataWaveSources(
+      [0.2, 0.6, 0.9], // Mock mobility spikes at different times of day
+      [0.1, 0.4, 0.8], // Mock mood transitions
+      []
+    );
     
     for (let i = 0; i < rayCount; i++) {
       const angle = (i / rayCount) * Math.PI * 2;
@@ -58,34 +77,31 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
       const normalizedSunDistance = Math.min(sunDistance, Math.PI * 2 - sunDistance);
       const sunInfluence = Math.max(0, 1 - (normalizedSunDistance / (Math.PI * 0.3))); // Influence within 54 degrees
       
-      // Wind influence - rays align with wind direction
-      const windDistance = Math.abs(angle - windDirection);
-      const normalizedWindDistance = Math.min(windDistance, Math.PI * 2 - windDistance);
-      const windSway = Math.max(0, 1 - (normalizedWindDistance / (Math.PI * 0.5))) * currentWeather.windIntensity;
+      // Get harmonic influence at this angle
+      const harmonicInfluence = calculateHarmonicInfluence(angle, harmonicField, harmonicTime);
       
       // Temperature-based length and glow
       const temperatureRatio = (currentWeather.temperatureHigh - 10) / 30; // Normalize 10-40°C to 0-1
       const temperatureGlow = Math.max(0.2, temperatureRatio);
       
-      // Base length influenced by temperature and sunlight
-      const baseLength = 12 + Math.random() * 15;
+      // Base length influenced by temperature and sunlight (more stable, less random)
+      const baseLength = 15; // Fixed base instead of random
       const temperatureLength = temperatureRatio * 20;
       const sunEnhancement = sunInfluence * 30 * sunlightFactor;
       const rainReduction = currentWeather.precipitationOpacity * 15; // Rain makes rays shorter
-      const length = Math.max(8, baseLength + temperatureLength + sunEnhancement - rainReduction);
+      const harmonicLength = harmonicInfluence.intensity * 12; // Harmonic influence on length
+      const length = Math.max(8, baseLength + temperatureLength + sunEnhancement + harmonicLength - rainReduction);
       
-      // Enhanced curvature with wind and solar activity
-      const baseCurvature = sunInfluence * 0.6 + Math.random() * 0.3;
-      const windCurvature = windSway * 0.4;
-      const solarFlare = solarFlareIntensity > 0.6 ? 0.3 : 0;
-      const curvature = baseCurvature + windCurvature + solarFlare;
+      // Curvature influenced by harmonics instead of random factors
+      const curvature = Math.max(0, Math.min(1, harmonicInfluence.curvature + sunInfluence * 0.3));
       
-      // Brightness enhanced by multiple factors
-      const baseBrightness = 0.2 + sunInfluence * 0.6 + Math.random() * 0.2;
+      // Brightness enhanced by harmonic intensity
+      const baseBrightness = 0.2 + sunInfluence * 0.6;
       const temperatureBrightness = temperatureGlow * 0.3;
       const sunlightBoost = sunlightFactor * 0.4;
+      const harmonicBoost = harmonicInfluence.intensity * 0.3;
       const rainDimming = currentWeather.precipitationOpacity * 0.3;
-      const brightness = Math.max(0.1, baseBrightness + temperatureBrightness + sunlightBoost - rainDimming);
+      const brightness = Math.max(0.1, baseBrightness + temperatureBrightness + sunlightBoost + harmonicBoost - rainDimming);
       
       rays.push({
         angle,
@@ -93,74 +109,76 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
         curvature,
         brightness,
         sunInfluence,
-        windSway,
-        temperatureGlow
+        harmonicDisplacement: harmonicInfluence.displacement,
+        temperatureGlow,
+        dominantWaveType: harmonicInfluence.dominantType
       });
     }
     
     return rays;
-  }, [rayCount, sunAngle, currentWeather, sunlightFactor, solarFlareIntensity, windDirection]);
+  }, [rayCount, sunAngle, currentWeather, sunlightFactor, harmonicField, harmonicTime]);
 
-  // Animation loop for organic movement (reduced speed by 50%)
+  // Much slower harmonic time progression
   useEffect(() => {
     let animationId: number;
-    let startTime = Date.now();
     
     const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const phase = (elapsed * 0.00015) % (Math.PI * 2); // Slower, more dreamlike cycle
-      setAnimationPhase(phase);
-      
+      setHarmonicTime(Date.now());
       animationId = requestAnimationFrame(animate);
     };
     
-    animationId = requestAnimationFrame(animate);
+    // Update much less frequently for smoother, less chaotic motion
+    const interval = setInterval(() => {
+      animationId = requestAnimationFrame(animate);
+    }, 100); // Update every 100ms instead of every frame
     
     return () => {
+      clearInterval(interval);
       if (animationId) {
         cancelAnimationFrame(animationId);
       }
     };
   }, []);
 
-  // Generate dynamic ray path with weather-driven curvature
+  // Generate harmonic ray path with smooth cosmic motion
   const generateRayPath = (ray: Ray, index: number): string => {
-    const { angle, length, curvature, sunInfluence, windSway, temperatureGlow } = ray;
+    const { angle, length, curvature, sunInfluence, harmonicDisplacement, temperatureGlow } = ray;
     
-    // Enhanced breathing animation with weather influence
-    const breathingScale = 1 + 0.1 * Math.sin(animationPhase + index * 0.002); // Slower breathing
-    const sunPulse = 1 + sunInfluence * 0.25 * Math.sin(animationPhase * 2);
+    // Much gentler breathing animation
+    const globalPhase = (harmonicTime * 0.00003) % (Math.PI * 2); // Ultra-slow global rhythm
+    const breathingScale = 1 + 0.05 * Math.sin(globalPhase + index * 0.01); // Gentle breathing
+    const sunPulse = 1 + sunInfluence * 0.15 * Math.sin(globalPhase * 1.2); // Subtle sun pulse
+    
+    // Solar flare effects are much more controlled
     const solarFlareVibration = solarFlareIntensity > 0.6 ? 
-      1 + 0.15 * Math.sin(animationPhase * 8 + index * 0.1) : 1; // Irregular vibration during high solar activity
+      1 + 0.08 * Math.sin(globalPhase * 4 + index * 0.05) : 1; // Gentle solar activity
+    
     const dynamicLength = length * breathingScale * sunPulse * solarFlareVibration;
     
     // Start point at ring edge
     const startX = center.x + Math.cos(angle) * radius;
     const startY = center.y + Math.sin(angle) * radius;
     
-    if (curvature < 0.15) {
-      // Straight ray with slight wind sway
-      const windOffset = windSway * 5 * Math.sin(animationPhase + angle * 3);
-      const endX = center.x + Math.cos(angle) * (radius + dynamicLength) + Math.cos(angle + Math.PI/2) * windOffset;
-      const endY = center.y + Math.sin(angle) * (radius + dynamicLength) + Math.sin(angle + Math.PI/2) * windOffset;
+    if (curvature < 0.2) {
+      // Straight ray with harmonic displacement
+      const harmonicOffset = harmonicDisplacement * 0.4; // Reduced for subtlety
+      const endX = center.x + Math.cos(angle) * (radius + dynamicLength) + Math.cos(angle + Math.PI/2) * harmonicOffset;
+      const endY = center.y + Math.sin(angle) * (radius + dynamicLength) + Math.sin(angle + Math.PI/2) * harmonicOffset;
       
       return `M ${startX} ${startY} L ${endX} ${endY}`;
     } else {
-      // Curved ray with enhanced wind and solar bending
+      // Curved ray with harmonic field influence
       const midLength = dynamicLength * 0.6;
       const endLength = dynamicLength;
       
-      // Wave-like propagation influenced by wind, sun, and temperature
-      const windWave = windSway * 25 * Math.sin(animationPhase * 1.5 + angle * 8); // Wind flow like tall grass
-      const sunWave = sunInfluence * 15 * Math.sin(animationPhase * 3 + angle * 6);
-      const temperatureShimmer = temperatureGlow * 8 * Math.sin(animationPhase * 4 + angle * 10);
-      const solarFlareWarp = solarFlareIntensity > 0.6 ? 
-        20 * Math.sin(animationPhase * 12 + angle * 15) : 0; // Chaotic warping during solar flares
+      // Smooth harmonic displacement instead of chaotic waves
+      const harmonicCurve = harmonicDisplacement * 0.5; // Much gentler than before
+      const temperatureShimmer = temperatureGlow * 3 * Math.sin(globalPhase * 2 + angle * 4); // Reduced intensity
       
-      const totalWave = windWave + sunWave + temperatureShimmer + solarFlareWarp;
+      const totalDisplacement = harmonicCurve + temperatureShimmer;
       
-      const midX = center.x + Math.cos(angle) * (radius + midLength) + Math.cos(angle + Math.PI/2) * totalWave;
-      const midY = center.y + Math.sin(angle) * (radius + midLength) + Math.sin(angle + Math.PI/2) * totalWave;
+      const midX = center.x + Math.cos(angle) * (radius + midLength) + Math.cos(angle + Math.PI/2) * totalDisplacement;
+      const midY = center.y + Math.sin(angle) * (radius + midLength) + Math.sin(angle + Math.PI/2) * totalDisplacement;
       
       const endX = center.x + Math.cos(angle) * (radius + endLength);
       const endY = center.y + Math.sin(angle) * (radius + endLength);
@@ -243,7 +261,7 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
         const path = generateRayPath(ray, index);
         const isSunInfluenced = ray.sunInfluence > 0.3;
         const isHighlySunInfluenced = ray.sunInfluence > 0.7;
-        const isWindInfluenced = ray.windSway > 0.4;
+        const isHarmonicInfluenced = Math.abs(ray.harmonicDisplacement) > 10;
         const isSolarFlareActive = solarFlareIntensity > 0.6;
         
         // Enhanced golden color palette with weather influence
@@ -290,10 +308,10 @@ export const SkyRing: React.FC<SkyRingProps> = ({ radius, center, className }) =
               ]
             }}
             transition={{
-              duration: isSolarFlareActive ? 1.5 + Math.random() : 4 + Math.random() * 3, // Faster during solar flares
+              duration: isSolarFlareActive ? 3 + index * 0.01 : 6 + index * 0.02, // Much slower, staggered timing
               repeat: Infinity,
-              ease: isSolarFlareActive ? "easeInOut" : "linear",
-              delay: index * 0.001
+              ease: "easeInOut", // Always smooth easing
+              delay: index * 0.005 // More staggered delays for wave-like effect
             }}
           />
         );

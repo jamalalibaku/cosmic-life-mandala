@@ -678,6 +678,7 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
               radius={Math.max(...layers.map(l => l.radius))}
               moonPhase={layers.find(l => l.layerType === 'moon')?.data?.[0]?.phase || 0.3}
               className="north-pole-moon"
+              showTooltip={true}
             />
           )}
 
