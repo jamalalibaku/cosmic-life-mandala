@@ -14,6 +14,7 @@ import { ClickableLayer } from "@/components/interactions/ClickableLayer";
 import { ClickableSlice } from "@/components/interactions/ClickableSlice";
 import { InfoPanelSystem, PanelData } from "@/components/interactions/InfoPanelSystem";
 import { useUnifiedMotion } from "@/hooks/useUnifiedMotion";
+import { HoverInsightShield } from "@/components/interactions/HoverInsightShield";
 import { useTimeAxis } from "@/contexts/TimeAxisContext";
 import { ThemeOverlayManager } from "@/components/themes/ThemeOverlaySystem";
 import { NowIndicator } from "@/components/time/NowIndicator";
@@ -783,10 +784,17 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
         timeAccumulator={timeAccumulator}
       />
 
-      {/* Global tooltip system */}
+      {/* Enhanced Hover Insight Shield System */}
+      <HoverInsightShield
+        data={tooltipData}
+        isVisible={tooltipVisible}
+        onClose={handleTooltipHide}
+      />
+
+      {/* Legacy tooltip for fallback compatibility */}
       <RadialTooltip 
         data={tooltipData} 
-        isVisible={tooltipVisible} 
+        isVisible={false} // Disabled in favor of insight shield
       />
 
       {/* Expanded card system */}

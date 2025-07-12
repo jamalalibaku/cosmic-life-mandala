@@ -211,13 +211,26 @@ export const InteractiveDataPoint: React.FC<InteractiveDataPointProps> = ({
     setIsHovered(true);
     const tooltipData = getTooltipData();
     if (tooltipData) {
-      // Use screen coordinates for tooltip positioning
+      // Use screen coordinates for tooltip positioning and enhanced data for insight shield
       const rect = (event.target as SVGElement).getBoundingClientRect();
-      onHover({
-        ...tooltipData,
-        x: rect.left + window.scrollX,
-        y: rect.top + window.scrollY,
-      });
+      const centerX = rect.left + rect.width / 2 + window.scrollX;
+      const centerY = rect.top + rect.height / 2 + window.scrollY;
+      
+      // Enhanced tooltip data for insight shield
+      const enhancedTooltipData = {
+        title: tooltipData.title.replace(' (Click to view week)', '').replace(' (Click to view day)', ''),
+        value: tooltipData.value,
+        timestamp: date ? format(date, "MMM d, yyyy 'at' HH:mm") : new Date().toLocaleString(),
+        layerType,
+        intensity: typeof data.intensity === 'number' ? data.intensity : 
+                  typeof data.energy === 'number' ? data.energy :
+                  typeof data.valence === 'number' ? data.valence : 0.5,
+        x: centerX,
+        y: centerY,
+        dataPoint: data
+      };
+      
+      onHover(enhancedTooltipData);
     }
   };
 
