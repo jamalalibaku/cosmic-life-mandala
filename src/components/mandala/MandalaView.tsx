@@ -108,19 +108,19 @@ const createDateBasedLayerData = (
       isWeek: isWeekView
     },
     {
-      name: "Weather", 
-      data: relevantData.filter(d => d.weather).map(d => ({ ...d.weather, date: d.date })),
-      color: "hsl(200, 30%, 60%)",
-      radius: 220,
-      layerType: "weather" as const,
-      isWeek: isWeekView
-    },
-    {
       name: "Plans",
       data: relevantData.flatMap(d => (d.plans || []).map(p => ({ ...p, date: d.date }))),
       color: "hsl(260, 25%, 70%)",
-      radius: 180,
+      radius: 220,
       layerType: "plans" as const,
+      isWeek: isWeekView
+    },
+    {
+      name: "Weather", 
+      data: relevantData.filter(d => d.weather).map(d => ({ ...d.weather, date: d.date })),
+      color: "hsl(200, 30%, 60%)",
+      radius: 180,
+      layerType: "weather" as const,
       isWeek: isWeekView
     },
     {
