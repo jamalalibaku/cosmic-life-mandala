@@ -6,57 +6,27 @@ export interface EssenceData {
   timestamp: Date;
 }
 
-export const mockEssenceData: EssenceData[] = [
-  { 
-    day: "Monday", 
-    essence: 43, 
-    mood: "Irritable", 
-    energy: "Low",
-    timestamp: new Date(2024, 0, 8) // Monday
-  },
-  { 
-    day: "Tuesday", 
-    essence: 87, 
-    mood: "Inspired", 
-    energy: "High",
-    timestamp: new Date(2024, 0, 9) // Tuesday
-  },
-  { 
-    day: "Wednesday", 
-    essence: 74, 
-    mood: "Focused", 
-    energy: "Moderate",
-    timestamp: new Date(2024, 0, 10) // Wednesday
-  },
-  { 
-    day: "Thursday", 
-    essence: 50, 
-    mood: "Flat", 
-    energy: "Low",
-    timestamp: new Date(2024, 0, 11) // Thursday
-  },
-  { 
-    day: "Friday", 
-    essence: 91, 
-    mood: "Euphoric", 
-    energy: "High",
-    timestamp: new Date(2024, 0, 12) // Friday
-  },
-  { 
-    day: "Saturday", 
-    essence: 65, 
-    mood: "Social", 
-    energy: "Medium",
-    timestamp: new Date(2024, 0, 13) // Saturday
-  },
-  { 
-    day: "Sunday", 
-    essence: 85, 
-    mood: "Grateful", 
-    energy: "Peaceful",
-    timestamp: new Date(2024, 0, 14) // Sunday
-  }
-];
+// Generate data for current week to ensure visibility
+const generateCurrentWeekData = (): EssenceData[] => {
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay()); // Start from Sunday
+  
+  const essenceValues = [85, 43, 87, 74, 50, 91, 65]; // Sunday through Saturday
+  const moods = ["Grateful", "Irritable", "Inspired", "Focused", "Flat", "Euphoric", "Social"];
+  const energies = ["Peaceful", "Low", "High", "Moderate", "Low", "High", "Medium"];
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  
+  return days.map((day, index) => ({
+    day,
+    essence: essenceValues[index],
+    mood: moods[index],
+    energy: energies[index],
+    timestamp: new Date(startOfWeek.getTime() + (index * 24 * 60 * 60 * 1000))
+  }));
+};
+
+export const mockEssenceData: EssenceData[] = generateCurrentWeekData();
 
 // Helper function to get essence data for a specific date
 export const getEssenceForDate = (date: Date): EssenceData | null => {

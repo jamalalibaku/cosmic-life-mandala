@@ -19,19 +19,46 @@ const EssenceLayer: React.FC<EssenceLayerProps> = ({
   outerRadius,
   currentDate
 }) => {
-  // Get current essence data
-  const currentEssence = essenceData.find(essence => 
+  // Get current essence data with fallback for visibility
+  let currentEssence = essenceData.find(essence => 
     essence.timestamp.toDateString() === currentDate.toDateString()
   );
 
-  if (!currentEssence) return null;
+  // Fallback: use most recent data if no exact match (always show something)
+  if (!currentEssence && essenceData.length > 0) {
+    currentEssence = essenceData[essenceData.length - 1];
+    console.log('🌟 EssenceLayer: Using fallback data for visibility', currentEssence);
+  }
+
+  // Final fallback: create default essence if no data at all
+  if (!currentEssence) {
+    currentEssence = {
+      day: "Today",
+      essence: 75,
+      mood: "Centered",
+      energy: "Moderate",
+      timestamp: currentDate
+    };
+    console.log('🌟 EssenceLayer: Using default essence data');
+  }
 
   const { essence, mood, energy } = currentEssence;
   
-  // Calculate visual properties based on essence score
-  const opacity = Math.max(0.3, essence / 100);
-  const thickness = Math.max(8, (essence / 100) * (outerRadius - innerRadius));
+  // Calculate visual properties based on essence score (enhanced for visibility)
+  const opacity = Math.max(0.6, essence / 100); // Increased minimum opacity
+  const thickness = Math.max(15, (essence / 100) * (outerRadius - innerRadius) * 0.8); // Increased thickness
   const radius = innerRadius + thickness / 2;
+  
+  console.log('🌟 EssenceLayer render:', {
+    essence,
+    mood,
+    energy,
+    opacity,
+    thickness,
+    radius,
+    innerRadius,
+    outerRadius
+  });
   
   // Get pattern and speed based on mood and energy
   const pattern = getMoodPattern(mood);
@@ -83,18 +110,18 @@ const EssenceLayer: React.FC<EssenceLayerProps> = ({
     return pathData + " Z";
   };
 
-  // Color based on essence score
+  // Color based on essence score (enhanced for visibility)
   const getEssenceColor = (score: number): string => {
-    if (score >= 80) return "hsl(120, 70%, 50%)"; // Vibrant green
-    if (score >= 60) return "hsl(60, 80%, 55%)"; // Golden yellow
-    if (score >= 40) return "hsl(30, 75%, 60%)"; // Warm orange
-    return "hsl(0, 60%, 55%)"; // Soft red
+    if (score >= 80) return "hsl(120, 80%, 60%)"; // Vibrant green
+    if (score >= 60) return "hsl(45, 90%, 65%)"; // Bright golden yellow  
+    if (score >= 40) return "hsl(25, 85%, 70%)"; // Warm orange
+    return "hsl(0, 75%, 65%)"; // Bright red
   };
 
   const essenceColor = getEssenceColor(essence);
 
   return (
-    <g className="essence-layer">
+    <g className="essence-layer" style={{ isolation: 'isolate' }}>
       {/* Outer glow ring */}
       <motion.path
         d={getPatternPath(outerRadius, pattern)}
@@ -122,23 +149,46 @@ const EssenceLayer: React.FC<EssenceLayerProps> = ({
         style={{ transformOrigin: `${centerX}px ${centerY}px` }}
       />
       
-      {/* Main essence ring */}
+      {/* Main essence ring - enhanced visibility */}
       <motion.path
         d={getPatternPath(radius, pattern)}
         fill="none"
         stroke={essenceColor}
-        strokeWidth={thickness / 4}
+        strokeWidth={Math.max(3, thickness / 3)} // Increased minimum stroke width
         opacity={opacity}
         animate={{
           scale: [1, 1.02, 1],
-          opacity: [opacity, opacity * 1.2, opacity]
+          opacity: [opacity, Math.min(1, opacity * 1.3), opacity]
         }}
         transition={{
           duration: 2 / speed,
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        style={{ transformOrigin: `${centerX}px ${centerY}px` }}
+        style={{ 
+          transformOrigin: `${centerX}px ${centerY}px`,
+          filter: `drop-shadow(0 0 8px ${essenceColor}60)` // Added glow for visibility
+        }}
+      />
+      
+      {/* Additional inner essence ring for presence */}
+      <motion.circle
+        cx={centerX}
+        cy={centerY}
+        r={radius * 0.85}
+        fill="none"
+        stroke={essenceColor}
+        strokeWidth="1"
+        opacity={opacity * 0.4}
+        animate={{
+          r: [radius * 0.85, radius * 0.9, radius * 0.85],
+          opacity: [opacity * 0.4, opacity * 0.7, opacity * 0.4]
+        }}
+        transition={{
+          duration: 3 / speed,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
       />
       
       {/* Inner pulse ring */}
@@ -197,17 +247,18 @@ const EssenceLayer: React.FC<EssenceLayerProps> = ({
         </filter>
       </defs>
       
-      {/* Mood and energy label */}
+      {/* Debug label for visibility */}
       <text
         x={centerX}
         y={centerY + radius + 20}
         textAnchor="middle"
         fill={essenceColor}
-        fontSize="10"
-        opacity={0.7}
-        className="font-light"
+        fontSize="11"
+        opacity={0.9}
+        className="font-medium"
+        style={{ filter: `drop-shadow(0 0 4px ${essenceColor}80)` }}
       >
-        {mood} • {essence}%
+        ESSENCE • {mood} • {essence}%
       </text>
     </g>
   );
