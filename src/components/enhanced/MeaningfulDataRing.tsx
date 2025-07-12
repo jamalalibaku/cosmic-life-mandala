@@ -5,6 +5,7 @@
 
 import React, { useMemo } from 'react';
 import { goldenRatio } from '../../utils/golden-ratio';
+import { BreathingLayer, FloatingParticles } from './OrganicMotionDrift';
 
 export interface DataBlob {
   hour: number;
@@ -149,22 +150,25 @@ export const EnhancedDataBlobRing: React.FC<EnhancedDataBlobRingProps> = ({
   }, [dataShapes]);
   
   return (
-    <g className={`enhanced-data-blob-ring ${type}`}>
-      <defs>
-        <radialGradient id={`${type}-blob-gradient`} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={colors.glow} stopOpacity="0.8" />
-          <stop offset="60%" stopColor={colors.base} stopOpacity="0.6" />
-          <stop offset="100%" stopColor={colors.base} stopOpacity="0.2" />
-        </radialGradient>
-        
-        <filter id={`${type}-glow`} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
+    <BreathingLayer intensity={0.3} rhythm="calm">
+      <g className={`enhanced-data-blob-ring ${type}`}>
+        <defs>
+          <radialGradient id={`${type}-blob-gradient`} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={colors.glow} stopOpacity="0.9" />
+            <stop offset="60%" stopColor={colors.base} stopOpacity="0.7" />
+            <stop offset="100%" stopColor={colors.base} stopOpacity="0.3" />
+          </radialGradient>
+          
+          {/* Enhanced glow with better depth */}
+          <filter id={`${type}-glow`} x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feOffset in="coloredBlur" dx="0" dy="0" result="offsetBlur"/>
+            <feMerge>
+              <feMergeNode in="offsetBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
       
       {/* Connection threads showing data relationships */}
       {connectionPaths.map(path => (
@@ -180,49 +184,56 @@ export const EnhancedDataBlobRing: React.FC<EnhancedDataBlobRingProps> = ({
         />
       ))}
       
-      {/* Data-driven organic shapes */}
-      {dataShapes.map(shape => (
-        <g key={shape.id} className="data-blob-shape">
-          <ellipse
-            cx={shape.x}
-            cy={shape.y}
-            rx={shape.width}
-            ry={shape.height}
-            fill={`url(#${type}-blob-gradient)`}
-            opacity={0.3 + shape.intensity * 0.5}
-            filter={`url(#${type}-glow)`}
-            transform={`rotate(${shape.angle} ${shape.x} ${shape.y})`}
-            className="cursor-pointer transition-all duration-200 hover:opacity-90"
-            onClick={() => onDataClick?.(shape.blob)}
-          />
-          
-          {/* Data value indicator for high-intensity points */}
-          {shape.intensity > 0.7 && (
-            <circle
-              cx={shape.x}
-              cy={shape.y}
-              r="3"
-              fill={colors.glow}
-              opacity="0.8"
-              filter={`url(#${type}-glow)`}
-              className="pointer-events-none"
-            />
-          )}
-        </g>
-      ))}
+        {/* Data-driven organic shapes with motion */}
+        {dataShapes.map(shape => (
+          <FloatingParticles key={shape.id} intensity={0.15}>
+            <g className="data-blob-shape">
+              <ellipse
+                cx={shape.x}
+                cy={shape.y}
+                rx={shape.width}
+                ry={shape.height}
+                fill={`url(#${type}-blob-gradient)`}
+                opacity={0.4 + shape.intensity * 0.5}
+                filter={`url(#${type}-glow)`}
+                transform={`rotate(${shape.angle} ${shape.x} ${shape.y})`}
+                className="cursor-pointer transition-all duration-300 hover:opacity-95 hover:scale-110"
+                onClick={() => onDataClick?.(shape.blob)}
+                style={{
+                  filter: `url(#${type}-glow) drop-shadow(0 0 8px ${colors.glow}40)`
+                }}
+              />
+              
+              {/* Enhanced data value indicator */}
+              {shape.intensity > 0.7 && (
+                <circle
+                  cx={shape.x}
+                  cy={shape.y}
+                  r="4"
+                  fill={colors.glow}
+                  opacity="0.9"
+                  filter={`url(#${type}-glow)`}
+                  className="pointer-events-none animate-pulse"
+                />
+              )}
+            </g>
+          </FloatingParticles>
+        ))}
       
-      {/* Gentle guide ring - only where data exists */}
-      <circle
-        cx={centerX}
-        cy={centerY}
-        r={(innerRadius + outerRadius) / 2}
-        fill="none"
-        stroke={colors.base}
-        strokeWidth="0.5"
-        opacity="0.1"
-        strokeDasharray={dataShapes.length > 0 ? "2,8" : "none"}
-        className="pointer-events-none"
-      />
-    </g>
+        {/* Enhanced guide ring with better visibility */}
+        <circle
+          cx={centerX}
+          cy={centerY}
+          r={(innerRadius + outerRadius) / 2}
+          fill="none"
+          stroke={colors.base}
+          strokeWidth="1"
+          opacity="0.15"
+          strokeDasharray={dataShapes.length > 0 ? "3,12" : "none"}
+          className="pointer-events-none"
+          filter={`url(#${type}-glow)`}
+        />
+      </g>
+    </BreathingLayer>
   );
 };

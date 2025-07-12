@@ -6,6 +6,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useVisualSkin } from '../visual-skin-provider';
+import { OrganicMotionDrift } from './OrganicMotionDrift';
 
 interface DataMarble {
   id: string;
@@ -183,35 +184,51 @@ export const KandinskyDataMarbles: React.FC<KandinskyDataMarblesProps> = ({
   };
 
   return (
-    <g className={className}>
-      {marbles.map((marble) => {
-        const style = getMarbleStyle(marble);
-        return (
-          <g key={marble.id}>
-            {renderMarbleShape(marble, style)}
-            
-            {/* Subtle glow effect for important data */}
-            {marble.value > 0.7 && (
-              <motion.circle
-                cx={marble.x}
-                cy={marble.y}
-                r={style.size}
-                fill="none"
-                stroke={style.color}
-                strokeWidth={1}
-                opacity={0.3}
-                initial={{ scale: 1 }}
-                animate={{ scale: [1, 1.5, 1] }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeOut"
-                }}
-              />
-            )}
-          </g>
-        );
-      })}
-    </g>
+    <OrganicMotionDrift type="gentle-rotation" intensity={0.3} duration={90}>
+      <g className={className}>
+        <defs>
+          {/* Enhanced blur filters */}
+          <filter id="kandinsky-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        
+        {marbles.map((marble) => {
+          const style = getMarbleStyle(marble);
+          return (
+            <OrganicMotionDrift key={marble.id} type="float-drift" intensity={0.2}>
+              <g>
+                {renderMarbleShape(marble, style)}
+                
+                {/* Enhanced glow effect with better blur */}
+                {marble.value > 0.7 && (
+                  <motion.circle
+                    cx={marble.x}
+                    cy={marble.y}
+                    r={style.size * 1.2}
+                    fill="none"
+                    stroke={style.color}
+                    strokeWidth={2}
+                    opacity={0.4}
+                    filter="url(#kandinsky-glow)"
+                    initial={{ scale: 1 }}
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeOut"
+                    }}
+                  />
+                )}
+              </g>
+            </OrganicMotionDrift>
+          );
+        })}
+      </g>
+    </OrganicMotionDrift>
   );
 };
