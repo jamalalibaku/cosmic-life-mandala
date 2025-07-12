@@ -200,20 +200,114 @@ export const NowIndicator: React.FC<NowIndicatorProps> = ({
         NOW
       </text>
 
-      {/* Time display */}
-      <text
-        x={nowPosition.x}
-        y={nowPosition.y + 35}
-        textAnchor="middle"
-        className="text-xs font-light"
-        fill={themeColors.primary}
-        opacity={applyBreathingOpacity(0.7)}
-      >
-        {timeScale === 'day' && currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        {timeScale === 'week' && currentTime.toLocaleDateString([], { weekday: 'short' })}
-        {timeScale === 'month' && currentTime.getDate()}
-        {timeScale === 'year' && currentTime.toLocaleDateString([], { month: 'short' })}
-      </text>
+      {/* Enhanced Time display - poetic and elegant */}
+      <g className="cosmic-time-display">
+        <defs>
+          <filter id="shimmer-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        
+        {timeScale === 'day' && (
+          <>
+            {/* Main time */}
+            <text
+              x={nowPosition.x}
+              y={nowPosition.y + 45}
+              textAnchor="middle"
+              className="text-lg font-medium tracking-wide"
+              fill="hsl(45 90% 85%)"
+              filter="url(#shimmer-glow)"
+              opacity={applyBreathingOpacity(0.95)}
+              style={{
+                fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
+                textShadow: '0 0 8px rgba(255, 220, 180, 0.4), 0 0 20px rgba(255, 220, 180, 0.15)'
+              }}
+            >
+              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </text>
+            
+            {/* Period (AM/PM) */}
+            <text
+              x={nowPosition.x + 25}
+              y={nowPosition.y + 40}
+              textAnchor="start"
+              className="text-xs font-light"
+              fill="hsl(45 70% 70%)"
+              opacity={applyBreathingOpacity(0.7)}
+              style={{
+                fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif"
+              }}
+            >
+              {currentTime.toLocaleTimeString([], { hour12: true }).split(' ')[1]}
+            </text>
+          </>
+        )}
+        
+        {timeScale === 'week' && (
+          <text
+            x={nowPosition.x}
+            y={nowPosition.y + 40}
+            textAnchor="middle"
+            className="text-sm font-medium"
+            fill="hsl(45 80% 75%)"
+            filter="url(#shimmer-glow)"
+            opacity={applyBreathingOpacity(0.85)}
+            style={{
+              fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif"
+            }}
+          >
+            {currentTime.toLocaleDateString([], { weekday: 'long' })}
+          </text>
+        )}
+        
+        {timeScale === 'month' && (
+          <text
+            x={nowPosition.x}
+            y={nowPosition.y + 40}
+            textAnchor="middle"
+            className="text-base font-medium"
+            fill="hsl(45 80% 75%)"
+            filter="url(#shimmer-glow)"
+            opacity={applyBreathingOpacity(0.85)}
+            style={{
+              fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif"
+            }}
+          >
+            {currentTime.getDate()}
+          </text>
+        )}
+        
+        {timeScale === 'year' && (
+          <text
+            x={nowPosition.x}
+            y={nowPosition.y + 40}
+            textAnchor="middle"
+            className="text-sm font-medium"
+            fill="hsl(45 80% 75%)"
+            filter="url(#shimmer-glow)"
+            opacity={applyBreathingOpacity(0.85)}
+            style={{
+              fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif"
+            }}
+          >
+            {currentTime.toLocaleDateString([], { month: 'long' })}
+          </text>
+        )}
+        
+        {/* Shimmer animation */}
+        <animateTransform
+          attributeName="transform"
+          type="translate"
+          values="0,0; 0,-1; 0,0"
+          dur="6s"
+          repeatCount="indefinite"
+        />
+      </g>
     </g>
   );
 };
