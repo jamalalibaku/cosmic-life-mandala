@@ -244,9 +244,13 @@ const MandalaViewContent = () => {
               maxWidth: "min(95vw, 95vh)",
               maxHeight: "min(95vw, 95vh)"
             }}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
+            initial={{ opacity: 0, scale: 0.8, rotateX: -15 }}
+            animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+            transition={{ 
+              duration: 2.5, 
+              ease: [0.175, 0.885, 0.32, 1.275], // Dramatic back-ease
+              delay: 0.2
+            }}
           >
             {/* Environmental Layer (beneath other layers) */}
             <EnvironmentalLayer 
@@ -260,9 +264,11 @@ const MandalaViewContent = () => {
             <motion.g
               animate={{ rotate: rotationAngle }}
               transition={{ 
-                type: "tween", 
-                duration: 4, 
-                ease: [0.25, 0.46, 0.45, 0.94] // Cosmic easing for celestial motion
+                type: "spring", 
+                stiffness: 20,
+                damping: 30,
+                mass: 1.5,
+                duration: 6
               }}
             >
               {/* Real Date-Based Radial Layer Architecture System */}

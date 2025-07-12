@@ -36,6 +36,7 @@ import { NorthPoleMoon } from "@/components/enhanced/NorthPoleMoon";
 import { SkyRing } from "@/components/enhanced/SkyRing";
 import { AirLayer } from "@/components/atmosphere/AirLayer";
 import { SunburstGrooveField } from "@/components/enhanced/SunburstGrooveField";
+import { WindHairField } from "@/components/enhanced/WindHairField";
 import { useZoomCompensation } from "@/hooks/useZoomCompensation";
 import { useInteractionTracking } from "@/hooks/useInteractionTracking";
 import { findRecurringSlices, getConstellationColors } from "@/utils/constellation-engine";
@@ -648,12 +649,15 @@ export const RadialLayerSystem: React.FC<RadialLayerSystemProps> = ({
             visible={true}
           />
           
-          {/* Sunburst Groove Field - Living plasma corona */}
-          <SunburstGrooveField
+          {/* Wind-Responsive Hair Ring - Flag-like organic motion */}
+          <WindHairField
             radius={Math.max(...layers.map(l => l.radius)) + 80}
             center={{ x: 0, y: 0 }}
             dataLayers={layers}
-            className="sunburst-groove-field"
+            windSpeed={0.6}
+            windDirection={Math.PI / 4}
+            emotionalIntensity={0.7}
+            className="wind-hair-field"
           />
 
           {/* Sky Ring - Celestial canvas surrounding everything */}

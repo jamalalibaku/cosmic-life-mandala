@@ -146,6 +146,13 @@ export const AIInsightOrbiter: React.FC<AIInsightOrbiterProps> = ({
               onHoverStart={() => !isExpanded && setExpandedQuote(quote.id)}
               onHoverEnd={() => !isExpanded && setExpandedQuote(null)}
               onClick={() => setExpandedQuote(isExpanded ? null : quote.id)}
+              initial={{ scale: 0, rotate: -180, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              transition={{ 
+                duration: 1.2 + index * 0.3, 
+                ease: [0.175, 0.885, 0.32, 1.275],
+                delay: index * 0.4
+              }}
             >
               <motion.circle
                 cx={position.x}
