@@ -26,7 +26,7 @@ import { PoetryOverlay } from '@/components/poetry-overlay';
 import { SunAuraRing } from '@/components/sun-aura-ring';
 import { SmoothFlowProvider } from '@/components/performance/SmoothFlowProvider';
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
-import { NowRecorder } from '@/components/enhanced/NowRecorder';
+import { NowIndicator } from '@/components/now-indicator';
 import { SideView } from '@/components/mandala/SideView';
 import { RotatableSideView } from '@/components/mandala/RotatableSideView';
 import { useTimeDrift } from '@/hooks/use-time-drift';
@@ -370,34 +370,31 @@ const IndexContent = () => {
               outerRadius={140}
             />
             
-            {/* INVERTED LAYER HIERARCHY: Sleep (innermost) → Mood → Mobility → Plans → Weather (outermost) */}
+            {/* INVERTED LAYER HIERARCHY: Weather (innermost) → Plans → Mobility → Mood → Sleep → Self → Wallet (outermost) */}
             
-            {/* 1. Sleep - Innermost rest and recovery layer (150-180px) */}
-            <g transform={sleepTilt.getSVGTiltTransform(centerX, centerY)}>
-              <DataBlobRing
-                data={mockSleepData}
+            {/* 1. Weather - Innermost cosmic influence (150-180px) */}
+            <g transform={weatherTilt.getSVGTiltTransform(centerX, centerY)}>
+              <EnhancedWeatherRing
                 centerX={centerX}
                 centerY={centerY}
                 innerRadius={150}
                 outerRadius={180}
-                type="sleep"
-                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
-                {...currentMetrics}
+                theme={currentTheme as any}
+                className="enhanced-weather-layer"
               />
             </g>
 
-            {/* 2. Mood - Emotional expression layer (190-220px) */}
-            <g transform={moodTilt.getSVGTiltTransform(centerX, centerY)}>
-              <DataBlobRing
-                data={mockMoodData}
+            {/* 2. Plans - Intentional structure layer (190-220px) */}
+            <g transform={plansTilt.getSVGTiltTransform(centerX, centerY)}>
+              <PlansLayerRing
+                plansData={mockPlansData}
                 centerX={centerX}
                 centerY={centerY}
-                innerRadius={190}
-                outerRadius={220}
-                type="mood"
-                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
-                {...currentMetrics}
-                onMoodChange={setCurrentMood}
+                radius={205}
+                theme={currentTheme}
+                onPlanClick={(plan) => {
+                  console.log('Plan clicked:', plan);
+                }}
               />
             </g>
 
@@ -413,29 +410,32 @@ const IndexContent = () => {
               />
             </g>
 
-            {/* 4. Plans - Intentional structure layer (270-300px) */}
-            <g transform={plansTilt.getSVGTiltTransform(centerX, centerY)}>
-              <PlansLayerRing
-                plansData={mockPlansData}
+            {/* 4. Mood - Emotional expression layer (270-300px) */}
+            <g transform={moodTilt.getSVGTiltTransform(centerX, centerY)}>
+              <DataBlobRing
+                data={mockMoodData}
                 centerX={centerX}
                 centerY={centerY}
-                radius={285}
-                theme={currentTheme}
-                onPlanClick={(plan) => {
-                  console.log('Plan clicked:', plan);
-                }}
+                innerRadius={270}
+                outerRadius={300}
+                type="mood"
+                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "MOOD DATA" : undefined}
+                {...currentMetrics}
+                onMoodChange={setCurrentMood}
               />
             </g>
 
-            {/* 5. Weather - Outermost cosmic influence (310-340px) */}
-            <g transform={weatherTilt.getSVGTiltTransform(centerX, centerY)}>
-              <EnhancedWeatherRing
+            {/* 5. Sleep - Rest and recovery layer (310-340px) */}
+            <g transform={sleepTilt.getSVGTiltTransform(centerX, centerY)}>
+              <DataBlobRing
+                data={mockSleepData}
                 centerX={centerX}
                 centerY={centerY}
                 innerRadius={310}
                 outerRadius={340}
-                theme={currentTheme as any}
-                className="enhanced-weather-layer"
+                type="sleep"
+                label={(!reflectiveMode && !poetryMode && !showLayerDebug) ? undefined : showLayerDebug ? "SLEEP DATA" : undefined}
+                {...currentMetrics}
               />
             </g>
 
@@ -759,22 +759,15 @@ const IndexContent = () => {
         />
 
 
-        {/* NOW RECORDER - 24 divided recorder lines with resonance ripples */}
-        <NowRecorder
+        {/* NOW Indicator - appears at appropriate position for each scale */}
+        <NowIndicator
           centerX={centerX}
           centerY={centerY}
-          radius={scale === 'day' ? 430 : 
-                  scale === 'week' ? 380 : 
-                  scale === 'month' ? 400 : 420}
+          radius={scale === 'day' ? 350 : 
+                  scale === 'week' ? 300 : 
+                  scale === 'month' ? 320 : 340}
           timeScale={scale}
           theme={currentTheme}
-          dataLayers={[
-            { name: 'weather', data: mockWeatherData, radius: 180, layerType: 'weather' },
-            { name: 'plans', data: mockPlansData, radius: 205, layerType: 'plans' },
-            { name: 'mobility', data: mockMobilityData, radius: 245, layerType: 'mobility' },
-            { name: 'mood', data: mockMoodData, radius: 285, layerType: 'mood' },
-            { name: 'sleep', data: mockSleepData, radius: 325, layerType: 'sleep' }
-          ]}
         />
 
         {/* Poetry Overlay - floating poetic lines in poetry mode */}
