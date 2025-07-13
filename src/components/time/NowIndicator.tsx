@@ -68,18 +68,20 @@ export const NowIndicator: React.FC<NowIndicatorProps> = ({
         } : { duration: 0 }}
       />
       
-      {/* NOW text - fixed position */}
-      <text
-        x={lineEndX + 10}
-        y={lineEndY + 4}
-        fill="hsl(45, 80%, 70%)"
-        fontSize="10"
-        fontWeight="500"
-        fontFamily="Inter, system-ui, sans-serif"
-        opacity="0.9"
-      >
-        NOW
-      </text>
+      {/* NOW text - DISABLED */}
+      {false && (
+        <text
+          x={lineEndX + 10}
+          y={lineEndY + 4}
+          fill="hsl(45, 80%, 70%)"
+          fontSize="10"
+          fontWeight="500"
+          fontFamily="Inter, system-ui, sans-serif"
+          opacity="0.9"
+        >
+          NOW
+        </text>
+      )}
     </g>
   );
 };

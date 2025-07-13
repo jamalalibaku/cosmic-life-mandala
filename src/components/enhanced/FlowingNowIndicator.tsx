@@ -196,28 +196,30 @@ export const FlowingNowIndicator: React.FC<FlowingNowIndicatorProps> = ({
         }}
       />
 
-      {/* Cosmic NOW label with enhanced typography */}
-      <motion.text
-        x={endPoint.x + 12}
-        y={endPoint.y + 3}
-        fill="hsl(45, 85%, 75%)"
-        fontSize="11"
-        fontWeight="600"
-        fontFamily="Inter, system-ui, sans-serif"
-        filter="url(#celestial-sparkle)"
-        opacity="0.9"
-        animate={{
-          opacity: [0.7, 1, 0.7],
-          scale: [0.95, 1.05, 0.95]
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      >
-        NOW
-      </motion.text>
+      {/* Cosmic NOW label with enhanced typography - DISABLED */}
+      {false && (
+        <motion.text
+          x={endPoint.x + 12}
+          y={endPoint.y + 3}
+          fill="hsl(45, 85%, 75%)"
+          fontSize="11"
+          fontWeight="600"
+          fontFamily="Inter, system-ui, sans-serif"
+          filter="url(#celestial-sparkle)"
+          opacity="0.9"
+          animate={{
+            opacity: [0.7, 1, 0.7],
+            scale: [0.95, 1.05, 0.95]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          NOW
+        </motion.text>
+      )}
 
       {/* Celestial time rays emanating from NOW */}
       {Array.from({ length: 6 }, (_, i) => {

@@ -280,36 +280,38 @@ export const DynamicNowIndicator: React.FC<DynamicNowIndicatorProps> = ({
         className="pointer-events-none"
       />
 
-      {/* Dynamic quadrant-aware NOW label */}
-      <motion.text
-        x={labelPosition.x}
-        y={labelPosition.y}
-        textAnchor={labelPosition.config.textAnchor}
-        className="text-sm font-bold"
-        fill="hsl(45 90% 85%)"
-        filter="url(#shimmer-glow)"
-        style={{
-          fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
-          textShadow: '0 0 8px rgba(255, 220, 180, 0.4), 0 0 20px rgba(255, 220, 180, 0.15)'
-        }}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{
-          opacity: applyBreathingOpacity(0.9),
-          scale: 1,
-          rotate: isPoleCrossing ? [0, 15, -10, 0] : 0,
-          x: labelPosition.x,
-          y: labelPosition.y
-        }}
-        transition={{
-          opacity: { duration: 0.8, ease: "easeInOut" },
-          scale: { duration: 0.8, ease: "easeInOut" },
-          rotate: isPoleCrossing ? { duration: 1, ease: "easeInOut" } : { duration: 0 },
-          x: { duration: 0.8, ease: "easeInOut" },
-          y: { duration: 0.8, ease: "easeInOut" }
-        }}
-      >
-        NOW
-      </motion.text>
+      {/* Dynamic quadrant-aware NOW label - DISABLED */}
+      {false && (
+        <motion.text
+          x={labelPosition.x}
+          y={labelPosition.y}
+          textAnchor={labelPosition.config.textAnchor}
+          className="text-sm font-bold"
+          fill="hsl(45 90% 85%)"
+          filter="url(#shimmer-glow)"
+          style={{
+            fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
+            textShadow: '0 0 8px rgba(255, 220, 180, 0.4), 0 0 20px rgba(255, 220, 180, 0.15)'
+          }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{
+            opacity: applyBreathingOpacity(0.9),
+            scale: 1,
+            rotate: isPoleCrossing ? [0, 15, -10, 0] : 0,
+            x: labelPosition.x,
+            y: labelPosition.y
+          }}
+          transition={{
+            opacity: { duration: 0.8, ease: "easeInOut" },
+            scale: { duration: 0.8, ease: "easeInOut" },
+            rotate: isPoleCrossing ? { duration: 1, ease: "easeInOut" } : { duration: 0 },
+            x: { duration: 0.8, ease: "easeInOut" },
+            y: { duration: 0.8, ease: "easeInOut" }
+          }}
+        >
+          NOW
+        </motion.text>
+      )}
 
       {/* Pole crossing glow effect */}
       {isPoleCrossing && (
@@ -349,22 +351,10 @@ export const DynamicNowIndicator: React.FC<DynamicNowIndicatorProps> = ({
                 textShadow: '0 0 8px rgba(255, 220, 180, 0.4), 0 0 20px rgba(255, 220, 180, 0.15)'
               }}
             >
-              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
             </text>
             
-            <text
-              x={nowPosition.x + 25}
-              y={nowPosition.y + 40}
-              textAnchor="start"
-              className="text-xs font-light"
-              fill="hsl(45 70% 70%)"
-              opacity={applyBreathingOpacity(0.7)}
-              style={{
-                fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif"
-              }}
-            >
-              {currentTime.toLocaleTimeString([], { hour12: true }).split(' ')[1]}
-            </text>
+            {/* AM/PM indicator removed for 24h format */}
           </>
         )}
         
