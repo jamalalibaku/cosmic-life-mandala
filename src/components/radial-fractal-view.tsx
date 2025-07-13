@@ -8,6 +8,7 @@ import React, { useMemo } from 'react';
 import { TimeScale } from './fractal-time-zoom-manager';
 import { useFractalMorph } from '../hooks/use-fractal-morph';
 import { DynamicNowIndicator } from './time/DynamicNowIndicator';
+import { calculateWheelRotation, applyWheelRotation } from '../utils/wheel-of-time';
 
 interface RadialFractalViewProps {
   scale: TimeScale;
@@ -38,6 +39,13 @@ export const RadialFractalView: React.FC<RadialFractalViewProps> = ({
     transitionProgress,
     isTransitioning
   });
+
+  // Calculate wheel rotation for counter-clockwise movement
+  const wheelRotation = useMemo(() => {
+    const currentTime = new Date();
+    const baseDate = targetDate;
+    return calculateWheelRotation(currentTime, 'day', baseDate);
+  }, [targetDate]);
 
   // Theme-based colors
   const themeColors = useMemo(() => {
@@ -222,30 +230,44 @@ export const RadialFractalView: React.FC<RadialFractalViewProps> = ({
   };
 
   return (
-    <g 
-      className={`fractal-view ${className}`}
-      style={{
-        ...transitionStyle,
-        transform: `scale(${geometry.containerScale}) rotate(${geometry.globalRotation}rad)`,
-        transformOrigin: `${centerX}px ${centerY}px`
-      }}
-    >
-      {/* Background pattern */}
-      <circle
-        cx={centerX}
-        cy={centerY}
-        r={radius + 20}
-        fill="none"
-        stroke={themeColors.secondary}
-        strokeWidth="1"
-        opacity="0.2"
-        strokeDasharray="4,8"
-      />
+    <g className={`fractal-view ${className}`}>
+      {/* Rotating timeline group - Counter-clockwise wheel of time */}
+      <g 
+        style={{
+          ...transitionStyle,
+          transform: `${applyWheelRotation(wheelRotation)} scale(${geometry.containerScale}) rotate(${geometry.globalRotation}rad)`,
+          transformOrigin: `${centerX}px ${centerY}px`
+        }}
+      >
+        {/* Background pattern */}
+        <circle
+          cx={centerX}
+          cy={centerY}
+          r={radius + 20}
+          fill="none"
+          stroke={themeColors.secondary}
+          strokeWidth="1"
+          opacity="0.2"
+          strokeDasharray="4,8"
+        />
 
-      {/* Fractal pattern */}
-      {renderFractalPattern()}
+        {/* Fractal pattern */}
+        {renderFractalPattern()}
 
-      {/* Center anchor */}
+        {/* Scale label */}
+        <text
+          x={centerX}
+          y={centerY + radius + 40}
+          textAnchor="middle"
+          className="text-sm font-light"
+          fill={themeColors.primary}
+          opacity="0.7"
+        >
+          {visualMetaphor.name} • {scale.toUpperCase()}
+        </text>
+      </g>
+
+      {/* Fixed center anchor - doesn't rotate */}
       <circle
         cx={centerX}
         cy={centerY}
@@ -257,18 +279,6 @@ export const RadialFractalView: React.FC<RadialFractalViewProps> = ({
       />
 
       {/* NOW indicator removed - handled by main timeline */}
-
-      {/* Scale label */}
-      <text
-        x={centerX}
-        y={centerY + radius + 40}
-        textAnchor="middle"
-        className="text-sm font-light"
-        fill={themeColors.primary}
-        opacity="0.7"
-      >
-        {visualMetaphor.name} • {scale.toUpperCase()}
-      </text>
     </g>
   );
 };
