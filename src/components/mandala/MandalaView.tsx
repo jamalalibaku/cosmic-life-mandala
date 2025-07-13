@@ -421,20 +421,21 @@ const MandalaViewContent = () => {
               isVisible={showEnvironmental}
             />
             
-            {/* Night Passage Visual Effects */}
+            {/* Night Passage Visual Effects - Performance Optimized */}
             <NightPassageOrchestrator
               centerX={0}
               centerY={0}
               radius={300}
               theme={currentPalette ? 'default' : 'default'}
               isEnabled={!isEmergencyMode}
+              performanceMode={isEmergencyMode ? 'low' : metrics.currentFPS < 30 ? 'medium' : 'high'}
               emotionalData={{
                 emotion: emotionalState.currentMood.emotion as any || 'calm',
-                intensity: emotionalState.currentMood.valence || 0.5
+                intensity: Math.min(emotionalState.currentMood.valence || 0.3, 0.6) // Capped for performance
               }}
               insightData={{
                 type: detectedPatterns.length > 0 ? 'insight' : 'seasonal',
-                intensity: Math.min(detectedPatterns.length / 10, 1)
+                intensity: Math.min(detectedPatterns.length / 20, 0.5) // Reduced sensitivity
               }}
               locationData={{
                 silhouetteType: 'city' // Could be dynamic based on user location

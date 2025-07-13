@@ -15,6 +15,7 @@ interface NightPassageOrchestratorProps {
   radius: number;
   theme: string;
   isEnabled?: boolean;
+  performanceMode?: 'high' | 'medium' | 'low';
   emotionalData?: {
     emotion: 'joy' | 'excitement' | 'stress' | 'calm' | 'sadness' | 'anger' | 'love' | 'surprise';
     intensity: number;
@@ -35,6 +36,7 @@ export const NightPassageOrchestrator: React.FC<NightPassageOrchestratorProps> =
   radius,
   theme,
   isEnabled = true,
+  performanceMode = 'medium',
   emotionalData,
   insightData,
   locationData,
@@ -48,13 +50,14 @@ export const NightPassageOrchestrator: React.FC<NightPassageOrchestratorProps> =
     urbanGrounding: true // Always visible as base layer
   });
 
-  // Update time every second
+  // Update time based on performance mode
   useEffect(() => {
+    const interval = performanceMode === 'high' ? 1000 : performanceMode === 'medium' ? 5000 : 30000;
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, interval);
     return () => clearInterval(timer);
-  }, []);
+  }, [performanceMode]);
 
   // Determine time of day for urban grounding
   const timeOfDay = useMemo(() => {
@@ -65,8 +68,18 @@ export const NightPassageOrchestrator: React.FC<NightPassageOrchestratorProps> =
     return 'night';
   }, [currentTime]);
 
-  // Check for midnight burst trigger
+  // Performance-aware effect limitations
+  const shouldShowEffect = useMemo(() => ({
+    midnightArc: performanceMode !== 'low',
+    emotionalClimax: performanceMode === 'high',
+    gradientPulse: performanceMode !== 'low',
+    urbanGrounding: true // Always show base layer
+  }), [performanceMode]);
+
+  // Check for midnight burst trigger (only in high performance mode)
   useEffect(() => {
+    if (performanceMode !== 'high') return;
+    
     const hour = currentTime.getHours();
     const minute = currentTime.getMinutes();
     const second = currentTime.getSeconds();
@@ -80,44 +93,51 @@ export const NightPassageOrchestrator: React.FC<NightPassageOrchestratorProps> =
         setActiveEffects(prev => ({ ...prev, midnightArc: false }));
       }, 8000);
     }
-  }, [currentTime]);
+  }, [currentTime, performanceMode]);
 
-  // Monitor emotional intensity for climax trigger
+  // Monitor emotional intensity for climax trigger (only in high performance mode)
   useEffect(() => {
-    if (emotionalData && emotionalData.intensity > 0.7) {
+    if (performanceMode !== 'high') return;
+    
+    if (emotionalData && emotionalData.intensity > 0.8) { // Higher threshold for performance
       setActiveEffects(prev => ({ ...prev, emotionalClimax: true }));
       
-      // Reset after 5 seconds
+      // Reset after 3 seconds (shorter duration)
       setTimeout(() => {
         setActiveEffects(prev => ({ ...prev, emotionalClimax: false }));
-      }, 5000);
+      }, 3000);
     }
-  }, [emotionalData]);
+  }, [emotionalData, performanceMode]);
 
-  // Monitor insight intensity for gradient pulse
+  // Monitor insight intensity for gradient pulse (performance-aware)
   useEffect(() => {
-    if (insightData && insightData.intensity > 0.5) {
+    if (performanceMode === 'low') return;
+    
+    if (insightData && insightData.intensity > 0.7) { // Higher threshold
       setActiveEffects(prev => ({ ...prev, gradientPulse: true }));
       
-      // Reset after 6 seconds
+      // Reset after 4 seconds (shorter duration)
       setTimeout(() => {
         setActiveEffects(prev => ({ ...prev, gradientPulse: false }));
-      }, 6000);
+      }, 4000);
     }
-  }, [insightData]);
+  }, [insightData, performanceMode]);
 
-  // Auto-trigger gradient pulse for seasonal changes (every 20 minutes)
+  // Auto-trigger gradient pulse for seasonal changes (performance-aware)
   useEffect(() => {
+    if (performanceMode === 'low') return;
+    
+    const interval = performanceMode === 'high' ? 20 * 60 * 1000 : 60 * 60 * 1000; // 20min or 1hr
     const seasonalTimer = setInterval(() => {
       setActiveEffects(prev => ({ ...prev, gradientPulse: true }));
       
       setTimeout(() => {
         setActiveEffects(prev => ({ ...prev, gradientPulse: false }));
-      }, 4000);
-    }, 20 * 60 * 1000); // 20 minutes
+      }, 3000);
+    }, interval);
 
     return () => clearInterval(seasonalTimer);
-  }, []);
+  }, [performanceMode]);
 
   if (!isEnabled) return null;
 
@@ -134,35 +154,41 @@ export const NightPassageOrchestrator: React.FC<NightPassageOrchestratorProps> =
       />
 
       {/* Gradient Pulse - Seasonal waves and insight bursts */}
-      <GradientPulse
-        centerX={centerX}
-        centerY={centerY}
-        maxRadius={radius + 80}
-        type={insightData?.type || 'seasonal'}
-        intensity={insightData?.intensity || 0.6}
-        theme={theme}
-        isActive={activeEffects.gradientPulse}
-        direction="outward"
-      />
+      {shouldShowEffect.gradientPulse && (
+        <GradientPulse
+          centerX={centerX}
+          centerY={centerY}
+          maxRadius={radius + 80}
+          type={insightData?.type || 'seasonal'}
+          intensity={Math.min(insightData?.intensity || 0.4, 0.6)} // Capped intensity
+          theme={theme}
+          isActive={activeEffects.gradientPulse}
+          direction="outward"
+        />
+      )}
 
       {/* Emotional Climax - Vertical bursts */}
-      <EmotionalClimax
-        centerX={centerX}
-        centerY={centerY}
-        intensity={emotionalData?.intensity || 0.8}
-        emotion={emotionalData?.emotion || 'joy'}
-        theme={theme}
-        isActive={activeEffects.emotionalClimax}
-      />
+      {shouldShowEffect.emotionalClimax && (
+        <EmotionalClimax
+          centerX={centerX}
+          centerY={centerY}
+          intensity={Math.min(emotionalData?.intensity || 0.5, 0.7)} // Capped intensity
+          emotion={emotionalData?.emotion || 'calm'}
+          theme={theme}
+          isActive={activeEffects.emotionalClimax}
+        />
+      )}
 
       {/* Midnight Arc Burst - Daily trail burst */}
-      <MidnightArcBurst
-        centerX={centerX}
-        centerY={centerY}
-        radius={radius}
-        theme={theme}
-        isActive={activeEffects.midnightArc}
-      />
+      {shouldShowEffect.midnightArc && (
+        <MidnightArcBurst
+          centerX={centerX}
+          centerY={centerY}
+          radius={radius}
+          theme={theme}
+          isActive={activeEffects.midnightArc}
+        />
+      )}
 
       {/* Debug indicator (only in development) */}
       {process.env.NODE_ENV === 'development' && (
