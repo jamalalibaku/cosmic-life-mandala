@@ -30,6 +30,7 @@ import { useMemoryPatterns } from "@/hooks/useMemoryPatterns";
 import { useSeasonalAwareness } from "@/hooks/useSeasonalAwareness";
 import { useMicroInteractions } from "@/hooks/useMicroInteractions";
 import { useSoundDesign } from "@/hooks/useSoundDesign";
+import { NightPassageOrchestrator } from "@/components/night-passage/NightPassageOrchestrator";
 
 // Real date-based layer data generator
 const createDateBasedLayerData = (
@@ -420,6 +421,26 @@ const MandalaViewContent = () => {
               isVisible={showEnvironmental}
             />
             
+            {/* Night Passage Visual Effects */}
+            <NightPassageOrchestrator
+              centerX={0}
+              centerY={0}
+              radius={300}
+              theme={currentPalette ? 'default' : 'default'}
+              isEnabled={!isEmergencyMode}
+              emotionalData={{
+                emotion: emotionalState.currentMood.emotion as any || 'calm',
+                intensity: emotionalState.currentMood.valence || 0.5
+              }}
+              insightData={{
+                type: detectedPatterns.length > 0 ? 'insight' : 'seasonal',
+                intensity: Math.min(detectedPatterns.length / 10, 1)
+              }}
+              locationData={{
+                silhouetteType: 'city' // Could be dynamic based on user location
+              }}
+            />
+
             {/* Enhanced radial system with adaptive performance */}
             <OptimizedSVGMotion
               priority="critical"
