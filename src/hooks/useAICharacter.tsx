@@ -77,6 +77,12 @@ const applyCharacterVoice = (text: string, character: AICharacter): string => {
       return transformToAdria(text);
     case 'coach':
       return transformToCoach(text);
+    case 'angrymother':
+      return transformToAngryMother(text);
+    case 'krusty':
+      return transformToKrusty(text);
+    case 'eminem':
+      return transformToEminem(text);
     default:
       return text;
   }
@@ -120,4 +126,49 @@ const transformToAdria = (text: string): string => {
 
 const transformToCoach = (text: string): string => {
   return `Great insight! ${text} This shows real progress in your self-awareness. Keep building on this!`;
+};
+
+const transformToAngryMother = (text: string): string => {
+  const sarcasticPrefixes = [
+    "Oh brilliant,",
+    "Well aren't you clever,",
+    "Lovely darling,",
+    "Oh wonderful,",
+    "How delightful,"
+  ];
+  const prefix = sarcasticPrefixes[Math.floor(Math.random() * sarcasticPrefixes.length)];
+  return `${prefix} ${text.toLowerCase()}. Shall I applaud your stunning self-awareness or just roll my eyes?`;
+};
+
+const transformToKrusty = (text: string): string => {
+  const excitedWords = text.toUpperCase().split(' ');
+  const krustyFlair = [
+    "HEY HEY KIDS!",
+    "WOW-ZA!",
+    "CIRCUS TIME!",
+    "PARTY EXPLOSION!"
+  ];
+  const flair = krustyFlair[Math.floor(Math.random() * krustyFlair.length)];
+  return `${flair} ${excitedWords.join(' ')}! 🎪✨ Time to celebrate this cosmic revelation with CONFETTI AND CHAOS!`;
+};
+
+const transformToEminem = (text: string): string => {
+  // Simple rhyme transformation - turns insights into bars
+  const words = text.split(' ');
+  const lastWord = words[words.length - 1]?.toLowerCase();
+  
+  // Basic rhyme patterns
+  const rhymes: { [key: string]: string[] } = {
+    'day': ['way', 'play', 'say'],
+    'night': ['sight', 'light', 'right'],
+    'time': ['rhyme', 'climb', 'prime'],
+    'stress': ['mess', 'less', 'progress'],
+    'mood': ['good', 'understood', 'could']
+  };
+  
+  const rhymeWord = Object.keys(rhymes).find(key => lastWord?.includes(key));
+  const rhymeOptions = rhymeWord ? rhymes[rhymeWord] : ['flow', 'show', 'know'];
+  const selectedRhyme = rhymeOptions[Math.floor(Math.random() * rhymeOptions.length)];
+  
+  return `${text} — that's the vibe that makes me ${selectedRhyme} / Your patterns got rhythm, now watch your spirit grow!`;
 };
