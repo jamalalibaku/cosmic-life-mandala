@@ -11,7 +11,7 @@ import { FriendOrbitRing } from '@/components/friend-orbit-ring';
 import { InsightOrbitRing } from '@/components/insight-orbit-ring';
 import { EmotionalTideRings } from '@/components/emotional-tide-rings';
 import { DataBlobRing } from '@/components/data-blob-ring';
-import { NowIndicator } from '@/components/now-indicator';
+import { DynamicNowIndicator } from '@/components/time/DynamicNowIndicator';
 import { useSmoothFlowContext } from '@/components/performance/SmoothFlowProvider';
 import { SmoothTransition } from '@/components/ui/SmoothTransition';
 import { mockFriends } from '@/data/mock-friend-data';
@@ -305,7 +305,7 @@ export const RotatableSideView: React.FC<RotatableSideViewProps> = ({
               ease: "easeInOut" 
             }}
           >
-            <NowIndicator
+            <DynamicNowIndicator
               centerX={centerX}
               centerY={centerY}
               radius={layerRadius * 1.2}

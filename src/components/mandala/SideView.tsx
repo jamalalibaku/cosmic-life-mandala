@@ -6,7 +6,7 @@ import { FriendOrbitRing } from '../friend-orbit-ring';
 import { InsightOrbitRing } from '../insight-orbit-ring';
 import { EmotionalTideRings } from '../emotional-tide-rings';
 import { DataBlobRing } from '../data-blob-ring';
-import { NowIndicator } from '../now-indicator';
+import { DynamicNowIndicator } from '../time/DynamicNowIndicator';
 import { mockFriends } from '../../data/mock-friend-data';
 import { mockInsightData } from '../../data/mock-insight-data';
 import { enhancedWeatherData } from '../../data/enhanced-weather-data';
@@ -250,7 +250,7 @@ export const SideView: React.FC<SideViewProps> = ({
               ease: "easeInOut" 
             }}
           >
-            <NowIndicator
+            <DynamicNowIndicator
               centerX={centerX}
               centerY={centerY}
               radius={layerRadius * 1.2}

@@ -7,7 +7,7 @@
 import React, { useMemo } from 'react';
 import { TimeScale } from './fractal-time-zoom-manager';
 import { useFractalMorph } from '../hooks/use-fractal-morph';
-import { NowIndicator } from './now-indicator';
+import { DynamicNowIndicator } from './time/DynamicNowIndicator';
 
 interface RadialFractalViewProps {
   scale: TimeScale;
