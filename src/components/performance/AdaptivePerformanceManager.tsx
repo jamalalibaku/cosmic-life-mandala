@@ -195,6 +195,7 @@ export const AdaptivePerformanceProvider: React.FC<AdaptivePerformanceProviderPr
   const [currentLevel, setCurrentLevel] = useState<PerformanceLevel['level']>('high');
   const [manualMode, setManualMode] = useState(false);
   const [performanceModeEnabled, setPerformanceModeEnabled] = useState(false);
+  const [userToggled, setUserToggled] = useState(false);
   
   const frameTimesRef = useRef<number[]>([]);
   const lastFrameTime = useRef(performance.now());
@@ -330,11 +331,16 @@ export const AdaptivePerformanceProvider: React.FC<AdaptivePerformanceProviderPr
 
   const enablePerformanceMode = useCallback(() => {
     setPerformanceModeEnabled(true);
+    setUserToggled(true);
+    setCurrentLevel('emergency');
+    setManualMode(true);
     console.log('🚨 Performance mode ENABLED - Visual features limited');
   }, []);
 
   const disablePerformanceMode = useCallback(() => {
     setPerformanceModeEnabled(false);
+    setUserToggled(true);
+    setManualMode(false);
     console.log('🎨 Performance mode DISABLED - Full visual experience restored');
   }, []);
 

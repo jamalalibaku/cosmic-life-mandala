@@ -26,6 +26,8 @@ import { PoetryOverlay } from '@/components/poetry-overlay';
 import { SunAuraRing } from '@/components/sun-aura-ring';
 import { SmoothFlowProvider } from '@/components/performance/SmoothFlowProvider';
 import { AdaptivePerformanceProvider } from '@/components/performance/AdaptivePerformanceManager';
+import { PerformanceModeProvider } from '@/components/performance/PerformanceModeProvider';
+import { PerformanceModeToggle } from '@/components/performance/PerformanceModeToggle';
 import { AICharacterProvider } from '@/hooks/useAICharacter';
 import { AICharacterButton } from '@/components/ai/AICharacterButton';
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
@@ -1206,7 +1208,8 @@ const IndexContent = () => {
 const Index = () => {
   return (
     <AdaptivePerformanceProvider>
-      <SmoothFlowProvider showPerformanceMonitor={process.env.NODE_ENV === 'development'}>
+      <PerformanceModeProvider>
+        <SmoothFlowProvider showPerformanceMonitor={process.env.NODE_ENV === 'development'}>
         <PerformanceOptimizer>
           <VisualSkinProvider defaultTheme="cosmic">
             <AICharacterProvider>
@@ -1220,13 +1223,15 @@ const Index = () => {
                 >
                   <IndexContent />
                   <AICharacterButton />
+                  <PerformanceModeToggle />
                 </PhaseTransitionManager>
                 <ThemeHaikuDisplay />
               </TimeAxisProvider>
             </AICharacterProvider>
           </VisualSkinProvider>
         </PerformanceOptimizer>
-      </SmoothFlowProvider>
+        </SmoothFlowProvider>
+      </PerformanceModeProvider>
     </AdaptivePerformanceProvider>
   );
 };
