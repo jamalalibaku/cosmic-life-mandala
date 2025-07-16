@@ -17,6 +17,9 @@ import { motion } from "framer-motion";
 import { OptimizedMotion, OptimizedSVGMotion } from "@/components/ui/OptimizedMotion";
 import { PerformanceMonitor } from "@/components/debug/PerformanceMonitor";
 import { useAnimationOrchestrator } from '@/hooks/useAnimationOrchestrator';
+import { useAdaptivePerformance } from '@/components/performance/AdaptivePerformanceManager';
+import { LayerCullingSystem } from '@/components/performance/LayerCullingSystem';
+import { OptimizedAnimationWrapper } from '@/components/performance/OptimizedAnimationWrapper';
 import { usePerformanceOptimizer } from "@/hooks/usePerformanceOptimizer";
 import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
 import { CosmicFaderTrack } from "@/components/navigation/CosmicFaderTrack";
@@ -404,14 +407,18 @@ const MandalaViewContent = () => {
                 maxHeight: "min(95vw, 95vh)"
               }}
             >
-            {/* Atmospheric Aurora Layer - Simplified in emergency mode */}
-            {!isEmergencyMode && (
+            {/* Atmospheric Aurora Layer - Performance Optimized */}
+            <LayerCullingSystem
+              layerType="atmospheric-aurora"
+              zoomLevel={zoomLevel as any}
+              priority="medium"
+            >
               <AtmosphericAuroraLayer 
                 center={{ x: 0, y: 0 }}
                 radius={150}
                 events={events}
               />
-            )}
+            </LayerCullingSystem>
             
             {/* Environmental Layer (beneath other layers) */}
             <EnvironmentalLayer 

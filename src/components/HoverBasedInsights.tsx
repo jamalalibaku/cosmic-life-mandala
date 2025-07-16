@@ -33,6 +33,11 @@ export const HoverBasedInsights: React.FC<HoverBasedInsightsProps> = ({
     const { clientX, clientY } = event;
     const target = event.target as Element;
     
+    // Performance guard - check if awarenessState exists
+    if (!awarenessState || !awarenessState.awarenessMessage) {
+      return;
+    }
+    
     // Check if hovering near data-related elements
     const isNearDataPoint = target.closest('[data-layer-type]') || 
                            target.closest('.data-blob-ring') ||

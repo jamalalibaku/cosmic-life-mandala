@@ -25,6 +25,7 @@ import { ThemeHaikuDisplay } from '@/components/theme-haiku-display';
 import { PoetryOverlay } from '@/components/poetry-overlay';
 import { SunAuraRing } from '@/components/sun-aura-ring';
 import { SmoothFlowProvider } from '@/components/performance/SmoothFlowProvider';
+import { AdaptivePerformanceProvider } from '@/components/performance/AdaptivePerformanceManager';
 import { AICharacterProvider } from '@/hooks/useAICharacter';
 import { AICharacterButton } from '@/components/ai/AICharacterButton';
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
@@ -1204,27 +1205,29 @@ const IndexContent = () => {
 // Main Index component with theme provider
 const Index = () => {
   return (
-    <SmoothFlowProvider showPerformanceMonitor={process.env.NODE_ENV === 'development'}>
-      <PerformanceOptimizer>
-        <VisualSkinProvider defaultTheme="cosmic">
-          <AICharacterProvider>
-            <TimeAxisProvider>
-              <PhaseTransitionManager 
-                userProfile={{ totalInteractions: 0, discoveredCorrelations: [], layerPreferences: {}, behaviorPatterns: { explorationStyle: 'gentle' }, lastActiveDate: new Date().toISOString() }}
-                recentInteractions={[
-                  { layerType: 'mood', timestamp: new Date().toISOString(), dataValue: 0.7 },
-                  { layerType: 'sleep', timestamp: new Date().toISOString(), dataValue: 0.8 }
-                ]}
-              >
-                <IndexContent />
-                <AICharacterButton />
-              </PhaseTransitionManager>
-              <ThemeHaikuDisplay />
-            </TimeAxisProvider>
-          </AICharacterProvider>
-        </VisualSkinProvider>
-      </PerformanceOptimizer>
-    </SmoothFlowProvider>
+    <AdaptivePerformanceProvider>
+      <SmoothFlowProvider showPerformanceMonitor={process.env.NODE_ENV === 'development'}>
+        <PerformanceOptimizer>
+          <VisualSkinProvider defaultTheme="cosmic">
+            <AICharacterProvider>
+              <TimeAxisProvider>
+                <PhaseTransitionManager 
+                  userProfile={{ totalInteractions: 0, discoveredCorrelations: [], layerPreferences: {}, behaviorPatterns: { explorationStyle: 'gentle' }, lastActiveDate: new Date().toISOString() }}
+                  recentInteractions={[
+                    { layerType: 'mood', timestamp: new Date().toISOString(), dataValue: 0.7 },
+                    { layerType: 'sleep', timestamp: new Date().toISOString(), dataValue: 0.8 }
+                  ]}
+                >
+                  <IndexContent />
+                  <AICharacterButton />
+                </PhaseTransitionManager>
+                <ThemeHaikuDisplay />
+              </TimeAxisProvider>
+            </AICharacterProvider>
+          </VisualSkinProvider>
+        </PerformanceOptimizer>
+      </SmoothFlowProvider>
+    </AdaptivePerformanceProvider>
   );
 };
 
