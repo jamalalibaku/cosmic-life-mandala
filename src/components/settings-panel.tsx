@@ -70,17 +70,18 @@ export const SettingsPanel = ({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 w-full ${
-        disabled ? 'opacity-50 cursor-not-allowed' : ''
+      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 w-full min-h-12 cursor-pointer select-none touch-target ${
+        disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-102 active:scale-98'
       }`}
       style={{
-        backgroundColor: active ? `${themeConfig.colors.accent}33` : `${themeConfig.colors.text}1A`,
+        backgroundColor: active ? `${themeConfig.colors.accent}40` : `${themeConfig.colors.text}15`,
         color: active ? themeConfig.colors.accent : themeConfig.colors.text,
-        border: `1px solid ${active ? themeConfig.colors.accent : themeConfig.colors.text}40`
+        border: `2px solid ${active ? themeConfig.colors.accent : themeConfig.colors.text}30`,
+        boxShadow: active ? `0 4px 12px ${themeConfig.colors.accent}25` : 'none'
       }}
     >
-      <Icon className="w-4 h-4" />
-      <span>{active ? activeLabel : inactiveLabel}</span>
+      <Icon className="w-5 h-5 flex-shrink-0" />
+      <span className="flex-1 text-left">{active ? activeLabel : inactiveLabel}</span>
     </button>
   );
 
@@ -89,16 +90,17 @@ export const SettingsPanel = ({
       {/* Settings Trigger Button */}
       <button
         onClick={togglePanel}
-        className={`fixed top-4 right-4 z-50 p-3 rounded-full transition-all duration-300 ${
-          poetryMode ? 'opacity-20 hover:opacity-60' : 'opacity-90 hover:opacity-100'
+        className={`fixed top-4 right-4 z-50 p-4 rounded-full transition-all duration-200 cursor-pointer select-none touch-target min-h-12 min-w-12 ${
+          poetryMode ? 'opacity-30 hover:opacity-80' : 'opacity-90 hover:opacity-100 hover:scale-110 active:scale-95'
         }`}
         style={{
-          backgroundColor: `${themeConfig.colors.primary}20`,
+          backgroundColor: `${themeConfig.colors.primary}30`,
           color: themeConfig.colors.primary,
-          border: `1px solid ${themeConfig.colors.primary}40`
+          border: `2px solid ${themeConfig.colors.primary}60`,
+          boxShadow: `0 4px 12px ${themeConfig.colors.primary}20`
         }}
       >
-        <Settings className="w-5 h-5" />
+        <Settings className="w-6 h-6" />
       </button>
 
       {/* Settings Panel Overlay */}
@@ -125,10 +127,10 @@ export const SettingsPanel = ({
               </h2>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1 rounded-lg hover:bg-opacity-20 transition-colors"
-                style={{ color: themeConfig.colors.text }}
+                className="p-2 rounded-lg hover:bg-opacity-20 transition-all duration-200 cursor-pointer select-none touch-target min-h-10 min-w-10 hover:scale-110 active:scale-95"
+                style={{ color: themeConfig.colors.text, backgroundColor: `${themeConfig.colors.text}10` }}
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
@@ -185,13 +187,6 @@ export const SettingsPanel = ({
                       activeLabel="🫂 friends visible"
                       inactiveLabel="○ show friends"
                     />
-                     <ToggleButton
-                       active={showAIInsights}
-                       onClick={() => onShowAIInsightsChange(!showAIInsights)}
-                       icon={Sparkles}
-                       activeLabel="✨ AI insights orbit"
-                       inactiveLabel="◐ AI insights"
-                     />
                      <ToggleButton
                        active={showInsights}
                        onClick={() => onShowInsightsChange(!showInsights)}

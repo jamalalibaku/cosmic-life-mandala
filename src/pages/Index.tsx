@@ -17,7 +17,7 @@ import { DataBlobRing } from '@/components/data-blob-ring';
 import { UserCore } from '@/components/user-core';
 import { FriendOrbitRing } from '@/components/friend-orbit-ring';
 import { RadialInsightsOverlay } from '@/components/radial-insights-overlay';
-import { InsightOverlayEngine } from '@/components/insight-overlay-engine';
+
 import { PlaybackReflector } from '@/components/playback-reflector';
 import { EmotionalTideRings } from '@/components/emotional-tide-rings';
 import { VisualSkinProvider, useVisualSkin } from '@/components/visual-skin-provider';
@@ -29,7 +29,7 @@ import { AdaptivePerformanceProvider } from '@/components/performance/AdaptivePe
 import { PerformanceModeProvider, usePerformanceMode } from '@/components/performance/PerformanceModeProvider';
 import { PerformanceModeToggle } from '@/components/performance/PerformanceModeToggle';
 import { AICharacterProvider } from '@/hooks/useAICharacter';
-import { AICharacterButton } from '@/components/ai/AICharacterButton';
+
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
 import { MusicalNowIndicator } from '@/components/interactions/MusicalNowIndicator';
 import { VinylGrooveFilter, EnhancedVinylGrooveFilter } from '@/components/interactions/VinylGrooveFilter';
@@ -98,7 +98,7 @@ const AppWithPerformanceMode = () => {
   return (
     <div className={`${isPerformanceMode ? 'performance-mode' : ''}`}>
       <IndexContent />
-      <AICharacterButton />
+      
       <PerformanceModeToggle />
     </div>
   );
@@ -118,7 +118,7 @@ const IndexContent = () => {
   const [currentMood, setCurrentMood] = useState<MoodInfluence | null>(null);
   const [poetryMode, setPoetryMode] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string>('berlin');
-  const [showAIInsights, setShowAIInsights] = useState(true);
+  
   const [showDebugMode, setShowDebugMode] = useState(false);
   const [showLayerDebug, setShowLayerDebug] = useState(false);
   const [persistentDebugMode, setPersistentDebugMode] = useState(false);
@@ -783,7 +783,7 @@ const IndexContent = () => {
           centerX={centerX}
           centerY={centerY}
           baseRadius={scale === 'day' ? 360 : scale === 'week' ? 340 : scale === 'month' ? 360 : 380}
-          isVisible={showAIInsights && !poetryMode}
+          isVisible={false}
           currentTimeScale={scale}
           theme={currentTheme}
           showDebug={showDebugMode}
@@ -927,14 +927,14 @@ const IndexContent = () => {
           showInsights={showInsights}
           showPlayback={showPlayback}
           showTideRings={showTideRings}
-          showAIInsights={showAIInsights}
+          showAIInsights={false}
           onReflectiveModeChange={setReflectiveMode}
           onPoetryModeChange={setPoetryMode}
           onShowFriendsChange={setShowFriends}
           onShowInsightsChange={setShowInsights}
           onShowPlaybackChange={setShowPlayback}
           onShowTideRingsChange={setShowTideRings}
-          onShowAIInsightsChange={setShowAIInsights}
+          onShowAIInsightsChange={() => {}}
         />
         
         {/* Theme Haiku Display */}
@@ -976,14 +976,14 @@ const IndexContent = () => {
           showInsights={showInsights}
           showPlayback={showPlayback}
           showTideRings={showTideRings}
-          showAIInsights={showAIInsights}
+          showAIInsights={false}
           onReflectiveModeChange={setReflectiveMode}
           onPoetryModeChange={setPoetryMode}
           onShowFriendsChange={setShowFriends}
           onShowInsightsChange={setShowInsights}
           onShowPlaybackChange={setShowPlayback}
           onShowTideRingsChange={setShowTideRings}
-          onShowAIInsightsChange={setShowAIInsights}
+          onShowAIInsightsChange={() => {}}
         />
       </div>
     );
@@ -1030,14 +1030,14 @@ const IndexContent = () => {
           showInsights={showInsights}
           showPlayback={showPlayback}
           showTideRings={showTideRings}
-          showAIInsights={showAIInsights}
+          showAIInsights={false}
           onReflectiveModeChange={setReflectiveMode}
           onPoetryModeChange={setPoetryMode}
           onShowFriendsChange={setShowFriends}
           onShowInsightsChange={setShowInsights}
           onShowPlaybackChange={setShowPlayback}
           onShowTideRingsChange={setShowTideRings}
-          onShowAIInsightsChange={setShowAIInsights}
+          onShowAIInsightsChange={() => {}}
         />
         
         {/* Hover-Based Insights System */}
@@ -1184,14 +1184,14 @@ const IndexContent = () => {
             showInsights={showInsights}
             showPlayback={showPlayback}
             showTideRings={showTideRings}
-            showAIInsights={showAIInsights}
+            showAIInsights={false}
             onReflectiveModeChange={setReflectiveMode}
             onPoetryModeChange={setPoetryMode}
             onShowFriendsChange={setShowFriends}
             onShowInsightsChange={setShowInsights}
             onShowPlaybackChange={setShowPlayback}
             onShowTideRingsChange={setShowTideRings}
-            onShowAIInsightsChange={setShowAIInsights}
+            onShowAIInsightsChange={() => {}}
           />
         )}
       </div>

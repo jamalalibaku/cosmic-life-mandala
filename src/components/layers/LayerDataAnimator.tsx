@@ -11,7 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTimeAxis } from '@/contexts/TimeAxisContext';
 import { LayerInterconnectionEngine } from '@/components/layers/LayerInterconnectionEngine';
-import { InsightOverlayEngine } from '@/components/insight-overlay-engine';
+
 import { 
   LayerInterconnectionState,
   applyMoodToSleepEffect,
@@ -119,13 +119,6 @@ export const LayerDataAnimator: React.FC<LayerDataAnimatorProps> = ({
         onEffectsUpdate={setInterconnectionEffects}
       />
 
-      {/* Insight Overlay Engine - Interactive layer for slice clicking and neural impulses */}
-      <InsightOverlayEngine
-        timeSlices={timeSlices}
-        centerX={centerX}
-        centerY={centerY}
-        isActive={isActive}
-      />
 
       {/* WHEEL OF TIME: Rotating timeline layers */}
       <motion.g
