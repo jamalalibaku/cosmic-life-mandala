@@ -1,6 +1,6 @@
 /**
- * Celestial Glyph - Invisible disco ball sparkle for data points
- * Embodies subtle shine, dynamic sparkle, and joyful flicker
+ * Celestial Glyph - Data point visualization
+ * Simple geometric representation for data points
  */
 
 import { motion } from 'framer-motion';
@@ -67,7 +67,7 @@ export const CelestialGlyph: React.FC<CelestialGlyphProps> = ({
     essence: 'hsl(var(--muted-foreground))'
   };
 
-  // Invisible disco ball shimmer effect
+  // Simple glow effect
   const shimmerVariants = {
     idle: {
       scale: 1,
@@ -123,7 +123,7 @@ export const CelestialGlyph: React.FC<CelestialGlyphProps> = ({
         />
       ))}
 
-      {/* Main glyph core with disco ball effect */}
+      {/* Main glyph core */}
       <motion.circle
         cx={x}
         cy={y}
@@ -174,7 +174,7 @@ export const CelestialGlyph: React.FC<CelestialGlyphProps> = ({
         );
       })}
 
-      {/* Sparkle constellation - invisible disco ball effect */}
+      {/* Sparkle constellation */}
       {sparklePoints.map((sparkle, i) => (
         <motion.circle
           key={`sparkle-${i}`}

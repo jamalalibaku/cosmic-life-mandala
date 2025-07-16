@@ -178,7 +178,7 @@ export const BreathingFibrousLayer: React.FC<BreathingFibrousLayerProps> = ({
         />
       </defs>
 
-      {/* Render breathing fibers with invisible disco ball shimmer */}
+      {/* Render breathing fibers */}
       {fibers.map((fiber) => (
         <motion.path
           key={fiber.id}
@@ -216,44 +216,6 @@ export const BreathingFibrousLayer: React.FC<BreathingFibrousLayerProps> = ({
         />
       ))}
       
-      {/* Invisible disco ball sparkles - subtle flicker throughout the layer */}
-      {Array.from({length: 15}).map((_, i) => {
-        const sparkleAngle = (i / 15) * Math.PI * 2;
-        const sparkleRadius = radius * (0.7 + Math.random() * 0.4);
-        const sparkleX = center.x + Math.cos(sparkleAngle) * sparkleRadius;
-        const sparkleY = center.y + Math.sin(sparkleAngle) * sparkleRadius;
-        
-        return (
-          <motion.circle
-            key={`disco-sparkle-${layerType}-${i}`}
-            cx={sparkleX}
-            cy={sparkleY}
-            r={0.5 + Math.random() * 1}
-            fill="white"
-            opacity={0.1}
-            animate={{
-              opacity: [0.1, 0.4, 0.1],
-              scale: [0.5, 1.5, 0.5],
-              cx: [
-                sparkleX,
-                sparkleX + Math.sin(time.current * 0.5 + i) * 3,
-                sparkleX
-              ],
-              cy: [
-                sparkleY,
-                sparkleY + Math.cos(time.current * 0.3 + i) * 3,
-                sparkleY
-              ]
-            }}
-            transition={{
-              duration: 2 + i * 0.2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.4
-            }}
-          />
-        );
-      })}
       
       {/* Hair groove rhythm markers - enhanced breathing points */}
       {fibers

@@ -95,7 +95,7 @@ export const UserCore: React.FC<UserCoreProps> = ({
           x={centerX - 12}
           y={centerY - 12}
           size={24}
-          className="fill-yellow-200"
+          className="fill-primary"
         />
       )}
 
@@ -104,7 +104,7 @@ export const UserCore: React.FC<UserCoreProps> = ({
         x={centerX + radius * 0.8}
         y={centerY - radius * 0.8}
         textAnchor="middle"
-        className="fill-yellow-200 text-lg animate-pulse"
+        className="fill-primary text-lg animate-pulse"
         style={{ 
           transform: `rotate(${Date.now() * 0.001 % 360}deg)`,
           transformOrigin: `${centerX}px ${centerY}px`
@@ -129,7 +129,7 @@ export const UserCore: React.FC<UserCoreProps> = ({
             x={centerX}
             y={centerY - 20}
             textAnchor="middle"
-            className="fill-yellow-200 text-sm font-medium"
+            className="fill-primary text-sm font-medium"
           >
             {name}
           </text>
@@ -137,7 +137,7 @@ export const UserCore: React.FC<UserCoreProps> = ({
             x={centerX}
             y={centerY}
             textAnchor="middle"
-            className="fill-yellow-100 text-xs"
+            className="fill-muted-foreground text-xs"
           >
             feeling {mood}
           </text>
@@ -145,7 +145,7 @@ export const UserCore: React.FC<UserCoreProps> = ({
             x={centerX}
             y={centerY + 15}
             textAnchor="middle"
-            className="fill-yellow-100 text-xs"
+            className="fill-muted-foreground text-xs"
           >
             click to explore
           </text>

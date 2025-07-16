@@ -214,7 +214,7 @@ export const CosmicSunburstLayer: React.FC<CosmicSunburstLayerProps> = ({
             x={centerX}
             y={centerY - maxRadius - 20}
             textAnchor="middle"
-            className="fill-yellow-200 text-sm font-light opacity-70"
+            className="fill-primary text-sm font-light opacity-70"
             style={{
               transform: `translateY(${Math.sin(time * 0.5) * 3}px)`
             }}

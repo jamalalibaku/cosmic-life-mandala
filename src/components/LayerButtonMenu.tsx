@@ -15,7 +15,7 @@ import {
   ChevronRight,
   ChevronLeft
 } from 'lucide-react';
-import { useReactiveTilt } from '@/hooks/use-reactive-tilt';
+
 
 interface LayerButtonMenuProps {
   onLayerClick: (layerType: string, position: { x: number; y: number }, layerData: any) => void;
@@ -84,13 +84,6 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
   const [isExpanded, setIsExpanded] = useState(true);
   const [hoveredLayer, setHoveredLayer] = useState<string | null>(null);
   
-  // Add reactive tilt effect to the button menu - responds to all living frequencies
-  const menuTilt = useReactiveTilt({ 
-    layerType: 'ui', 
-    sensitivity: 0.6, 
-    baseAmplitude: 1.2,
-    dampening: 0.85 
-  });
 
   const handleLayerClick = (layer: typeof layerData[0], event: React.MouseEvent) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -112,7 +105,7 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
   return (
     <div 
       className={`fixed right-4 top-1/2 transform -translate-y-1/2 z-30 ${className}`}
-      style={{ transform: `translateY(-50%) ${menuTilt.getTiltTransform()}` }}
+      style={{ transform: `translateY(-50%)` }}
     >
       <motion.div
         className="flex flex-col items-end"

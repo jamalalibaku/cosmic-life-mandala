@@ -85,7 +85,7 @@ import { EnhancedSettingsButton } from '@/components/enhanced/EnhancedSettingsBu
 import { MinimalistTimeSymbol } from '@/components/MinimalistTimeSymbol';
 import { TimeScaleColumn } from '@/components/TimeScaleColumn';
 import { HoverBasedInsights } from '@/components/HoverBasedInsights';
-import { useReactiveTilt } from '@/hooks/use-reactive-tilt';
+
 import { WalletDisplay } from '@/components/WalletDisplay';
 import { SkyRing } from '@/components/enhanced/SkyRing';
 import { SunburstGrooveField } from '@/components/enhanced/SunburstGrooveField';
@@ -163,14 +163,6 @@ const IndexContent = () => {
   // Layer pop-out panel system
   const { popOutState, openPopOut, closePopOut, togglePopOut } = useLayerPopOut();
 
-  // Ultra-gentle reactive tilt effects - organic wind & gravity simulation
-  const mainTilt = useReactiveTilt({ layerType: 'core', sensitivity: 0.4, baseAmplitude: 0.6 });
-  const weatherTilt = useReactiveTilt({ layerType: 'weather', sensitivity: 0.5, baseAmplitude: 0.8 });
-  const plansTilt = useReactiveTilt({ layerType: 'plans', sensitivity: 0.3, baseAmplitude: 0.5 });
-  const mobilityTilt = useReactiveTilt({ layerType: 'mobility', sensitivity: 0.6, baseAmplitude: 0.7 });
-  const moodTilt = useReactiveTilt({ layerType: 'mood', sensitivity: 0.5, baseAmplitude: 1.0 });
-  const sleepTilt = useReactiveTilt({ layerType: 'sleep', sensitivity: 0.2, baseAmplitude: 0.4 });
-  const uiTilt = useReactiveTilt({ layerType: 'ui', sensitivity: 0.3, baseAmplitude: 0.3 });
 
   // Handle keyboard shortcuts for zoom and settings
   useEffect(() => {
@@ -287,7 +279,7 @@ const IndexContent = () => {
     }
     
     return (
-      <g transform={mainTilt.getSVGTiltTransform(centerX, centerY, timeDrift.getDriftTransform(centerX, centerY))}>
+      <g>
         {/* Sky Arc Gradient - Day/Night cycle - render once */}
         {scale === 'day' && (
           <SkyArcGradient
@@ -309,7 +301,7 @@ const IndexContent = () => {
         )}
         
         {/* Sun Aura Ring - Breathing center anchored to outermost layer */}
-        <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
+        <g>
           <SunAuraRing
             centerX={centerX}
             centerY={centerY}
@@ -331,7 +323,7 @@ const IndexContent = () => {
         </g>
         
         {/* Always present: Cosmic sunburst aura layer */}
-        <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
+        <g>
           <CosmicSunburstLayer
             centerX={centerX}
             centerY={centerY}
@@ -343,7 +335,7 @@ const IndexContent = () => {
         </g>
         
         {/* Fractal View - unified geometry for all scales */}
-        <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
+        <g>
           <RadialFractalView
             scale={scale}
             centerX={centerX}
@@ -391,7 +383,7 @@ const IndexContent = () => {
             {/* LAYER HIERARCHY: Sleep (innermost) → Mood → Mobility → Plans → Weather (outermost) */}
             
             {/* 1. Sleep - Innermost rest and recovery layer (150-180px) */}
-            <g transform={sleepTilt.getSVGTiltTransform(centerX, centerY)}>
+            <g>
               <defs>
                 <EnhancedVinylGrooveFilter
                   filterId="sleep-groove-filter"
@@ -415,7 +407,7 @@ const IndexContent = () => {
             </g>
 
             {/* 2. Mood - Emotional expression layer (190-220px) */}
-            <g transform={moodTilt.getSVGTiltTransform(centerX, centerY)}>
+            <g>
               <defs>
                 <EnhancedVinylGrooveFilter
                   filterId="mood-groove-filter"
@@ -440,7 +432,7 @@ const IndexContent = () => {
             </g>
 
             {/* 3. Mobility - Movement and activity layer (230-260px) */}
-            <g transform={mobilityTilt.getSVGTiltTransform(centerX, centerY)}>
+            <g>
               <defs>
                 <EnhancedVinylGrooveFilter
                   filterId="mobility-groove-filter"
@@ -463,7 +455,7 @@ const IndexContent = () => {
 
 
             {/* 4. Plans - Intentional structure layer (270-300px) */}
-            <g transform={plansTilt.getSVGTiltTransform(centerX, centerY)}>
+            <g>
               <PlansLayerRing
                 plansData={mockPlansData}
                 centerX={centerX}
@@ -477,7 +469,7 @@ const IndexContent = () => {
             </g>
 
             {/* 5. Weather - Cosmic influence layer (310-340px) */}
-            <g transform={weatherTilt.getSVGTiltTransform(centerX, centerY)}>
+            <g>
               <EnhancedWeatherRing
                 centerX={centerX}
                 centerY={centerY}
@@ -523,7 +515,7 @@ const IndexContent = () => {
         )}
         
         {scale === 'week' && (
-          <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
+          <g>
             <RadialWeekView
               weekData={mockWeekData}
               centerX={centerX}
@@ -539,7 +531,7 @@ const IndexContent = () => {
         )}
         
         {scale === 'month' && (
-          <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
+          <g>
             <RadialMonthView
               monthData={mockMonthData}
               centerX={centerX}
@@ -559,7 +551,7 @@ const IndexContent = () => {
         )}
         
         {scale === 'year' && (
-          <g transform={mainTilt.getSVGTiltTransform(centerX, centerY)}>
+          <g>
             <RadialYearView
               yearData={mockYearData}
               centerX={centerX}
@@ -867,8 +859,8 @@ const IndexContent = () => {
             <div>Theme: {currentTheme}</div>
             <div>Active Layers: 4</div>
             <div>Insights: {aiInsights.length}</div>
-            <div className="mt-2 text-yellow-300">
-              Yellow elements indicate orphaned visuals
+            <div className="mt-2 text-muted-foreground">
+              Debug mode enabled
             </div>
           </div>
         )}
@@ -889,7 +881,7 @@ const IndexContent = () => {
               x={centerX}
               y={centerY + 5}
               textAnchor="middle"
-              className="fill-yellow-100 text-2xl font-bold"
+              className="fill-primary text-2xl font-bold"
             >
               {scale === 'week' && 'WEEK'}
               {scale === 'month' && new Date().toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
@@ -899,7 +891,7 @@ const IndexContent = () => {
               x={centerX}
               y={centerY + 20}
               textAnchor="middle"
-              className="fill-yellow-200 text-xs font-light"
+              className="fill-muted-foreground text-xs font-light"
             >
               {scale} timeline
             </text>
@@ -1001,7 +993,7 @@ const IndexContent = () => {
         {Array.from({ length: 50 }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-0.5 h-0.5 bg-yellow-200/40 rounded-full animate-pulse"
+            className="absolute w-0.5 h-0.5 bg-primary/40 rounded-full animate-pulse"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
