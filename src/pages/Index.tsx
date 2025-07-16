@@ -10,7 +10,7 @@ import WeatherSunburst from '@/components/weather-sunburst';
 import { EnhancedWeatherRing } from '@/components/enhanced/EnhancedWeatherRing';
 import { AtmosphericWeatherRing } from '@/components/atmospheric-weather-ring';
 import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
-import { MandalaView } from '@/components/mandala/MandalaView';
+
 import { VanGoghMandalaView } from '@/components/mandala/VanGoghMandalaView';
 import { VanGoghView } from '@/components/van-gogh/VanGoghView';
 import { DataBlobRing } from '@/components/data-blob-ring';
@@ -24,7 +24,7 @@ import { VisualSkinProvider, useVisualSkin } from '@/components/visual-skin-prov
 import { ThemeHaikuDisplay } from '@/components/theme-haiku-display';
 import { PoetryOverlay } from '@/components/poetry-overlay';
 import { SunAuraRing } from '@/components/sun-aura-ring';
-import { SmoothFlowProvider } from '@/components/performance/SmoothFlowProvider';
+
 import { AdaptivePerformanceProvider } from '@/components/performance/AdaptivePerformanceManager';
 import { PerformanceModeProvider, usePerformanceMode } from '@/components/performance/PerformanceModeProvider';
 import { PerformanceModeToggle } from '@/components/performance/PerformanceModeToggle';
@@ -34,10 +34,10 @@ import { SkyArcGradient } from '@/components/sky-arc-gradient';
 import { MusicalNowIndicator } from '@/components/interactions/MusicalNowIndicator';
 import { VinylGrooveFilter, EnhancedVinylGrooveFilter } from '@/components/interactions/VinylGrooveFilter';
 import { SideView } from '@/components/mandala/SideView';
-import { RotatableSideView } from '@/components/mandala/RotatableSideView';
+
 import { useTimeDrift } from '@/hooks/use-time-drift';
 import { FractalTimeZoomManager, TimeScale } from '@/components/fractal-time-zoom-manager';
-import { PerformanceOptimizer } from '@/components/performance/PerformanceOptimizer';
+
 import { RadialWeekView } from '@/components/radial-week-view';
 import { RadialMonthView } from '@/components/radial-month-view';
 import { RadialMonthConstellation } from '@/components/radial-month-constellation';
@@ -87,7 +87,7 @@ import { TimeScaleColumn } from '@/components/TimeScaleColumn';
 import { HoverBasedInsights } from '@/components/HoverBasedInsights';
 
 import { WalletDisplay } from '@/components/WalletDisplay';
-import { SkyRing } from '@/components/enhanced/SkyRing';
+
 import { SunburstGrooveField } from '@/components/enhanced/SunburstGrooveField';
 import { LayerButtonMenu } from '@/components/LayerButtonMenu';
 
@@ -263,19 +263,9 @@ const IndexContent = () => {
     const centerX = 350;
     const centerY = 350;
     
-    // Render Side View for 'side' scale
+    // Render Side View disabled
     if (scale === 'side') {
-      return (
-        <foreignObject x="0" y="0" width="700" height="700">
-          <RotatableSideView
-            currentDate={currentDate}
-            theme={currentTheme}
-            centerX={centerX}
-            centerY={centerY}
-            radius={250}
-          />
-        </foreignObject>
-      );
+      return null;
     }
     
     return (
@@ -504,13 +494,6 @@ const IndexContent = () => {
               className="sunburst-energy-field groove-close-to-core"
             />
 
-            {/* Sky Ring - White sunburst rays around groove */}
-            <SkyRing
-              radius={280}
-              center={{ x: centerX, y: centerY }}
-              className="sky-gradient-layer cosmic-rays"
-              crazinessLevel={42} // Perfect harmony level
-            />
           </>
         )}
         
@@ -949,36 +932,10 @@ const IndexContent = () => {
     logThemeCheck.current = now;
   }
 
-  // Render Mandala View for mandala theme
+  // Render cosmic theme (mandala theme disabled)
   if (currentTheme === 'mandala') {
-    console.log('🌀 Rendering MandalaView...');
-    return (
-      <div className="relative w-full h-screen overflow-hidden" style={{
-        fontFamily: themeConfig.typography.primary,
-        backgroundColor: themeConfig.colors.background,
-        color: themeConfig.colors.text
-      }}>
-        <MandalaView />
-        
-        {/* Settings panel still available */}
-        <SettingsPanel
-          reflectiveMode={reflectiveMode}
-          poetryMode={poetryMode}
-          showFriends={showFriends}
-          showInsights={showInsights}
-          showPlayback={showPlayback}
-          showTideRings={showTideRings}
-          showAIInsights={false}
-          onReflectiveModeChange={setReflectiveMode}
-          onPoetryModeChange={setPoetryMode}
-          onShowFriendsChange={setShowFriends}
-          onShowInsightsChange={setShowInsights}
-          onShowPlaybackChange={setShowPlayback}
-          onShowTideRingsChange={setShowTideRings}
-          onShowAIInsightsChange={() => {}}
-        />
-      </div>
-    );
+    // Fallback to cosmic theme
+    console.log('🌀 Mandala theme disabled, using cosmic fallback');
   }
 
   return (
@@ -1197,8 +1154,6 @@ const Index = () => {
   return (
     <AdaptivePerformanceProvider>
       <PerformanceModeProvider>
-        <SmoothFlowProvider showPerformanceMonitor={process.env.NODE_ENV === 'development'}>
-        <PerformanceOptimizer>
           <VisualSkinProvider defaultTheme="cosmic">
               <TimeAxisProvider>
                 <PhaseTransitionManager 
@@ -1213,8 +1168,6 @@ const Index = () => {
                 <ThemeHaikuDisplay />
               </TimeAxisProvider>
           </VisualSkinProvider>
-        </PerformanceOptimizer>
-        </SmoothFlowProvider>
       </PerformanceModeProvider>
     </AdaptivePerformanceProvider>
   );

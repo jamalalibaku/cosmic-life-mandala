@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { OptimizedMotion } from '@/components/ui/OptimizedMotion';
+
 import { PlansDataPoint } from '@/data/mock-plans-data';
 import { Calendar, Clock, Target, Users, AlertTriangle } from 'lucide-react';
 

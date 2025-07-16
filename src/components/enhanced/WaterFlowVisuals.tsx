@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { OptimizedMotion } from '@/components/ui/OptimizedMotion';
+
 
 interface WaterFlowVisualsProps {
   centerX: number;
