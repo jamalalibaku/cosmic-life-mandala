@@ -110,4 +110,67 @@
       hsl(var(--background) / 0.6) 85%, 
       hsl(var(--background)) 100%);
   }
+
+  /* CSS Animation Classes - Replace Framer Motion */
+  .animate-fade-in {
+    animation: css-fade-in 0.3s ease-out forwards;
+  }
+
+  .animate-fade-out {
+    animation: css-fade-out 0.3s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: css-scale-in 0.2s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: css-slide-up 0.3s ease-out forwards;
+  }
+
+  .animate-slide-down {
+    animation: css-slide-down 0.3s ease-out forwards;
+  }
+
+  .animate-breathe {
+    animation: css-breathe 4s ease-in-out infinite;
+  }
+
+  .animate-pulse-soft {
+    animation: css-pulse-soft 2s ease-in-out infinite;
+  }
+
+  .animate-rotate-slow {
+    animation: css-rotate-slow 20s linear infinite;
+  }
+
+  .animate-float {
+    animation: css-float 6s ease-in-out infinite;
+  }
+
+  /* Performance-aware animations - can be disabled */
+  .animate-performance-breathe {
+    animation: css-breathe 4s ease-in-out infinite;
+  }
+
+  .animate-performance-pulse {
+    animation: css-pulse-soft 2s ease-in-out infinite;
+  }
+
+  .animate-performance-rotate {
+    animation: css-rotate-slow 20s linear infinite;
+  }
+
+  /* Disable animations in performance mode */
+  .performance-mode .animate-performance-breathe,
+  .performance-mode .animate-performance-pulse,
+  .performance-mode .animate-performance-rotate {
+    animation: none !important;
+  }
+
+  /* GPU acceleration for smooth animations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
 }

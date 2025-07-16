@@ -35,38 +35,39 @@ export const PerformanceModeToggle: React.FC<PerformanceModeToggleProps> = ({
   };
 
   return (
-    <div className={`fixed top-4 right-4 z-50 ${className}`}>
+    <div className={`fixed top-4 left-4 z-50 ${className}`}>
       <Button
         onClick={handleToggle}
         variant={isPerformanceModeActive ? "destructive" : "outline"}
         size="sm"
         className={`
-          backdrop-blur-md border transition-all duration-300 font-medium
+          backdrop-blur-md border font-medium select-none cursor-pointer
+          transition-all duration-200 ease-out
           ${isPerformanceModeActive 
-            ? 'bg-destructive/90 text-destructive-foreground border-destructive/50 hover:bg-destructive' 
-            : 'bg-background/80 text-foreground border-border/50 hover:bg-background/90'
+            ? 'bg-destructive/90 text-destructive-foreground border-destructive/50 hover:bg-destructive/95 shadow-lg' 
+            : 'bg-background/80 text-foreground border-border/50 hover:bg-background/90 hover:border-border/70'
           }
         `}
       >
         {isPerformanceModeActive ? (
           <>
             <MonitorOff className="mr-2 h-4 w-4" />
-            Performance Mode: ON
+            ON
           </>
         ) : (
           <>
             <Monitor className="mr-2 h-4 w-4" />
-            Performance Mode: OFF
+            OFF
           </>
         )}
       </Button>
       
       {/* Performance indicator when active */}
       {isPerformanceModeActive && (
-        <div className="mt-2 bg-destructive/90 text-destructive-foreground px-3 py-1 rounded text-xs">
-          <div className="font-semibold">⚡ High Performance</div>
+        <div className="mt-2 bg-destructive/90 text-destructive-foreground px-3 py-1 rounded text-xs animate-fade-in">
+          <div className="font-semibold">⚡ Performance Mode</div>
           <div className="text-xs opacity-75">
-            FPS: {metrics.currentFPS} | Level: {performanceLevel.level.toUpperCase()}
+            FPS: {metrics.currentFPS} | {performanceLevel.level.toUpperCase()}
           </div>
         </div>
       )}

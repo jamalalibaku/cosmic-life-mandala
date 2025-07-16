@@ -26,7 +26,7 @@ import { PoetryOverlay } from '@/components/poetry-overlay';
 import { SunAuraRing } from '@/components/sun-aura-ring';
 import { SmoothFlowProvider } from '@/components/performance/SmoothFlowProvider';
 import { AdaptivePerformanceProvider } from '@/components/performance/AdaptivePerformanceManager';
-import { PerformanceModeProvider } from '@/components/performance/PerformanceModeProvider';
+import { PerformanceModeProvider, usePerformanceMode } from '@/components/performance/PerformanceModeProvider';
 import { PerformanceModeToggle } from '@/components/performance/PerformanceModeToggle';
 import { AICharacterProvider } from '@/hooks/useAICharacter';
 import { AICharacterButton } from '@/components/ai/AICharacterButton';
@@ -93,6 +93,18 @@ import { SkyRing } from '@/components/enhanced/SkyRing';
 import { SunburstGrooveField } from '@/components/enhanced/SunburstGrooveField';
 import { LayerButtonMenu } from '@/components/LayerButtonMenu';
 
+
+const AppWithPerformanceMode = () => {
+  const { isPerformanceMode } = usePerformanceMode();
+  
+  return (
+    <div className={`${isPerformanceMode ? 'performance-mode' : ''}`}>
+      <IndexContent />
+      <AICharacterButton />
+      <PerformanceModeToggle />
+    </div>
+  );
+};
 
 const IndexContent = () => {
   const { themeConfig, isTransitioning, currentTheme } = useVisualSkin();
@@ -1221,9 +1233,7 @@ const Index = () => {
                     { layerType: 'sleep', timestamp: new Date().toISOString(), dataValue: 0.8 }
                   ]}
                 >
-                  <IndexContent />
-                  <AICharacterButton />
-                  <PerformanceModeToggle />
+                  <AppWithPerformanceMode />
                 </PhaseTransitionManager>
                 <ThemeHaikuDisplay />
               </TimeAxisProvider>
