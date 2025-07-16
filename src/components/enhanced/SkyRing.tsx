@@ -33,7 +33,7 @@ export const SkyRing: React.FC<SkyRingProps> = ({
   className, 
   crazinessLevel = 35 // Sweet spot for natural harmonics
 }) => {
-  const [harmonicTime, setHarmonicTime] = useState(Date.now());
+  const [harmonicTime, setHarmonicTime] = useState(Math.floor(Date.now() / 1000));
   const [waveSourceTime, setWaveSourceTime] = useState(0);
   const currentHour = new Date().getHours();
   const minutes = new Date().getMinutes();

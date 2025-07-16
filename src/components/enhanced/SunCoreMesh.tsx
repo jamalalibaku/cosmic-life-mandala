@@ -41,7 +41,7 @@ export const SunCoreMesh: React.FC<SunCoreMeshProps> = ({
     return verticalData.slice(0, 12).map((value, i): WaveParams => ({
       amplitude: radius * 0.3 * (0.5 + value * 0.5),
       frequency: 0.02 + value * 0.01,
-      phase: i * 0.5 + Date.now() * 0.001,
+      phase: i * 0.5 + Math.floor(Date.now() / 1000),
       opacity: 0.1 + value * 0.4
     }));
   }, [verticalData, radius]);
@@ -50,7 +50,7 @@ export const SunCoreMesh: React.FC<SunCoreMeshProps> = ({
     return horizontalData.slice(0, 12).map((value, i): WaveParams => ({
       amplitude: radius * 0.25 * (0.5 + value * 0.5),
       frequency: 0.015 + value * 0.008,
-      phase: i * 0.4 + Date.now() * 0.0008,
+      phase: i * 0.4 + Math.floor(Date.now() / 1000) * 0.8,
       opacity: 0.08 + value * 0.35
     }));
   }, [horizontalData, radius]);
@@ -63,7 +63,7 @@ export const SunCoreMesh: React.FC<SunCoreMeshProps> = ({
   ): string => {
     const points: string[] = [];
     const steps = 40;
-    const time = Date.now() * 0.001;
+    const time = Math.floor(Date.now() / 1000);
     
     for (let i = 0; i <= steps; i++) {
       const t = i / steps;
@@ -92,7 +92,7 @@ export const SunCoreMesh: React.FC<SunCoreMeshProps> = ({
   // Generate intersection sparkles
   const sparklePoints = useMemo(() => {
     const sparkles: Array<{x: number, y: number, intensity: number}> = [];
-    const time = Date.now() * 0.002;
+    const time = Math.floor(Date.now() / 1000) * 2;
     
     for (let i = 0; i < 8; i++) {
       const angle = (i / 8) * Math.PI * 2 + time;

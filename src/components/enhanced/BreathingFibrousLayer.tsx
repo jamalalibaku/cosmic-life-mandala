@@ -44,7 +44,7 @@ export const BreathingFibrousLayer: React.FC<BreathingFibrousLayerProps> = ({
   useEffect(() => {
     const animate = () => {
       time.current += 0.016; // ~60fps
-      requestAnimationFrame(animate);
+      setTimeout(animate, 1000);
     };
     animate();
     return () => {};
@@ -303,7 +303,7 @@ function getEnhancedColorShift(
 ): { color: string; opacity: number } {
   
   const baseHue = extractHue(baseColor);
-  const time = Date.now() * 0.001;
+  const time = Math.floor(Date.now() / 1000);
   
   // Layer-specific color evolution
   switch (layerType) {

@@ -87,13 +87,13 @@ export const DataBlobRing: React.FC<DataBlobRingProps> = ({
 
   // Gentle drift animation
   useEffect(() => {
-    const startTime = Date.now();
+    const startTime = Math.floor(Date.now() / 1000);
     const animate = () => {
-      setTime((Date.now() - startTime) / 1000);
-      requestAnimationFrame(animate);
+      setTime(Math.floor(Date.now() / 1000) - startTime);
+      setTimeout(animate, 1000);
     };
-    const animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
+    const timeoutId = setTimeout(animate, 1000);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   // Calculate mood influence for mood type rings

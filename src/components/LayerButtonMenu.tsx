@@ -111,7 +111,7 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
         className="flex flex-col items-end"
         initial={{ x: 100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 1, ease: "easeOut" }}
       >
         {/* Toggle Button */}
         <motion.button
@@ -125,7 +125,7 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
         >
           <motion.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 1 }}
           >
             {isExpanded ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </motion.div>
@@ -139,7 +139,7 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
               }, transparent)`
             }}
             animate={{ rotate: isExpanded ? 360 : 0 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
           />
         </motion.button>
 
@@ -151,7 +151,7 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
               initial={{ opacity: 0, scale: 0.8, x: 50 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
               exit={{ opacity: 0, scale: 0.8, x: 50 }}
-              transition={{ duration: 0.3, staggerChildren: 0.05 }}
+              transition={{ duration: 1, staggerChildren: 0.1 }}
             >
               {layerData.map((layer, index) => {
                 const IconComponent = layer.icon;
@@ -176,7 +176,7 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
                           initial={{ opacity: 0, x: 20, scale: 0.9 }}
                           animate={{ opacity: 1, x: 0, scale: 1 }}
                           exit={{ opacity: 0, x: 20, scale: 0.9 }}
-                          transition={{ duration: 0.2 }}
+                          transition={{ duration: 1 }}
                         >
                           <div className="bg-black/90 backdrop-blur-md px-3 py-2 rounded-lg
                                         border border-white/20 text-white text-sm whitespace-nowrap
@@ -221,7 +221,7 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
                       }}
                       whileHover={{ 
                         scale: 1.1,
-                        transition: { duration: 0.2 }
+                        transition: { duration: 1 }
                       }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -237,8 +237,8 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
                             scale: [1, 1.1, 1],
                           }}
                           transition={{
-                            rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-                            scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+                            rotate: { duration: 4, repeat: Infinity, ease: "linear" },
+                            scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
                           }}
                         />
                       )}
@@ -265,7 +265,7 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
                             scale: [1, 1.05, 1],
                           }}
                           transition={{
-                            duration: 2,
+                            duration: 4,
                             repeat: Infinity,
                             ease: "easeInOut"
                           }}
@@ -284,7 +284,7 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
                             opacity: [0, 0.6, 0],
                           }}
                           transition={{
-                            duration: 3,
+                            duration: 6,
                             repeat: Infinity,
                             ease: "easeInOut",
                             delay: index * 0.2

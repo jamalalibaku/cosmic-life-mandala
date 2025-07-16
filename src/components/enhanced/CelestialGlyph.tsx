@@ -219,7 +219,7 @@ export const CelestialGlyph: React.FC<CelestialGlyphProps> = ({
       {/* Flicker field - subtle background sparkle */}
       {Array.from({length: 3}).map((_, i) => {
         const flickerRadius = size * (2.5 + i * 0.8);
-        const flickerAngle = (Date.now() * 0.001 + i * 0.7) % (Math.PI * 2);
+        const flickerAngle = (Math.floor(Date.now() / 1000) + i * 0.7) % (Math.PI * 2);
         const flickerX = x + Math.cos(flickerAngle) * flickerRadius;
         const flickerY = y + Math.sin(flickerAngle) * flickerRadius;
         

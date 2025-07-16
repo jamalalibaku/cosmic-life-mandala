@@ -46,15 +46,15 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
   useEffect(() => {
     if (!reflectivePlayback) return;
     
-    const startTime = Date.now();
+    const startTime = Math.floor(Date.now() / 1000);
     const animate = () => {
-      const elapsed = (Date.now() - startTime) / 1000;
+      const elapsed = Math.floor(Date.now() / 1000) - startTime;
       setPlaybackTime(elapsed);
-      requestAnimationFrame(animate);
+      setTimeout(animate, 1000);
     };
     
-    const animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
+    const timeoutId = setTimeout(animate, 1000);
+    return () => clearTimeout(timeoutId);
   }, [reflectivePlayback]);
 
   // Store previous scale for dolly-zoom transition
@@ -68,11 +68,11 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
     setIsTransitioning(true);
     setTransitionProgress(0);
     
-    const duration = 2000; // Extended for cinematic effect
-    const startTime = Date.now();
+    const duration = 2; // 2 seconds for cinematic effect
+    const startTime = Math.floor(Date.now() / 1000);
     
     const animate = () => {
-      const elapsed = Date.now() - startTime;
+      const elapsed = Math.floor(Date.now() / 1000) - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
       // Triple-phase golden ratio easing for scale → morph → settle
@@ -93,14 +93,14 @@ export const FractalTimeZoomManager: React.FC<FractalTimeZoomManagerProps> = ({
       setTransitionProgress(easedProgress);
       
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        setTimeout(animate, 1000);
       } else {
         setIsTransitioning(false);
         setTransitionProgress(0);
       }
     };
     
-    requestAnimationFrame(animate);
+    setTimeout(animate, 1000);
     onScaleChange(targetScale);
   }, [currentScale, isTransitioning, onScaleChange]);
 

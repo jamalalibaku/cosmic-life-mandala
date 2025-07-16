@@ -14,7 +14,7 @@ export const PerformanceMonitor: React.FC<{ showDetails?: boolean }> = ({ showDe
   useEffect(() => {
     if (metrics.frameRate < 50 || activeAnimationCount > 8) {
       setIsVisible(true);
-      const timer = setTimeout(() => setIsVisible(false), 5000);
+      const timer = setTimeout(() => setIsVisible(false), 10000); // 10 seconds
       return () => clearTimeout(timer);
     }
   }, [metrics.frameRate, activeAnimationCount]);

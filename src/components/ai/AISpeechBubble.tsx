@@ -51,7 +51,7 @@ export const AISpeechBubble: React.FC<AISpeechBubbleProps> = ({
           // Start dismiss timer after typing completes
           dismissTimer.current = setTimeout(() => {
             onDismiss();
-          }, 6000);
+          }, 6000); // 6 seconds
         }
       }, 30); // Typing speed
 
@@ -204,7 +204,7 @@ export const AISpeechBubble: React.FC<AISpeechBubbleProps> = ({
             }}
             onMouseLeave={() => {
               if (!isTyping) {
-                dismissTimer.current = setTimeout(onDismiss, 2000);
+                dismissTimer.current = setTimeout(onDismiss, 5000); // 5 seconds
               }
             }}
           />
