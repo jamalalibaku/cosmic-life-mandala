@@ -3,7 +3,7 @@
  * Simple geometric representation for data points
  */
 
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/NoAnimationMotion';
 import { useMemo } from 'react';
 import { useMouseProximity } from '@/hooks/useMouseProximity';
 

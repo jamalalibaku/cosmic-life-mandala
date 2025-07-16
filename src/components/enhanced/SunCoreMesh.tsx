@@ -3,7 +3,7 @@
  * Creates a living light field where data values shape intersecting grids
  */
 
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/NoAnimationMotion';
 import { useMemo, useRef, useEffect } from 'react';
 import { useMouseProximity } from '@/hooks/useMouseProximity';
 

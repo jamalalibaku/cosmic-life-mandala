@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/ui/NoAnimationMotion';
 import { 
   Sun, 
   Calendar, 
@@ -144,7 +144,7 @@ export const LayerButtonMenu: React.FC<LayerButtonMenuProps> = ({
         </motion.button>
 
         {/* Layer Buttons */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           {isExpanded && (
             <motion.div
               className="flex flex-col gap-3"

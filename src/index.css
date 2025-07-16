@@ -148,17 +148,17 @@
     animation: css-float 6s ease-in-out infinite;
   }
 
-  /* Performance-aware animations - can be disabled */
+  /* Performance-aware animations - disabled */
   .animate-performance-breathe {
-    animation: css-breathe 4s ease-in-out infinite;
+    /* animation disabled */
   }
 
   .animate-performance-pulse {
-    animation: css-pulse-soft 2s ease-in-out infinite;
+    /* animation disabled */
   }
 
   .animate-performance-rotate {
-    animation: css-rotate-slow 20s linear infinite;
+    /* animation disabled */
   }
 
   /* Disable animations in performance mode */

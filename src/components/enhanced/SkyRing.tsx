@@ -5,7 +5,7 @@
  */
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/NoAnimationMotion';
 import { enhancedWeatherData } from '../../data/enhanced-weather-data';
 import { createHarmonicField, calculateHarmonicInfluence, createDataWaveSources } from '../../utils/cosmic-wave-harmonics';
 

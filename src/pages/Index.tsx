@@ -224,10 +224,10 @@ const IndexContent = () => {
 
   // Time drift hook for breathing and rotation with poetry mode adjustments
   const timeDrift = useTimeDrift({
-    enabled: true,
-    speed: poetryMode ? 0.7 : 1, // Slower in poetry mode
-    breathingEnabled: true,
-    breathingIntensity: poetryMode ? 0.025 : 0.015 // More breathing in poetry mode
+    enabled: false,
+    speed: 0,
+    breathingEnabled: false,
+    breathingIntensity: 0
   });
 
   // Calculate current life metrics for mood engine
@@ -305,7 +305,7 @@ const IndexContent = () => {
           <SunAuraRing
             centerX={centerX}
             centerY={centerY}
-            radius={timeDrift.applyBreathing(55)}
+            radius={55}
             theme={currentTheme}
             isPlaybackActive={showPlayback}
             activeLayerRadius={scale === 'day' ? 340 : 320}
@@ -993,7 +993,7 @@ const IndexContent = () => {
         {Array.from({ length: 50 }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-0.5 h-0.5 bg-primary/40 rounded-full animate-pulse"
+            className="absolute w-0.5 h-0.5 bg-primary/40 rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
