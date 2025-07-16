@@ -13,7 +13,7 @@ import { CosmicSunburstLayer } from '@/components/cosmic-sunburst-layer';
 
 import { VanGoghMandalaView } from '@/components/mandala/VanGoghMandalaView';
 import { VanGoghView } from '@/components/van-gogh/VanGoghView';
-import { DataBlobRing } from '@/components/data-blob-ring';
+
 import { UserCore } from '@/components/user-core';
 import { FriendOrbitRing } from '@/components/friend-orbit-ring';
 import { RadialInsightsOverlay } from '@/components/radial-insights-overlay';
@@ -48,7 +48,7 @@ import { InsightOrbitRing } from '@/components/insight-orbit-ring';
 import { MoonPhaseMarker } from '@/components/moon-phase-marker';
 import { LayerPopOutPanel } from '@/components/LayerPopOutPanel';
 import { DataLayerLabels } from '@/components/data-layer-labels';
-import { ReactiveDataBlobRing } from '@/components/enhanced/ReactiveDataBlobRing';
+import { DataBlobRing } from '@/components/enhanced/DataBlobRing';
 import { SunCoreMesh } from '@/components/enhanced/SunCoreMesh';
 import { CelestialGlyph } from '@/components/enhanced/CelestialGlyph';
 
@@ -432,7 +432,7 @@ const IndexContent = () => {
                 />
               </defs>
               <g filter="url(#mobility-groove-filter)">
-                <ReactiveDataBlobRing
+                <DataBlobRing
                   data={mockMobilityData as any}
                   centerX={centerX}
                   centerY={centerY}
