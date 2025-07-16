@@ -28,7 +28,7 @@ import { SmoothFlowProvider } from '@/components/performance/SmoothFlowProvider'
 import { AdaptivePerformanceProvider } from '@/components/performance/AdaptivePerformanceManager';
 import { PerformanceModeProvider, usePerformanceMode } from '@/components/performance/PerformanceModeProvider';
 import { PerformanceModeToggle } from '@/components/performance/PerformanceModeToggle';
-import { AICharacterProvider } from '@/hooks/useAICharacter';
+
 
 import { SkyArcGradient } from '@/components/sky-arc-gradient';
 import { MusicalNowIndicator } from '@/components/interactions/MusicalNowIndicator';
@@ -1208,7 +1208,6 @@ const Index = () => {
         <SmoothFlowProvider showPerformanceMonitor={process.env.NODE_ENV === 'development'}>
         <PerformanceOptimizer>
           <VisualSkinProvider defaultTheme="cosmic">
-            <AICharacterProvider>
               <TimeAxisProvider>
                 <PhaseTransitionManager 
                   userProfile={{ totalInteractions: 0, discoveredCorrelations: [], layerPreferences: {}, behaviorPatterns: { explorationStyle: 'gentle' }, lastActiveDate: new Date().toISOString() }}
@@ -1221,7 +1220,6 @@ const Index = () => {
                 </PhaseTransitionManager>
                 <ThemeHaikuDisplay />
               </TimeAxisProvider>
-            </AICharacterProvider>
           </VisualSkinProvider>
         </PerformanceOptimizer>
         </SmoothFlowProvider>
