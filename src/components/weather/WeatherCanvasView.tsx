@@ -68,25 +68,8 @@ export const WeatherCanvasView: React.FC<WeatherCanvasViewProps> = ({
 
   return (
     <div className={`relative w-full h-80 overflow-hidden rounded-lg ${className}`}>
-      {/* Background starfield */}
+      {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-800 to-amber-900/30">
-        {/* Stars */}
-        {Array.from({ length: 50 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-yellow-200 rounded-full opacity-60"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 60}%`,
-            }}
-            animate={{ opacity: [0.3, 1, 0.3] }}
-            transition={{ 
-              duration: 2 + Math.random() * 3,
-              repeat: Infinity,
-              delay: Math.random() * 2
-            }}
-          />
-        ))}
       </div>
 
       {/* Main SVG Canvas */}

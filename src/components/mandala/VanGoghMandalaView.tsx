@@ -11,7 +11,7 @@ import { CoreCircle } from "@/components/mandala/CoreCircle";
 import { VanGoghEmotionalRibbon } from "./VanGoghEmotionalRibbon";
 import { VanGoghSleepRing } from "./VanGoghSleepRing";
 import { VanGoghMobilityComet } from "./VanGoghMobilityComet";
-import { VanGoghStarryBackground } from "./VanGoghStarryBackground";
+
 import { RadialUIDemo } from "../ui/RadialUIDemo";
 
 // Structured data following mandala pattern
@@ -51,8 +51,6 @@ export const VanGoghMandalaView = () => {
   return (
     <div className="w-full h-full min-h-screen flex items-center justify-center relative overflow-hidden">
       
-      {/* Van Gogh Starry Background */}
-      <VanGoghStarryBackground />
       
       <motion.svg
         viewBox="-350 -350 700 700"

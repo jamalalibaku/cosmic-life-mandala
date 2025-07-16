@@ -51,8 +51,6 @@ import { DataLayerLabels } from '@/components/data-layer-labels';
 import { ReactiveDataBlobRing } from '@/components/enhanced/ReactiveDataBlobRing';
 import { SunCoreMesh } from '@/components/enhanced/SunCoreMesh';
 import { CelestialGlyph } from '@/components/enhanced/CelestialGlyph';
-import { InvisibleDiscoBall } from '@/components/enhanced/InvisibleDiscoBall';
-import { MidnightFirework } from '@/components/enhanced/MidnightFirework';
 
 import { ZoomMenuButton } from '@/components/navigation/ZoomMenuButton';
 import { ToolsMenuButton } from '@/components/navigation/ToolsMenuButton';
@@ -625,20 +623,6 @@ const IndexContent = () => {
           />
         )}
          
-        {/* Invisible Disco Ball - subtle sparkle field */}
-        <InvisibleDiscoBall
-          centerX={centerX}
-          centerY={centerY}
-          radius={250}
-          intensity={0.6 + (currentMood?.intensity || 0) * 0.4}
-          sparkleCount={20}
-          isActive={!reflectiveMode}
-        />
-        
-        <MidnightFirework
-          centerX={centerX}
-          centerY={centerY}
-        />
 
         {/* Ripple Consciousness Visualization */}
         <RippleVisualization
