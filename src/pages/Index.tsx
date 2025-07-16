@@ -4,7 +4,7 @@
  * Built by ChatGPT & Lovable · MIT Licensed
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { TimeAxisProvider } from '@/contexts/TimeAxisContext';
 import WeatherSunburst from '@/components/weather-sunburst';
 import { EnhancedWeatherRing } from '@/components/enhanced/EnhancedWeatherRing';
@@ -199,8 +199,8 @@ const IndexContent = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [poetryMode, persistentDebugMode]);
 
-  // Time navigation handler
-  const handleTimeNavigate = (direction: 'past' | 'future') => {
+  // Optimized time navigation handler with useCallback
+  const handleTimeNavigate = useCallback((direction: 'past' | 'future') => {
     const newDate = new Date(currentDate);
     const multiplier = direction === 'future' ? 1 : -1;
     
@@ -220,7 +220,7 @@ const IndexContent = () => {
     }
     
     setCurrentDate(newDate);
-  };
+  }, [currentDate, timeScale]);
 
   // Time drift hook for breathing and rotation with poetry mode adjustments
   const timeDrift = useTimeDrift({
@@ -230,17 +230,17 @@ const IndexContent = () => {
     breathingIntensity: 0
   });
 
-  // Calculate current life metrics for mood engine
-  const currentMetrics = {
+  // Memoized life metrics calculation to prevent recalculation on every render
+  const currentMetrics = useMemo(() => ({
     sleepQuality: mockSleepData.reduce((sum, d) => sum + d.intensity, 0) / mockSleepData.length,
     planDensity: 0.6, // Mock value
     weatherCondition: (mockWeatherToday[0]?.condition === 'storm' ? 'stormy' : 
                       mockWeatherToday[0]?.condition || 'sunny') as 'sunny' | 'cloudy' | 'rainy' | 'stormy',
     mobilityLevel: mockMobilityData.reduce((sum, d) => sum + d.intensity, 0) / mockMobilityData.length
-  };
+  }), []);
 
-  // Generate AI insights
-  const aiInsights = generateInsights({
+  // Memoized AI insights generation
+  const aiInsights = useMemo(() => generateInsights({
     mood: mockMoodData,
     sleep: mockSleepData,
     mobility: mockMobilityData,
@@ -252,7 +252,7 @@ const IndexContent = () => {
     })),
     timeScale,
     theme: currentTheme
-  });
+  }), [timeScale, currentTheme]);
 
   const renderTimelineContent = ({ scale, transitionProgress, zoomLevel, isTransitioning }: {
     scale: TimeScale;
