@@ -27,10 +27,8 @@ export const MysticalSoulCore: React.FC<MysticalSoulCoreProps> = ({
   // Enhanced wobble using Perlin-like noise to avoid loops
   const [time, setTime] = React.useState(0);
   React.useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(t => t + 0.016); // ~60fps
-    }, 16);
-    return () => clearInterval(interval);
+    // Disabled interval - no constant updates needed
+    return () => {};
   }, []);
   
   // Generate colors based on mood/sleep data

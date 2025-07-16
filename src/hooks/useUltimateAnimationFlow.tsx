@@ -93,15 +93,10 @@ export const useUltimateAnimationFlow = () => {
     animationFrame.current = requestAnimationFrame(monitorPerformance);
   }, [activeAnimations.size]);
 
-  // Start performance monitoring
+  // Disabled performance monitoring
   useEffect(() => {
-    monitorPerformance();
-    return () => {
-      if (animationFrame.current) {
-        cancelAnimationFrame(animationFrame.current);
-      }
-    };
-  }, [monitorPerformance]);
+    return () => {};
+  }, []);
 
   // Register animation with intelligent queueing
   const registerAnimation = useCallback((

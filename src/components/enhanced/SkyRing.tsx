@@ -182,24 +182,8 @@ export const SkyRing: React.FC<SkyRingProps> = ({
   useEffect(() => {
     let animationId: number;
     
-    const animate = () => {
-      const now = Date.now();
-      setHarmonicTime(now);
-      setWaveSourceTime(now * 0.001); // Slower time scale for waves
-      animationId = requestAnimationFrame(animate);
-    };
-    
-    // Smooth 60fps updates with controlled time progression
-    const interval = setInterval(() => {
-      animationId = requestAnimationFrame(animate);
-    }, 16); // ~60fps but with controlled time stepping
-    
-    return () => {
-      clearInterval(interval);
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
-    };
+    // Disabled animation loops - no constant updates needed
+    return () => {};
   }, []);
 
   // Generate ray path with Mexican wave harmonics

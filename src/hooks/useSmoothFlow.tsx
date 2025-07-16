@@ -63,8 +63,8 @@ export const useSmoothFlow = () => {
       performanceRef.current.lastCheck = now;
     };
 
-    const interval = setInterval(checkPerformance, 16); // ~60fps monitoring
-    return () => clearInterval(interval);
+    // Disabled performance monitoring interval
+    return () => {};
   }, []);
 
   // Get optimized transition duration based on performance

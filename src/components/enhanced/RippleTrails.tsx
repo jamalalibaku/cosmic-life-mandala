@@ -33,23 +33,8 @@ export const RippleTrails: React.FC<RippleTrailsProps> = ({
   useEffect(() => {
     if (themeConfig.name !== 'Mandala Expressive') return;
 
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) { // 30% chance per cycle
-        const angle = Math.random() * 2 * Math.PI;
-        const radius = 50 + Math.random() * 150;
-        const newRipple: RippleTrail = {
-          id: `ripple-${Date.now()}-${Math.random()}`,
-          x: center.x + Math.cos(angle) * radius,
-          y: center.y + Math.sin(angle) * radius,
-          intensity: breathing * 0.8 + 0.2,
-          layer: ['mood', 'sleep', 'mobility', 'weather'][Math.floor(Math.random() * 4)]
-        };
-
-        setRipples(prev => [...prev.slice(-3), newRipple]); // Keep max 4 ripples
-      }
-    }, 2000);
-
-    return () => clearInterval(interval);
+    // Disabled ripple generation interval
+    return () => {};
   }, [breathing, center, themeConfig.name]);
 
   if (themeConfig.name !== 'Mandala Expressive') return null;
